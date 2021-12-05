@@ -1,5 +1,11 @@
 module Ingolstadt
 
-greet() = print("Hello World!")
+export cheers
 
-end # module
+function cheers( n::Int=3)
+	c = n+2
+	println( c, " cheers for You!!")
+	c
+end
+
+end
