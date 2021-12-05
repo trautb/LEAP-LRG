@@ -1,7 +1,7 @@
 name = "Ingolstadt"
 uuid = "8afa4a05-0e32-41c3-99a3-245b132d4946"
 authors = ["Niall Palfreyman <80033589+NiallPalfreyman@users.noreply.github.com>"]
-version = "0.0.2"
+version = "0.0.1"
 
 [deps]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
