@@ -4,10 +4,9 @@
 
 Ingolstadt Evolving Computation Project
 
-This is the central switchboard for the Ingolstadt project,
-which will build gradually into a full-scale course in using
-Julia to implement evolutionary solutions to understanding
-the world.
+This is the central switchboard for the Ingolstadt project, which will build
+gradually into a full-scale course in using Julia to implement evolutionary
+and rheolectic solutions to understanding the world.
 
 Author: Niall Palfreyman, 7/12/2021
 """
@@ -37,8 +36,11 @@ Welcome to the wonderful world of Ingolstadt!! 😃
 """
 function letsGo!( n::Int=0)
 	if n ≤ 0
-		println( "Welcome to the wonderful wirld of Ingolstadt!! \😃")
+		# Feel free to personalise this welcome message!
+		println( "Welcome to the wonderful wirld of Ingolstadt!! 😃")
+	else
+		include( joinpath( dirname(@__FILE__), "INLab001.jl"))
 	end
 end
 
-end; # Ingolstadt
+end # Ingolstadt
