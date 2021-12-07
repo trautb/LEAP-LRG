@@ -1,30 +1,44 @@
+#=============================================================================#
+"""
+	Ingolstadt
+
+Ingolstadt Evolving Computation Project
+
+This is the central switchboard for the Ingolstadt project,
+which will build gradually into a full-scale course in using
+Julia to implement evolutionary solutions to understanding
+the world.
+
+Author: Niall Palfreyman, 7/12/2021
+"""
 module Ingolstadt
 
-export cheers
+export letsGo!
 
 """
-    cheers(n)
+	letsGo!(n)
 
-Add 2 to the number of cheers.
+Initiate an Ingolstadt session.
 
-A more detailed explanation can go here.
+Start playing in laboratory n. If n is zero or absent,
+print a welcome message with further instructions.
 
 # Arguments
-* `n`: The number to which we add 2
+* `n`: The laboratory we wish to play in.
 
 # Notes
-* Notes can go here
+* This module is a work in progress 😃 ...
 
 # Examples
 ```julia
-julia> five = plusTwo(3)
-5
+julia> letsGo!()
+Welcome to the wonderful world of Ingolstadt!! 😃
 ```
 """
-function cheers( n::Int)
-	c = n+2
-	println( c, " cheers for You!!")
-	c
+function letsGo!( n::Int=0)
+	if n ≤ 0
+		println( "Welcome to the wonderful wirld of Ingolstadt!! \😃")
+	end
 end
 
-end
+end; # Ingolstadt
