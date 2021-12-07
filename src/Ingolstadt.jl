@@ -12,6 +12,8 @@ Author: Niall Palfreyman, 7/12/2021
 """
 module Ingolstadt
 
+using Pluto
+
 export letsGo!
 
 """
@@ -35,11 +37,16 @@ Welcome to the wonderful world of Ingolstadt!! 😃
 ```
 """
 function letsGo!( n::Int=0)
+	# Get path to Ingolstadt root:
+	root = normpath(joinpath(dirname(@__FILE__),".."))
+
 	if n ≤ 0
 		# Feel free to personalise this welcome message!
-		println( "Welcome to the wonderful wirld of Ingolstadt!! 😃")
+		println( "Welcome to the wonderful world of Ingolstadt!! 😃")
+	elseif n == 1
+		include( joinpath( root, "Labs", "INLab001.jl"))
 	else
-		include( joinpath( dirname(@__FILE__), "INLab001.jl"))
+		Pluto.run(notebook=joinpath( root, "Labs", "INLab002.jl"))
 	end
 end
 
