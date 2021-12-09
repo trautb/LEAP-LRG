@@ -1,4 +1,4 @@
-#=============================================================================#
+#========================================================================================#
 """
 	Ingolstadt
 
@@ -12,42 +12,98 @@ Author: Niall Palfreyman, 7/12/2021
 """
 module Ingolstadt
 
+# The externally callable methods of Ingolstadt:
+export letsgo!, gimme, reply
+
+# We want to be able to use Pluto notebooks:
 using Pluto
 
-export letsGo!
+#-----------------------------------------------------------------------------------------
+# Module fields:
+
+# Definition of Laboratory structure - ignore this for now:
+include("Laboratory.jl")
+
+session = Session("001",1,[])					# The initial session
+
+#-----------------------------------------------------------------------------------------
+# Module methods:
 
 """
-	letsGo!(n)
+	letsgo!(user = "")
 
-Initiate an Ingolstadt session.
+Initiate an Ingolstadt session for the given user.
 
-Start playing in laboratory n. If n is zero or absent,
-print a welcome message with further instructions.
+Establish the name of the user, then look up whether we possess
+persistent registry information on that user. If not, create a new
+registry entry for the user. In either case, decide which laboratory
+and current exercise this user requires, and set up the session
+accordingly.
 
 # Arguments
-* `n`: The laboratory we wish to play in.
+* `user`: The name of the individual logging into session.
 
 # Notes
 * This module is a work in progress 😃 ...
 
 # Examples
 ```julia
-julia> letsGo!()
-Welcome to the wonderful world of Ingolstadt!! 😃
+julia> letsgo!("Niall")
+Welcome, Niall!! 😃 Let's continue ...
 ```
 """
-function letsGo!( n::Int=0)
-	# Get path to Ingolstadt root:
-	root = normpath(joinpath(dirname(@__FILE__),".."))
+function letsgo!(; user::String = "", seshin = session)
+	# Get path to Ingolstadt labs and user registry:
+	labpath = normpath(joinpath(dirname(@__FILE__),"..","Labs"))
+	usrpath = normpath(joinpath(dirname(@__FILE__),"..","User"))
 
-	if n ≤ 0
-		# Feel free to personalise this welcome message!
-		println( "Welcome to the wonderful world of Ingolstadt!! 😃")
-	elseif n == 1
-		include( joinpath( root, "Labs", "INLab001.jl"))
+	if isempty(user)
+		# Welcome user and request name:
+		println( "Welcome to the pedagogical playground of Ingolstadt!! 😃")
+		print( "Hi - I'm Ingo! What's your name?  ")
+		user = readline()
 	else
-		Pluto.run(notebook=joinpath( root, "Labs", "INLab002.jl"))
+		# Welcome named user:
+		println( "Welcome, ", user, "!! Let's get moving, shall we? 😃")
 	end
+	
+	# Open user record, then initialise userrecord:
+	usrfile = user * ".usr"
+	if !(usrfile in readdir(usrpath))
+		# Register info for new user:
+		stream = open(joinpath(usrpath,usrfile),"w")
+		println(stream, "000")		# Initial laboratory
+		println(stream, "1")		# Initial exercise
+		close(stream)
+	end
+	usrfile = joinpath(usrpath,usrfile)
+	stream = open(usrfile)
+	seshin.laboratory = lpad(readline(stream),3,'0')
+	seshin.currentex = parse(Int,readline(stream))
+	close(stream)
+
+	# Check whether lab is a Pluto file and open accordingly:
+	labfile = joinpath( labpath, "INLab" * seshin.laboratory * ".jl")
+	stream = open(labfile)
+	ispluto = occursin("Pluto.jl notebook",readline(stream))
+	close(stream)
+
+	if ispluto
+		# Open a Pluto lab:
+		Pluto.run(notebook=labfile)
+	else
+		# Open a Julia lab:
+		seshin.exercises = include(labfile)
+	end
+end
+
+function gimme()
+	set(laboratory[nexercise])
+end
+
+function reply( ans)
+	answer(laboratory[nexercise],ans)
+	nexercise += 1
 end
 
 end # Ingolstadt
