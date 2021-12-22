@@ -1,8 +1,13 @@
 [
 	Exercise(
-		"What is Niall's favourite number?",
-		"5",
-		x -> (x==5)
+		"""
+		At the Julia prompt, enter the following code:
+		city = "Ingolstadt"
+		Then enter your answer as:
+		reply(city)
+		""",
+		"Ingolstadt",
+		x -> (x=="Ingolstadt")
 	),
 	Exercise(
 		"What instrument does Niall play?",
