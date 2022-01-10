@@ -100,8 +100,8 @@ function letsgo!( learner::String = "", seshin::Session = session)
 		seshin.activities = include(lab_file)
 	end
 	println( "OK, I've just set up the lab session for you.")
-	println( "Enter help() in the Julia console at any time to see your options.")
-	println( "Have fun! :-)")
+	println( "Enter help() in the Julia console at any time to see your options, and enter")
+	println( "hint() to get support on the current learning activity. Have fun! :-)")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -249,4 +249,5 @@ end # End of Module Ingolstadt
 # Initialisation code:
 using .Ingolstadt
 
+# Comment out the following line when executing/debugging within VSC:
 Ingolstadt.letsgo!()						# Initiate the currently saved session
