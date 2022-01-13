@@ -19,7 +19,7 @@ An Activity is the basic unit of learning in Ingolstadt. It contains ...
 # Fields
 * `affordance`	: Text affording an activity to the learner.
 * `hint`		: Text suggesting to the learner how to respond to the affordance.
-* `success`		: Criterion for a successful response by the learner.
+* `success`		: Boolean function that defines the criteria for a successful learner response.
 
 # Notes
 * None
@@ -91,15 +91,23 @@ evaluate( act::Activity, response)
 Apply the success criterion of the activity to the given response from a learner.
 """
 function evaluate( act::Activity, response)
-	if act.success(response)
+	success = true
+	try
+		success = act.success(response)
+	catch e
+		# Response is badly wrong:
+		success = false
+	end
+
+	if success
 		# Success criterion is fulfilled:
 		congratulate()
-		true
 	else
 		# Success criterion is not fulfilled:
 		commiserate( act)
-		false
 	end
+
+	success
 end
 
 #-----------------------------------------------------------------------------------------

@@ -249,7 +249,7 @@
 	Activity(
 		"""
 		And now one final Activity for you: Can you add a new type of Organism called
-		Grass, and arrange for rabia to eat it? It is possible to do this in just 3-4
+		Grass, and arrange for Rabia to eat it? It is possible to do this in just 3-4
 		new lines of code.
 		""",
 		"encounter(meeter::Rabbit,meetee::Grass) = \"eats\"",

@@ -50,9 +50,11 @@ julia> letsgo!("Niall")
 Hi Niall! 😃 Let's get going, shall we? ...
 ```
 """
-function letsgo!( learner::String = "", seshin::Session = session)
+function letsgo( learner::String = "")
+	global session					# We're setting up the global session
+
 	# Create path to Ingolstadt labs and learner registry:
-	seshin.lab_path = normpath(joinpath(dirname(@__FILE__),"..","Labs"))
+	session.lab_path = normpath(joinpath(dirname(@__FILE__),"..","Labs"))
 	lnrpath = normpath(joinpath(dirname(@__FILE__),"..","Learners"))
 
 	# Establish learner:
@@ -65,30 +67,30 @@ function letsgo!( learner::String = "", seshin::Session = session)
 	println( "\nHi ", learner, "! Wait just half a second ... \n")
 	
 	# Establish lnr_file:
-	seshin.lnr_file = joinpath( lnrpath, learner*".lnr")
-	if !(isfile(seshin.lnr_file))
+	session.lnr_file = joinpath( lnrpath, learner*".lnr")
+	if !(isfile(session.lnr_file))
 		# Register info for new learner:
-		stream = open(seshin.lnr_file,"w")
+		stream = open(session.lnr_file,"w")
 		println(stream, "1")		# Initial laboratory
 		println(stream, "1")		# Initial activity
 		close(stream)
 	end
 
 	# Grab information on learner's current progress:
-	stream = open(seshin.lnr_file)
+	stream = open(session.lnr_file)
 	laboratory = lpad(readline(stream),3,'0')[1:3]
-	seshin.lab_num = parse(Int,laboratory)
-	seshin.current_act = parse(Int,readline(stream))
+	session.lab_num = parse(Int,laboratory)
+	session.current_act = parse(Int,readline(stream))
 	close(stream)
 
 	# Establish labfile:
-	lab_file = labfile( seshin.lab_path, seshin.lab_num)
+	lab_file = labfile( session.lab_path, session.lab_num)
 	stream = open(lab_file)
-	seshin.is_pluto = occursin("Pluto.jl notebook",readline(stream))
+	session.is_pluto = occursin("Pluto.jl notebook",readline(stream))
 	close(stream)
 
 	# Open lab_file and offer help:
-	if seshin.is_pluto
+	if session.is_pluto
 		# Open a Pluto lab:
 		@async Pluto.run(notebook=lab_file)
 		println( "You're running a Pluto lab. After it has loaded, you can press Ctrl-C")
@@ -97,7 +99,7 @@ function letsgo!( learner::String = "", seshin::Session = session)
 		println()
 	else
 		# Open a Julia lab:
-		seshin.activities = include(lab_file)
+		session.activities = include(lab_file)
 	end
 	println( "OK, I've just set up the lab session for you.")
 	println( "Enter help() in the Julia console at any time to see your options, and enter")
@@ -118,7 +120,7 @@ function help()
 	println( "   reply(response) : Submit a response to the current activity")
 	println( "   save()          : Save the current status of this session")
 	println( "   nextlab()       : Move to the next lab (then restart Julia before continuing!)")
-	println( "   letsgo!()       : Start a new session")
+	println( "   letsgo()        : Start a new session")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -169,12 +171,12 @@ function reply( response)
 	# Whether response was correct or incorrect, we're moving to the next activity:
 	println( "Let's move on ...")
 	println()
-	nextex()
+	nextact()
 end
 
 #-----------------------------------------------------------------------------------------
 """
-	nextex( activity)
+	nextact( activity)
 
 Move to the next activity.
 
@@ -213,7 +215,7 @@ function nextlab( lab::Int = 0)
 		lab = session.lab_num + 1
 	end
 
-	if lab > length(readdir(session.lab_path))
+	if !isfile(labfile(session.lab_path,lab))
 		# lab number is greater than the number of lab files available in directory:
 		println("Sorry: Lab number $(lab) is invalid.")
 	else
@@ -225,7 +227,7 @@ function nextlab( lab::Int = 0)
 
 	# Friendly closing greeting to the learner:
 	println( "Great - that's the end of this lab - I've saved your current status.")
-	println( "I recommend restarting Julia to move on to the next lab. 'Bye for now! :-)")
+	println( "Please restart Julia to move on to the next lab. 'Bye for now! :-)")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -237,7 +239,7 @@ Save the status of the current session.
 Write lab_file and current_act to the usr file.
 """
 function save()
-	stream = open(session.usr_file,"w")
+	stream = open(session.lnr_file,"w")
 	println(stream, session.lab_num)		# Save current laboratory
 	println(stream, session.current_act)	# Save current activity
 	close(stream)
@@ -250,4 +252,4 @@ end # End of Module Ingolstadt
 using .Ingolstadt
 
 # Comment out the following line when executing/debugging within VSC:
-Ingolstadt.letsgo!()						# Initiate the currently saved session
+Ingolstadt.letsgo()							# Initialise persistently saved session

@@ -269,8 +269,16 @@
 	),
 	Activity(
 		"""
-		We can convert numbers to strings, for example: string(2.718). What result do
-		you get if you enter parse(Float64,string(2.718))
+		We can convert numbers to strings. For example, what result do you get if
+		you enter string(2.718)?
+		""",
+		"You're on your own here. :-)",
+		x -> x == "2.718"
+	),
+	Activity(
+		"""
+		And converting back again, what result do you get if you enter
+		parse(Float64,"2.718")?
 		""",
 		"parse() parses argument 2 according to the type of argument 1.",
 		x -> x == 2.718
