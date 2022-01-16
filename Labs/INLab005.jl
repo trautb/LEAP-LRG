@@ -10,7 +10,8 @@
 		"""
 		Laboratory 5:
 		
-		In this laboratory we look a very important structure in Julia: arrays.
+		In this laboratory we start using the Julia Dataframes package, which gives us many
+		interesting ways to represent and analyse data. ???
 
 		""",
 		"",

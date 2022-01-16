@@ -114,13 +114,15 @@ Display a list of Ingolstadt commands.
 """
 function help()
 	println( "List of Ingolstadt commands:")
-	println( "   help()          : Display this list of options")
-	println( "   hint()          : Display a hint for the current activity")
-	println( "   gimme()         : Display the current activity")
-	println( "   reply(response) : Submit a response to the current activity")
-	println( "   save()          : Save the current status of this session")
-	println( "   nextlab()       : Move to the next lab (then restart Julia before continuing!)")
-	println( "   letsgo()        : Start a new session")
+	println( "   help()               : Display this list of options")
+	println( "   hint()               : Display a hint for the current activity")
+	println( "   gimme()              : Display the current activity")
+	println( "   reply(response=skip) : Submit a response to the current activity")
+	println( "   save()               : Save the current status of this session")
+	println( "   nextact(act=next)    : Move to the learning activity act")
+	println( "   nextlab(lab=next)    : Move to the laboratory lab ",
+											"(then restart Julia before continuing!)")
+	println( "   letsgo()             : Start a new session")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -130,7 +132,13 @@ hint( act::Activity=session.activity[session.current_act])
 Display a hint for the current activity
 """
 function hint( act::Activity=session.activities[session.current_act])
-	println( "Hint:  ", act.hint)
+	if isempty(act.hint)
+		# No hint is given - display general remorse:
+		println( "No hint available - you're on your own here, I'm afraid! :-(")
+	else
+		# Display the available hint:
+		println( "Hint:  ", act.hint)
+	end
 end
 
 #-----------------------------------------------------------------------------------------
@@ -159,16 +167,16 @@ Learner replies to the current activity with the given response.
 
 If the answer is correct, move on to the next activity; otherwise check with learner.
 """
-function reply( response)
-	if ~evaluate(session.activities[session.current_act],response)
-		# Response was unsuccessful:
+function reply( response=nothing)
+	if response !== nothing && ~evaluate(session.activities[session.current_act],response)
+		# Response is present and unsuccessful:
 		print("Do you want to try again? ")
 		if occursin("yes",lowercase(readline()))
 			return
 		end
 	end
 
-	# Whether response was correct or incorrect, we're moving to the next activity:
+	# Whether response was correct, incorrect or missing, we're moving to the next activity:
 	println( "Let's move on ...")
 	println()
 	nextact()

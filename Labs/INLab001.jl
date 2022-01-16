@@ -272,7 +272,7 @@
 		We can convert numbers to strings. For example, what result do you get if
 		you enter string(2.718)?
 		""",
-		"You're on your own here. :-)",
+		"",
 		x -> x == "2.718"
 	),
 	Activity(
