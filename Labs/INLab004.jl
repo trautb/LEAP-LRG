@@ -9,8 +9,6 @@
 [
 	Activity(
 		"""
-		Laboratory 4:
-		
 		In this laboratory we introduce several helpful Julia tools that make life a
 		little easier: Tuples, Pairs, Dicts, Symbols, Files, DateTimes, Random and downloading.
 

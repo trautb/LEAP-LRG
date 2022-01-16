@@ -81,7 +81,7 @@ pose( act::Activity)
 Present the affordance of the given Activity to the learner.
 """
 function pose( act::Activity)
-	println( act.affordance)
+	print( act.affordance)
 end
 
 #-----------------------------------------------------------------------------------------

@@ -8,8 +8,6 @@
 [
 	Activity(
 		"""
-		Laboratory 1:
-
 		Hi! In this laboratory we use activities and questions that introduce us to the basics
 		of the Julia language. Feel free to experiment at any time by entering your own
 		commands at the Julia prompt.

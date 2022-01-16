@@ -8,8 +8,6 @@
 [
 	Activity(
 		"""
-		Laboratory 3:
-		
 		In this laboratory we look at a very important structure in Julia: arrays. Once you
 		understand how arrays work, and how amazingly useful they are, you will (almost)
 		never need to write a for-loop again!

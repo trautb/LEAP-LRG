@@ -13,7 +13,7 @@ Author: Niall Palfreyman, 7/12/2021
 module Ingolstadt
 
 # Externally callable methods of Ingolstadt
-export gimme, reply, help, hint, save, nextlab, nextact
+export gimme, lab, reply, help, hint, save, nextlab, nextact
 
 using Pluto								# We want to be able to use Pluto notebooks
 
@@ -83,27 +83,8 @@ function letsgo( learner::String = "")
 	session.current_act = parse(Int,readline(stream))
 	close(stream)
 
-	# Establish labfile:
-	lab_file = labfile( session.lab_path, session.lab_num)
-	stream = open(lab_file)
-	session.is_pluto = occursin("Pluto.jl notebook",readline(stream))
-	close(stream)
-
-	# Open lab_file and offer help:
-	if session.is_pluto
-		# Open a Pluto lab:
-		@async Pluto.run(notebook=lab_file)
-		println( "You're running a Pluto lab. After it has loaded, you can press Ctrl-C")
-		println( "if you want to experiment in the Julia console while it is running.")
-		println( "Remember to call nextlab() and restart Julia when you've completed the lab.")
-		println()
-	else
-		# Open a Julia lab:
-		session.activities = include(lab_file)
-	end
-	println( "OK, I've just set up the lab session for you.")
-	println( "Enter help() in the Julia console at any time to see your options, and enter")
-	println( "hint() to get support on the current learning activity. Have fun! :-)")
+	# Open the requested labfile:
+	nextlab(session.lab_num)
 end
 
 #-----------------------------------------------------------------------------------------
@@ -116,13 +97,13 @@ function help()
 	println( "List of Ingolstadt commands:")
 	println( "   help()               : Display this list of options")
 	println( "   hint()               : Display a hint for the current activity")
-	println( "   gimme()              : Display the current activity")
+	println( "   gimme()              : Give me the current activity")
+	println( "   lab()                : Display the current laboratory number")
 	println( "   reply(response=skip) : Submit a response to the current activity")
 	println( "   save()               : Save the current status of this session")
 	println( "   nextact(act=next)    : Move to the learning activity act")
 	println( "   nextlab(lab=next)    : Move to the laboratory lab ",
 											"(then restart Julia before continuing!)")
-	println( "   letsgo()             : Start a new session")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -145,18 +126,29 @@ end
 """
 	gimme()
 
-Present learner with the next activity in this laboratory.
+Display the current activity to the learner.
 
-If the next activity is available, display it; otherwise move to next laboratory.
+If this activity is available, display it; otherwise move to next laboratory.
 """
 function gimme()
 	if session.current_act ≤ length(session.activities)
 		# There are new activities in this lab - go to the next one:
+		println("Activity ",session.current_act,":")
 		pose(session.activities[session.current_act])
 	else
 		# Current activity was the last in the lab - go to next lab:
 		nextlab()
 	end
+end
+
+#-----------------------------------------------------------------------------------------
+"""
+	lab()
+
+Display the current laboratory number to the learner.
+"""
+function lab()
+	println("Laboratory ",session.lab_num," ...")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -217,25 +209,51 @@ Move to the beginning of the next lab.
 If lab is given, move to that number lab, otherwise move to the next lab. If that takes
 you beyond the end of the available labs, stay where you are and inform the learner.
 """
-function nextlab( lab::Int = 0)
-	if lab ≤ 0
+function nextlab( lab_num::Int = 0)
+	if lab_num ≤ 0
 		# No lab given - default to next lab after the current one:
-		lab = session.lab_num + 1
+		lab_num = session.lab_num + 1
 	end
 
-	if !isfile(labfile(session.lab_path,lab))
-		# lab number is greater than the number of lab files available in directory:
-		println("Sorry: Lab number $(lab) is invalid.")
+	# Check validity of lab_file:
+	lab_file = labfile(session.lab_path,lab_num)
+	if !isfile(lab_file)
+		# The new lab_file is not available in the lab directory:
+		println("Sorry: Lab number $(lab_num) is invalid.")
+		return
+	end
+
+	# Update session information for the new laboratory:
+	session.lab_num = lab_num
+	session.current_act = 1
+	save()
+
+	# Open lab_file and offer help:
+	stream = open(lab_file)
+	session.is_pluto = occursin("Pluto.jl notebook",readline(stream))
+	close(stream)
+
+	if session.is_pluto
+		# Open a Pluto lab:
+		@async Pluto.run(notebook=lab_file)
+		println( "You're running a Pluto lab. After it has loaded, you can press Ctrl-C in the")
+		println( "Julia console if you want to experiment in Julia while the lab is running.")
+		println()
 	else
-		# Increment the number of the current laboratory:
-		session.lab_num = lab
-		session.current_act = 1
-		save()
+		# Open a Julia lab:
+		session.activities = include(lab_file)
 	end
 
-	# Friendly closing greeting to the learner:
-	println( "Great - that's the end of this lab - I've saved your current status.")
-	println( "Please restart Julia to move on to the next lab. 'Bye for now! :-)")
+	# Display welcome message to the new laboratory.
+	println( "OK, I've set up the laboratory for you. If you've just been working on another lab,")
+	println( "I recommend you restart Julia now. This will keep your environment clean and avoid")
+	println( "naming conflicts.")
+	println()
+	println( "Enter help() at any time to see the available options. Have fun! :-)")
+	println()
+
+	# Display the new laboratory number:
+	lab()
 end
 
 #-----------------------------------------------------------------------------------------
