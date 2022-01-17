@@ -196,6 +196,7 @@ function nextact( act::Int = 0)
 		gimme()
 	else
 		# We've completed last activity - go to next lab: 
+		println( "That's the end of lab ", session.lab_num, ". Just preparing the next lab ...")
 		nextlab()
 	end
 end
@@ -219,7 +220,7 @@ function nextlab( lab_num::Int = 0)
 	lab_file = labfile(session.lab_path,lab_num)
 	if !isfile(lab_file)
 		# The new lab_file is not available in the lab directory:
-		println("Sorry: Lab number $(lab_num) is invalid.")
+		println("Sorry: Lab number $(lab_num) is unavailable.")
 		return
 	end
 
@@ -245,10 +246,9 @@ function nextlab( lab_num::Int = 0)
 	end
 
 	# Display welcome message to the new laboratory.
-	println( "OK, I've set up the laboratory for you. If you've just been working on another lab,")
-	println( "I recommend you restart Julia now. This will keep your environment clean and avoid")
-	println( "naming conflicts.")
-	println()
+	println( "Fine - I've set up the laboratory for you. If you've just been working on another")
+	println( "laboratory, I recommend that you restart Julia now. This will keep your environment")
+	println( "clean and avoid naming conflicts.")
 	println( "Enter help() at any time to see the available options. Have fun! :-)")
 	println()
 
