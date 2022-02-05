@@ -117,7 +117,7 @@ congratulate()
 Provide uplifting feedback to a successful learner response.
 """
 function congratulate()
-	print( "Well done - great work! ")
+	print( "Well done - great work! :) ")
 end
 
 #-----------------------------------------------------------------------------------------

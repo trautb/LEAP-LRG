@@ -13,7 +13,7 @@ Author: Niall Palfreyman, 7/12/2021
 module Ingolstadt
 
 # Externally callable methods of Ingolstadt
-export gimme, lab, reply, help, hint, save, nextlab, nextact
+export gimme, lab, act, reply, help, hint, save, nextlab, nextact
 
 using Pluto								# We want to be able to use Pluto notebooks
 
@@ -47,7 +47,7 @@ the session accordingly.
 # Examples
 ```julia
 julia> letsgo!("Niall")
-Hi Niall! 😃 Let's get going, shall we? ...
+Hi Niall! Wait just half a second ...
 ```
 """
 function letsgo( learner::String = "")
@@ -60,7 +60,7 @@ function letsgo( learner::String = "")
 	# Establish learner:
 	if isempty(learner)
 		# Name hasn't been provided - request it:
-		println( "\nWelcome to the pedagogical playground of Ingolstadt!! 😃")
+		println( "\nWelcome to the pedagogical playground of Ingolstadt!! :)")
 		print( "My name's Ingo! What's yours?  ")
 		learner = readline()
 	end
@@ -84,7 +84,7 @@ function letsgo( learner::String = "")
 	close(stream)
 
 	# Open the requested labfile:
-	nextlab(session.lab_num)
+	nextlab(session.lab_num,session.current_act)
 end
 
 #-----------------------------------------------------------------------------------------
@@ -98,6 +98,7 @@ function help()
 	println( "   help()               : Display this list of options")
 	println( "   hint()               : Display a hint for the current activity")
 	println( "   gimme()              : Give me the current activity")
+	println( "   act()                : Display the current activity number")
 	println( "   lab()                : Display the current laboratory number")
 	println( "   reply(response=skip) : Submit a response to the current activity")
 	println( "   save()               : Save the current status of this session")
@@ -133,8 +134,8 @@ If this activity is available, display it; otherwise move to next laboratory.
 function gimme()
 	if session.current_act ≤ length(session.activities)
 		# There are new activities in this lab - go to the next one:
-		println("Activity ",session.current_act,":")
-		pose(session.activities[session.current_act])
+		act()												# Display activity number
+		pose(session.activities[session.current_act])		# Display activity text
 	else
 		# Current activity was the last in the lab - go to next lab:
 		nextlab()
@@ -149,6 +150,16 @@ Display the current laboratory number to the learner.
 """
 function lab()
 	println("Laboratory ",session.lab_num," ...")
+end
+
+#-----------------------------------------------------------------------------------------
+"""
+	act()
+
+Display the current activity number to the learner.
+"""
+function act()
+	println("Activity ",session.current_act," ...")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -195,7 +206,7 @@ function nextact( act::Int = 0)
 		save()
 		gimme()
 	else
-		# We've completed last activity - go to next lab: 
+		# We've completed last activity - go to next lab:
 		println( "That's the end of lab ", session.lab_num, ". Just preparing the next lab ...")
 		nextlab()
 	end
@@ -210,7 +221,7 @@ Move to the beginning of the next lab.
 If lab is given, move to that number lab, otherwise move to the next lab. If that takes
 you beyond the end of the available labs, stay where you are and inform the learner.
 """
-function nextlab( lab_num::Int = 0)
+function nextlab( lab_num::Int = 0, current_act::Int = 1)
 	if lab_num ≤ 0
 		# No lab given - default to next lab after the current one:
 		lab_num = session.lab_num + 1
@@ -226,7 +237,7 @@ function nextlab( lab_num::Int = 0)
 
 	# Update session information for the new laboratory:
 	session.lab_num = lab_num
-	session.current_act = 1
+	session.current_act = current_act
 	save()
 
 	# Open lab_file and offer help:

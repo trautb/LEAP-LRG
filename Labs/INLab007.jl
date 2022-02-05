@@ -1,11 +1,22 @@
-### A Pluto.jl notebook ###
-# v0.17.2
-
-using Markdown
-using InteractiveUtils
-
-# ╔═╡ 249f32b0-573c-11ec-234c-57a7c9b9fc62
-3+4
-
-# ╔═╡ Cell order:
-# ╠═249f32b0-573c-11ec-234c-57a7c9b9fc62
+#========================================================================================#
+#	Laboratory 7
+#
+# Encapsulation
+#
+# Author: Niall Palfreyman, 06/02/2022
+#========================================================================================#
+[
+	Activity(
+		"""
+		In this laboratory ???
+		""",
+		"",
+		x -> true
+	),
+	Activity(
+		"""
+		""",
+		"",
+		x -> true
+	),
+]
