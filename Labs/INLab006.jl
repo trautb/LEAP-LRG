@@ -263,46 +263,48 @@
 		Now that we have wrapped our plotting code inside the function prettyheatmap(), we can
 		easily reuse this encapsulated code to display a completely different function:
 		
-		valleys(x,y) =
-			(1/3) *						exp(-((x+1)^2 + y^2)) +
-			10 * (x/5 - x^3 - y^5) *	exp(-(x^2+y^2)) -
+		mountains(x,y) =
 			3 * (1-x)^2 *				exp(-(x^2+(y+1)^2))
-		myheatmap( valleys)
+			-(1/3) *					exp(-((x+1)^2 + y^2))
+			-10 * (x/5 - x^3 - y^5) *	exp(-(x^2+y^2))
+		myheatmap( mountains)
 
-		How many blue valleys can you see?
+		How many mountains can you see?
 		""",
-		"Just count the number of blue patches",
+		"Use the colour bar to count the number of patches where z > 0",
 		x -> x==3
 	),
 	Activity(
 		"""
-		You see how useful encapsulation (code-hiding) is: once the complicated graphics code is
-		hidden inside the function myheatmap(), we can easily reuse this encapsulated code, by
-		simply passing it the name of the function we wish to plot:
+		You see how useful it is to encapsulate (i.e.: hide) code? As soon as we have hidden the
+		complicated graphics code inside the function myheatmap(), we can easily reuse this
+		encapsulated code, by simply passing to it the name of the function we wish to plot:
 
-		Encapsulation is the central tool for abstraction in modern computer languages!
+		Encapsulation is THE CENTRAL tool for abstraction in modern computer languages!
 		
 		However, encapsulation can get broken! Before we move on to the next laboratory, I want
 		you to notice something important. Do you remember our graph of the quadratic function
 		y=x^2 that we saved in a file at the beginning of this laboratory? If you remember, we
-		saved it in a variable fig, which we should be able to look at again now, yes?
+		stored this graphic in a global variable fig, so we should be able to look at it again
+		now, yes?
 		
-		OK, so please now display the quadratic graph contained in the variable fig, and then,
-		without doing anything else, move on to the next activity in this laboratory:
+		OK, so please now display the quadratic graph contained in the global variable fig, and
+		then, without doing anything else, move on to the next activity in this laboratory:
 
 		fig
 		""",
-		"You may be puzzled at your result, but please just move on to the next activity",
+		"Your result may puzzle you, but please just move on to the next activity",
 		x -> true
 	),
 	Activity(
 		"""
-		If you worked through this laboratory in one sitting, you will have seen that the
-		variable fig no longer contains the quadratic graph, but instead contains our most
-		recent graph of the valleys() function.
+		You should have found that the variable fig no longer contains the quadratic graph, but
+		instead contains our most recent graph of the mountains() function.
 
-		Now I want you to go home and think about this question: Why has the value of fig
-		changed, and what single change can you make to this laboratory to fix this problem?
+		I want you to think now about this question: Why has the value of fig changed, and what
+		single word can you change in this laboratory to fix this problem? Don't worry if you
+		can't immediately work it out: we will return to this important issue of encapsulation
+		in laboratory 7.
 		""",
 		"",
 		x -> true

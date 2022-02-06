@@ -34,7 +34,7 @@
 	Activity(
 		"""
 		Use the function dump() to view the entire structure of expr. As you can see,
-		the .args field of expr is a vector. Use your experience of accessing vector elements
+		the .args field of expr is a Vector. Use your experience of accessing vector elements
 		to find out the typeof the second argument of the third argument of expr:
 		""",
 		"dump(expr) or expr.args[3].args[2] - Try both! :-)",
@@ -42,7 +42,7 @@
 	),
 	Activity(
 		"""
-		And of course we can execute (evalualte) our expression using the function eval().
+		And of course we can execute (i.e., evaluate) our expression using the function eval().
 		What is the value of expr?
 		""",
 		"eval(expr)",
