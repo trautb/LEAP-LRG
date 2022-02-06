@@ -57,15 +57,26 @@ function letsgo( learner::String = "")
 	session.lab_path = normpath(joinpath(dirname(@__FILE__),"..","Labs"))
 	lnrpath = normpath(joinpath(dirname(@__FILE__),"..","Learners"))
 
-	# Establish learner:
 	if isempty(learner)
-		# Name hasn't been provided - request it:
+		# Learner's name hasn't been provided - request it:
 		println( "\nWelcome to the pedagogical playground of Ingolstadt!! :)")
 		print( "My name's Ingo! What's yours?  ")
 		learner = readline()
 	end
-	println( "\nHi ", learner, "! Wait just half a second ... \n")
-	
+	println( "\nHi ", learner, "! Just setting things up for you ...\n")
+
+	if !isdefined(Main,:ingo)
+		# ingo() is not yet defined - suggest setting it up:
+		println( "You may find it convenient to insert the following method definition into the")
+		println( "startup.jl file in your ~\\.julia\\config folder:\n")
+		println( "    function ingo()")
+		println( "        cd(\"$(normpath(joinpath(dirname(@__FILE__))))\")")
+		println( "        include(\"Ingolstadt.jl\")")
+		println( "    end\n")
+		println( "The function call \"ingo()\" will always bring you to this folder and start me up! :)")
+		println()
+	end
+
 	# Establish lnr_file:
 	session.lnr_file = joinpath( lnrpath, learner*".lnr")
 	if !(isfile(session.lnr_file))
@@ -257,10 +268,10 @@ function nextlab( lab_num::Int = 0, current_act::Int = 1)
 	end
 
 	# Display welcome message to the new laboratory.
-	println( "Fine - I've set up the laboratory for you. If you've just been working on another")
+	println( "Great - I've set up the laboratory. If you've just completed working on another")
 	println( "laboratory, I recommend that you restart Julia now. This will keep your environment")
 	println( "clean and avoid naming conflicts.")
-	println( "Enter help() at any time to see the available options. Have fun! :-)")
+	println( "Enter help() at any time to see the available options. Have fun! :)")
 	println()
 
 	# Display the new laboratory number:
