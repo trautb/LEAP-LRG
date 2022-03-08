@@ -182,8 +182,8 @@ Learner replies to the current activity with the given response.
 If the answer is correct, move on to the next activity; otherwise check with learner.
 """
 function reply( response=nothing)
-	if response !== nothing && ~evaluate(session.activities[session.current_act],response)
-		# Response is present and unsuccessful:
+	if !evaluate(session.activities[session.current_act],response)
+		# Response is unsuccessful:
 		print("Do you want to try again? ")
 		if occursin("yes",lowercase(readline()))
 			return
