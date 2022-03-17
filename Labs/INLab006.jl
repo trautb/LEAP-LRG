@@ -267,7 +267,7 @@
 			3 * (1-x)^2 *				exp(-(x^2+(y+1)^2))
 			-(1/3) *					exp(-((x+1)^2 + y^2))
 			-10 * (x/5 - x^3 - y^5) *	exp(-(x^2+y^2))
-		myheatmap( mountains)
+		prettyheatmap( mountains)
 
 		How many mountains can you see?
 		""",
@@ -302,7 +302,7 @@
 		instead contains our most recent graph of the mountains() function.
 
 		I want you to think now about this question: Why has the value of fig changed, and what
-		single word can you change in this laboratory to fix this problem? Don't worry if you
+		single word can you delete in this laboratory to fix this problem? Don't worry if you
 		can't immediately work it out: we will return to this important issue of encapsulation
 		in laboratory 7.
 		""",

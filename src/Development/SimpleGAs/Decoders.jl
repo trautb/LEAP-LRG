@@ -56,9 +56,9 @@ function decode( decoder::Decoder, x::Vector)
 	# Reshape this column of x into a data matrix of ndims columns, each of which contains
 	# nbits rows. Then decode each column of data by multiplying it by components in the
 	# corresponding column of coeffs, summing the column and adding the corresponding lwb:
-	data = reshape( x, decoder.nbits, decoder.ndims)	# reshape() x to the right size.
-	decoder.lwb + sum(decoder.coeffs .* data,dims=1)'	# Add the sum of each column to lwb, then
-end														# transpose it back into a column vector.
+	data = ones( decoder.nbits, decoder.ndims)		# reshape() x to the right size.
+	sum(decoder.coeffs .* data,dims=1)'				# Add the sum of each column to lwb, then
+end													# transpose it back into a column vector.
 
 #-----------------------------------------------------------------------------------------
 """
