@@ -1,7 +1,7 @@
 #========================================================================================#
 #	Laboratory 5
 #
-# Exploratory data analysis
+# Exploratory data analysis, datasets and Dataframes.
 #
 # Author: Niall Palfreyman, 04/01/2022
 #========================================================================================#

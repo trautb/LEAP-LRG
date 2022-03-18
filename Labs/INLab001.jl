@@ -1,7 +1,7 @@
 #========================================================================================#
 #	Laboratory 1
 #
-# Introduction to Julia
+# Introduction to Julia, variables and data.
 #
 # Author: Niall Palfreyman, 22/12/2021
 #========================================================================================#
@@ -136,7 +136,7 @@
 		Finally, functions are so important in Julia that we often want to create an
 		anonymous function quickly in the middle of a calculation. Use the following
 		anonymous notation to compute the square of the complex number 1+im:
-		sq3 = x -> x*x
+		(x -> x*x)(1+im)
 		""",
 		"2im",
 		x -> x == 2im
@@ -153,16 +153,18 @@
 	Activity(
 		"""
 		You can use conditionals in the usual way, for example:
-		function f(x)
-			if x ≥ 0
-				x
-			else
-				-x
+
+			function f(x)
+				if x ≥ 0
+					x
+				else
+					-x
+				end
 			end
-		end
-		Now use the shorter notation "x ≥ 0 ? x : -x" to define an anonymous function g
-		that calculates the factorial of its argument. That is, g(n) returns 1 if n ≤ 1,
-		and returns n * g(n-1) otherwise. Use g to calculate 9!:
+
+		Now use the shorter notation "x ≥ 0 ? x : -x", and assign g equal to an anonymous function
+		that calculates the factorial of its argument. That is, g(n) returns 1 if n ≤ 1, and
+		returns n * g(n-1) otherwise. Use g to calculate 9!:
 		""",
 		"n -> (n ≤ 1 ? 1 : n * g(n-1))",
 		x -> (x == 362880)
