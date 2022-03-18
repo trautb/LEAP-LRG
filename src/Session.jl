@@ -127,11 +127,7 @@ commiserate( act::Activity)
 Provide supportive feedback to an unsuccessful learner response.
 """
 function commiserate( act::Activity)
-	print( "Not quite right, I'm afraid. Would you like to see a hint? ")
-	if occursin( "yes", lowercase(readline()))
-		# Learner requires a hint as to how to respond to the activity:
-		hint( act)
-	end
+	print( "Not quite right, I'm afraid. You may like to ask for a hint()")
 end
 
 #-----------------------------------------------------------------------------------------
