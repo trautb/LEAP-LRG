@@ -185,7 +185,7 @@ function reply( response=nothing)
 	if !evaluate(session.activities[session.current_act],response)
 		# Response is unsuccessful:
 		print("Do you want to try again? ")
-		if occursin("yes",lowercase(readline()))
+		if occursin('y',lowercase(readline()))
 			return
 		end
 	end
