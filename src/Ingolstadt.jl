@@ -185,7 +185,8 @@ function reply( response=nothing)
 	if !evaluate(session.activities[session.current_act],response)
 		# Response is unsuccessful:
 		print("Do you want to try again? ")
-		if occursin('y',lowercase(readline()))
+		if ~occursin('n',lowercase(readline()))
+			# User did not answer no: default behaviour is to stay with this activity:
 			return
 		end
 	end
