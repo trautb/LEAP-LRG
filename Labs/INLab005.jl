@@ -58,7 +58,7 @@
 		What is the size() of the dataset?
 		""",
 		"size(iris)",
-		x -> x==size(iris)
+		x -> x==size(Main.iris)
 	),
 	Activity(
 		"""
@@ -70,7 +70,7 @@
 		Report back to me the last 5 rows of the Iris dataset:
 		""",
 		"iris[end-4:end,:]",
-		x -> x==iris[end-4:end,:]
+		x -> x==Main.iris[end-4:end,:]
 	),
 	Activity(
 		"""
@@ -137,7 +137,7 @@
 		attributes = names(iris)[1:end-1]				# Leave out the non-numeric Species
 		for x in attributes, y in attributes
 			if x > y
-				println( "$x \t $y \t $(cov(iris[:,x],iris[:,y]))")
+				println( "\$x \t \$y \t \$(cov(iris[:,x],iris[:,y]))")
 			end
 		end
 
@@ -191,7 +191,7 @@
 		Create a Vector containing a random sample of 21 PetalWidths:
 		""",
 		"rand(range,10)",
-		x -> length(x)==21 && all(map(x) do pw in(pw,iris[:,"PetalWidth"]) end)
+		x -> length(x)==21 && all(map(x) do pw in(Main.pw,Main.iris[:,"PetalWidth"]) end)
 	),
 	Activity(
 		"""
@@ -240,6 +240,6 @@
 		CSV.read("group1.csv",DataFrame)
 		""",
 		"",
-		x -> typeof(x)==DataFrame && size(x)==(6,4)
+		x -> typeof(x)==Main.DataFrame && size(x)==(6,4)
 	),
 ]

@@ -188,7 +188,7 @@
 		Change Rabia's length to 29 cm. What is the supertype of her type?
 		""",
 		"rabia.length = 29",
-		x -> x == Animal
+		x -> (x == Main.Animal)
 	),
 	Activity(
 		"""
@@ -218,7 +218,7 @@
 		The dispatcher must make these decisions during the execution time of our
 		simulation program. Enter the following function definition:
 
-		function encounter( meeter::Species, meetee::Species)
+		function encounter( meeter::Organism, meetee::Organism)
 			println( meeter.name, " meets ", meetee.name, " and ", meet(meeter,meetee), ".")
 		end
 		
@@ -242,7 +242,7 @@
 		How does Rabia react to Tilly?
 		""",
 		"encounter(rabia,tilly)",
-		x -> occursin( "ignore", lowercase(x))
+		x -> occursin( "ignores", lowercase(x))
 	),
 	Activity(
 		"""
@@ -251,6 +251,6 @@
 		new lines of code.
 		""",
 		"encounter(meeter::Rabbit,meetee::Grass) = \"eats\"",
-		x -> occursin( "ignore", lowercase(x))
+		x -> occursin( "eats", lowercase(x))
 	),
 ]

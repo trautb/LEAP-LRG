@@ -118,7 +118,7 @@
 		What is the type of the curve_fit() result "fit"?
 		""",
 		"You may first need to open Package Manager (']') to add the package CurveFit",
-		x -> occursin("Polynomial",x)
+		x -> x == Main.Polynomial
 	),
 	Activity(
 		"""

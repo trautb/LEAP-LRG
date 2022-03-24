@@ -117,7 +117,7 @@ congratulate()
 Provide uplifting feedback to a successful learner response.
 """
 function congratulate()
-	print( "Well done - great work! :) ")
+	print( "\nWell done - great work! :) ")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ commiserate( act::Activity)
 Provide supportive feedback to an unsuccessful learner response.
 """
 function commiserate( act::Activity)
-	print( "Not quite right, I'm afraid - you could ask for a hint(). ")
+	print( "\nNot quite right, I'm afraid - you could ask for a hint(). ")
 end
 
 #-----------------------------------------------------------------------------------------

@@ -310,7 +310,7 @@
 			end
 		""",
 		"",
-		x -> (map(1:7) do y if y<4 isodd(y) else iseven(y) end end)
+		x -> x == (map(1:7) do y if y<4 isodd(y) else iseven(y) end end)
 	),
 	Activity(
 		"""

@@ -27,7 +27,7 @@
 		fig = scatterlines(0:10,(0:10).^2);
 		""",
 		"Enter the command exactly as I have done here",
-		x -> x==Makie.FigureAxisPlot
+		x -> x==Main.Makie.FigureAxisPlot
 	),
 	Activity(
 		"""
@@ -95,7 +95,7 @@
 		What is the type of the return value from this display?
 		""",
 		"",
-		x -> x <: Makie.FigureAxisPlot
+		x -> x <: Main.Makie.FigureAxisPlot
 	),
 	Activity(
 		"""

@@ -56,14 +56,14 @@
 
 		What is its size()?
 		""",
-		"sizeof(v)",
+		"size(v)",
 		x -> x==(5,)
 	),
 	Activity(
 		"""
 		What is the size of this ROW vector: w = [5 4 7 6 3 2 1] ?
 		""",
-		"sizeof(w)",
+		"size(w)",
 		x -> x==(1,5)
 	),
 	Activity(
@@ -203,7 +203,7 @@
 		and subscripts. How do we use subscripts to view the element 8 in my_matrix?
 		""",
 		"my_matrix[r,c]",
-		x -> occursin("my_matrix",x) && eval(Meta.parse(x)) == 8
+		x -> occursin("my_matrix[3,2]",replace(x," "=>""))
 	),
 	Activity(
 		"""
@@ -227,7 +227,7 @@
 		slice of the array. What is the result of the expression my_vector[2:4]?
 		""",
 		"my_vector[2:4]",
-		x -> x==my_vector[2:4]
+		x -> x==Main.my_vector[2:4]
 	),
 	Activity(
 		"""
@@ -235,14 +235,14 @@
 		result of the expression my_matrix[:,3]?
 		""",
 		"my_matrix[:,3]",
-		x -> x==my_matrix[:,3]
+		x -> x==Main.my_matrix[:,3]
 	),
 	Activity(
 		"""
 		What is the result of the expression my_matrix[begin+1:end,end]?
 		""",
 		"my_matrix[begin+1:end,end]",
-		x -> x==my_matrix[begin+1:end,end]
+		x -> x==Main.my_matrix[begin+1:end,end]
 	),
 	Activity(
 		"""
@@ -261,7 +261,7 @@
 		new_matrix = reshape(my_matrix,1,9)
 		""",
 		"reshape(my_matrix,1,9)",
-		x -> x==reshape(my_matrix,1,9)
+		x -> x==reshape(Main.my_matrix,1,9)
 	),
 	Activity(
 		"""
@@ -272,7 +272,7 @@
 		my_matrix using ':'. Show me the result of doing this:
 		""",
 		"my_matrix[:]",
-		x -> x==my_matrix[:]
+		x -> x==Main.my_matrix[:]
 	),
 	Activity(
 		"""
@@ -284,7 +284,7 @@
 		What is the sin() of all elements of my_matrix?
 		""",
 		"sin.(my_matrix)",
-		x -> x==sin.(my_matrix)
+		x -> x==sin.(Main.my_matrix)
 	),
 	Activity(
 		"""
@@ -296,7 +296,7 @@
 		in my_matrix?
 		""",
 		"1 ./ my_matrix",
-		x -> x == 1 ./ my_matrix
+		x -> x == 1 ./ Main.my_matrix
 	),
 	Activity(
 		"""
@@ -308,7 +308,7 @@
 		What is the sin() of my_matrix?
 		""",
 		"map(sin,my_matrix)",
-		x -> x==map(sin,my_matrix)
+		x -> x==map(sin,Main.my_matrix)
 	),
 	Activity(
 		"""
@@ -320,7 +320,7 @@
 		What do we obtain if we apply the function (x->5sin(x+3)) to my_matrix?
 		""",
 		"map(x->5sin(x+3),my_matrix)",
-		x -> x==map(x->5sin(x+3),my_matrix)
+		x -> x==map(x->5sin(x+3),Main.my_matrix)
 	),
 	Activity(
 		"""
@@ -332,7 +332,7 @@
 		column of my_matrix?
 		""",
 		"map(x->5sin(x+3),my_matrix[:,2])",
-		x -> x==map(x->5sin(x+3),my_matrix[:,2])
+		x -> x==map(x->5sin(x+3),Main.my_matrix[:,2])
 	),
 	Activity(
 		"""
@@ -345,6 +345,6 @@
 		Write a loop to calculate the sum of all elements in my_matrix:
 		""",
 		"reply(ans)",
-		x -> x==sum(my_matrix)
+		x -> x==sum(Main.my_matrix)
 	),
 ]

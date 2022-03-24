@@ -20,7 +20,7 @@
 		What is my_tuple[2]?
 		""",
 		"my_tuple[2]",
-		x -> x==my_tuple[2]
+		x -> x==Main.my_tuple[2]
 	),
 	Activity(
 		"""
@@ -110,7 +110,7 @@
 		What is the value of expr.args?
 		""",
 		"",
-		x -> x==(:(a+b)).args
+		x -> x==(:(Main.a+Main.b)).args
 	),
 	Activity(
 		"""
@@ -244,7 +244,7 @@
 	Activity(
 		"""
 		Well, that wasn't very pleasant, was it, with all those characters
-		screaming across the screen? Let's do it more civilised this time...
+		screaming across the screen? Let's do it in a more civilised way this time...
 
 		Rewind the file to the beginning using seekstart().
 		Now enter:
@@ -303,7 +303,7 @@
 		What is the type of datim?
 		""",
 		"",
-		x -> x==DateTime
+		x -> x==Main.DateTime
 	),
 	Activity(
 		"""
@@ -315,7 +315,7 @@
 		What Date value is constructed by the call Date(2022)?
 		""",
 		"",
-		x -> x==Date(2022)
+		x -> x==Main.Date(2022)
 	),
 	Activity(
 		"""
@@ -325,7 +325,7 @@
 		DateTime(1992,10,13,6,18)
 		""",
 		"minute(ans)",
-		x -> x==minute(DateTime(1992,10,13,6,18))
+		x -> x==Main.minute(Main.DateTime(1992,10,13,6,18))
 	),
 	Activity(
 		"""
@@ -334,7 +334,7 @@
 		subtypes. How many subtypes does the type TimePeriod have?
 		""",
 		"subtypes(TimePeriod)",
-		x -> x==length(subtypes(TimePeriod))
+		x -> x==length(subtypes(Main.TimePeriod))
 	),
 	Activity(
 		"""
@@ -373,7 +373,7 @@
 		today(), then move on with reply():
 		""",
 		"",
-		x -> x==0
+		x -> true
 	),
 	Activity(
 		"""
@@ -382,7 +382,7 @@
 		today()-Week(1):Day(1):today()
 		""",
 		"",
-		x -> x==collect(today()-Week(1):Day(1):today())
+		x -> x==collect(Main.today()-Main.Week(1):Main.Day(1):Main.today())
 	),
 	Activity(
 		"""
@@ -428,7 +428,7 @@
 		seed!(123); rand(5)
 		""",
 		"",
-		x -> x==(seed!(123); rand(5))
+		x -> x==(Main.seed!(123); Main.rand(5))
 	),
 	Activity(
 		"""
@@ -450,7 +450,7 @@
 		Palfreyman started writing the Ingolstadt project:
 		""",
 		"data = readlines(file);",
-		x -> x == Date("7/12/2021","d/mm/yyyy")
+		x -> x == Main.Date("7/12/2021","d/mm/yyyy")
 	),
 	Activity(
 		"""
