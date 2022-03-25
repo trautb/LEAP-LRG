@@ -77,7 +77,7 @@
 		"""
 		We can find out whether our Dict contains the key "e" by using the keys() function:
 
-		"e" in keys(mydict)
+		"e" in keys(my_dict)
 
 		Delete the entry for "e" from my_dict using the delete!() function. What word do
 		you now see in red if you enter my_dict["e"]?
@@ -121,7 +121,7 @@
 		What do you get if you enter string(expr)?
 		""",
 		"",
-		x -> x==0
+		x -> occursin("a+b",replace(x," "=>""))
 	),
 	Activity(
 		"""
@@ -139,7 +139,7 @@
 		We use the "splat" operator (...) to convert a collection into a set of
 		arguments for a function. Define this function and test it with a few numbers:
 		
-		my_function(x,y,z) = x * (y+z)
+			my_function(x,y,z) = x * (y+z)
 		
 		Now define this vector: v = [2,3,4]. Suppose we want to use the three numbers
 		in v as arguments for my_function. First try it like this: my_function(v), and
@@ -147,7 +147,7 @@
 
 		It didn't work, did it? Now tell me what you get when you enter this:
 
-		my_function(v...)
+			my_function(v...)
 		""",
 		"",
 		x -> x==14
@@ -165,7 +165,7 @@
 		current folder. What answer do you get back?
 		""",
 		"\"filename.ext\" in readdir()",
-		x -> true
+		x -> x==true
 	),
 	Activity(
 		"""
@@ -173,26 +173,28 @@
 		of filenames in it. We can put these together using joinpath(). Find out the
 		answer returned by the following function call:
 
-		isfile(joinpath(pwd(),"filename.ext"))
+			isfile(joinpath(pwd(),"filename.ext"))
+
+		where filename.ext is the file you previously found in the current directory.
 		""",
 		"Investigate the value returned by the joinpath() call",
-		x -> x==true
+		x -> true
 	),
 	Activity(
 		"""
 		Now let's create a new file. The following command creates a file named
 		"my_data.txt", and sets up a FILESTREAM named "file" for "w"riting to it:
 
-		file = open("my_data.txt","w")
+			file = open("my_data.txt","w")
 
 		Now write some information to the file:
 
-		write( file, "This is my file\nIt belongs to me!\n")
+			write( file, "This is my file\nIt belongs to me!\n")
 
 		The value returned by write() is the number of bytes you have written to the
 		file. We can also us the print() and println() functions, for example:
 
-		println( file, "It really does!")
+			println( file, "It really does!")
 
 		Finally, close() file and tell me the result of isfile("my_data.txt"):
 		""",
@@ -204,12 +206,12 @@
 		Congratulations! You have created your first file! Now let's trying
 		r(eading) from the file:
 
-		file = open("my_data.txt","r")
+			file = open("my_data.txt","r")
 
 		Now enter: readline(file) several times to read the lines of the file.
 		Once you have read all the lines, the file is in an end-of-file state:
 
-		eof(file)
+			eof(file)
 
 		What value does readline() return if you continue to read lines after
 		the end-of-file?
@@ -223,8 +225,8 @@
 		beginning of the file. We can read all lines of the file at once.
 		What is the type of the structure returned by the following code?
 
-		file = open("my_data.txt","r")
-		readlines( file)
+			file = open("my_data.txt","r")
+			readlines( file)
 		""",
 		"",
 		x -> x <: Vector
@@ -249,7 +251,7 @@
 		Rewind the file to the beginning using seekstart().
 		Now enter:
 
-		data = read(file);
+			data = read(file);
 
 		Did you remember to write ';' at the end of the line? If not, you
 		had the "screaming characters" problem. ';' at the end of a line
@@ -271,7 +273,7 @@
 		"""
 		We can even convert the data entirely to a String like this:
 
-		str = String(data)
+			str = String(data)
 
 		However, this conversion uses up the data values. What value is
 		now returned by the function call isempty(data)?
@@ -294,11 +296,11 @@
 		Now we investigate DateTimes in Julia. Support for date and time
 		handling is provided by the Dates package, which we must first load:
 
-		using Dates
+			using Dates
 
 		We can access the current time using the now() function:
 
-		datim = Dates.now()
+			datim = Dates.now()
 
 		What is the type of datim?
 		""",
@@ -309,8 +311,8 @@
 		"""
 		To create a new date, we pass year, month and day to the constructor:
 
-		Date( 1996, 7, 16)
-		Date( 2020, 6)
+			Date( 1996, 7, 16)
+			Date( 2020, 6)
 
 		What Date value is constructed by the call Date(2022)?
 		""",
@@ -322,7 +324,7 @@
 		We can also create times. Use the minute() function to find the number
 		of minutes past the hour in this time:
 
-		DateTime(1992,10,13,6,18)
+			DateTime(1992,10,13,6,18)
 		""",
 		"minute(ans)",
 		x -> x==Main.minute(Main.DateTime(1992,10,13,6,18))
@@ -342,12 +344,12 @@
 		want to PARSE (i.e., analyse) them. We can construct a Date from a
 		String by passing a DateTime format argument:
 
-		Date("19760915","yyymmdd")
+			Date("19760915","yyyymmdd")
 
 		For DateTimes, this format gets a little more complicated, so you may
 		wish to define your own format:
 
-		format = DateFormat("HH:MM, dd.mm.yyyy")
+			format = DateFormat("HH:MM, dd.mm.yyyy")
 
 		Use this format to parse the DateTime "06:18, 13.10.1992". What
 		character separates the date from the time in the result?
@@ -379,7 +381,7 @@
 		"""
 		Form a list of the past 8 days by collecting this Range into a Vector:
 
-		today()-Week(1):Day(1):today()
+			today()-Week(1):Day(1):today()
 		""",
 		"",
 		x -> x==collect(Main.today()-Main.Week(1):Main.Day(1):Main.today())
@@ -389,7 +391,7 @@
 		Next we'll look at a very important tool of data science: Random numbers.
 		First load the functions that we'll be using:
 
-		using Random: rand, randn, seed!
+			using Random: rand, randn, seed!
 
 		By itself, the rand() function returns a pseudo-random Float64 number in the
 		half-open interval [0.0,1.0). Try this now.
@@ -425,7 +427,7 @@
 		sure all random numbers follow an identical pattern across separate runs of the
 		program. Run the following code several times, then tell me what result you get:
 
-		seed!(123); rand(5)
+			seed!(123); rand(5)
 		""",
 		"",
 		x -> x==(Main.seed!(123); Main.rand(5))
@@ -436,16 +438,16 @@
 		briefly at how to download resources from the internet. First, we load the
 		download() function from the package Downloads:
 
-		using Downloads: download
+			using Downloads: download
 
 		Next we define the url of our resource:
 		
-		url = "https://raw.githubusercontent.com/NiallPalfreyman/Ingolstadt.jl/main/src/Ingolstadt.jl"
+			url = "https://raw.githubusercontent.com/NiallPalfreyman/Ingolstadt.jl/main/src/Ingolstadt.jl"
 
 		Next, we download this page into a local file:
 
-		file = download(url)
-
+			file = download(url)
+		
 		Use readlines() (don't forget the ';'!) to discover the Date on which Niall
 		Palfreyman started writing the Ingolstadt project:
 		""",
