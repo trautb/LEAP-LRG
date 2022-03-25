@@ -331,12 +331,12 @@
 	),
 	Activity(
 		"""
-		The module Dates also makes avaiable Periods of time. Use the subtypes()
+		The module Dates also makes available Periods of time. Use the subtypes()
 		function to find the subtypes of Period and also the subtypes of these
 		subtypes. How many subtypes does the type TimePeriod have?
 		""",
 		"subtypes(TimePeriod)",
-		x -> x==length(subtypes(Main.TimePeriod))
+		x -> x==length(Main.subtypes(Main.TimePeriod))
 	),
 	Activity(
 		"""
@@ -384,7 +384,7 @@
 			today()-Week(1):Day(1):today()
 		""",
 		"",
-		x -> x==collect(Main.today()-Main.Week(1):Main.Day(1):Main.today())
+		x -> x==Main.eval(:(collect((today()-Week(1)):Day(1):today())))
 	),
 	Activity(
 		"""

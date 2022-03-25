@@ -26,7 +26,10 @@
 	),
 	Activity(
 		"""
-		Demonstrate simple logistic chaos.
+		In your project, you will investigate DETERMINISTIC CHAOS. To see what chaos is, set up the
+		following system:
+
+			
 		""",
 		"",
 		x -> true
