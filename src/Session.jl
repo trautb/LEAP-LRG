@@ -117,7 +117,18 @@ congratulate()
 Provide uplifting feedback to a successful learner response.
 """
 function congratulate()
-	print( "\nWell done - great work! :) ")
+	congrats = [
+		"Well done - great work!",
+		"Great job - well done!",
+		"You're doing great - keep it up!",
+		"Good job!",
+		"Good work!",
+		"Nicely done!",
+		"Yay! Well done!",
+	]
+
+	println()
+	print( rand(congrats), " :) ")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -127,7 +138,18 @@ commiserate( act::Activity)
 Provide supportive feedback to an unsuccessful learner response.
 """
 function commiserate( act::Activity)
-	print( "\nNot quite right, I'm afraid - you could ask for a hint(). ")
+	commiseration = [
+		"Not quite right, I'm afraid",
+		"No, sorry - not quite right",
+		"Oh, hard luck!",
+		"No, not quite",
+		"Sorry - that's not it",
+		"Think again",
+		"Nope, sorry",
+	]
+
+	println()
+	print( rand(commiseration), " - you could ask for a hint(). ")
 end
 
 #-----------------------------------------------------------------------------------------
