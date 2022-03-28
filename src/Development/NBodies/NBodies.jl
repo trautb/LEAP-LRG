@@ -9,7 +9,7 @@ Author: Niall Palfreyman, 24/3/2022.
 module NBodies
 
 # Externally callable methods of NBodies
-export NBody
+export NBody, add!, simulate
 
 #-----------------------------------------------------------------------------------------
 # Module types:
@@ -20,7 +20,7 @@ export NBody
 An NBody system capable of containing multiple (N) bodies that gravitationally interact
 with each other.
 """
-struct NBody
+mutable struct NBody
 	N							# Number of bodies
 	T							# Duration of simulation
 	res							# Timestep resolution
@@ -35,9 +35,9 @@ struct NBody
 			0,					# Initially no bodies in the system
 			T,					# Duration
 			resolution,			# Timestep resolution
-			zeros(1,N),			# Initial positions
-			zeros(1,N),			# Initial momenta
-			zeros(1,N),			# Masses of bodies
+			[],					# Initial positions
+			[],					# Initial momenta
+			[],					# Masses of bodies
 		)
 	end
 end
@@ -46,15 +46,25 @@ end
 # Module methods:
 
 """
-	addbody( nbody::NBody, xi, pi, m=1)
+	addbody!( nbody::NBody, xi, pi, m=1)
 
 Add to the system a new body with initial position and momentum xi, pi, and with mass m.
 """
-function addbody( nbody, xi, pi, m=1)
-	nbody.xi = [nbody.xi xi]
-	nbody.pi = [nbody.pi pi]
-	nbody.m  = [nbody.m m]
+function addbody!( nbody::NBody, xi, pi, m=1)
+	push!( nbody.xi, xi)
+	push!( nbody.pi, pi)
+	push!( nbody.m, m)
 	nbody.N  += 1
+end
+
+"""
+	relpos( locations)
+
+A useful helper function that calculates relative positions of a vector x of locations.
+"""
+function relpos( locations)
+	locPerBody = repeat(locations,1,length(locations))
+	locPerBody - permutedims(locPerBody)
 end
 
 """
@@ -65,51 +75,57 @@ Run a simulation of the given NBody system over duration divided into res timest
 function simulate( nbody)
 	dt = nbody.T / nbody.res
 	t = 0:dt:nbody.T
-	x = zeros(1,nbody.N,nbody.res+1)
-	p = zeros(1,nbody.N,nbody.res+1)
+	x = Vector{typeof(nbody.xi)}(undef,nbody.res+1)
+	p = Vector{typeof(nbody.pi)}(undef,nbody.res+1)
+
+	# Pre-calculate products of masses:
 	G = 1
-	Gmm = repmat(G*nbody.m,[1 1 nbody.N])
-	Gmm = Gmm .* permute(Gmm,[1 3 2])
-	
-	# Relative positions of bodies at positions r:
-	relPos = @(r) repmat(permute(r,[1 3 2]),[1 nbody.N 1]) - repmat(r,[1 1 nbody.N])
+	Gmm = G * nbody.m * nbody.m'
 	
 	# Initialisation:
-	x[1,:,1] = nbody.xi
-	p[1,:,1] = nbody.pi
-	
+	x[1] = nbody.xi
+	p[1] = nbody.pi
+
 	# Simulation:
 	for n = 1:nbody.res
 		# Simulate timestep n:
-		x[1,:,n+1] = x[1,:,n] + dt * p[1,:,n]./nbody.m
+		x[n+1] = x[n] + dt*p[n]./nbody.m
 		
-		diff = relPos(x(1,:,n))
-		absDiff = sqrt(sum(diff.*diff,1))
-		invSq = absDiff.^3 + permute(eye(nbody.N),[3 2 1])
-		forces = Gmm.*diff ./ invSq
-		forces = sum(forces,3)
-		p[1,:,n+1] = p[1,:,n] + forces * dt
+		diff = relpos(x[n])
+		invSq = abs.(diff'.*diff) .^ (3/2)
+		for i in 1:length(x[n]) invSq[i,i] += 1 end
+		forceFROMEachSource = -Gmm .* diff ./ invSq
+		forceONEachSource = sum( forceFROMEachSource, dims=2)
+		p[n+1] = p[n] + dt * forceONEachSource[:]
 	end
 
 	(t,x,p)
 end
 
 #-----------------------------------------------------------------------------------------
+using CairoMakie
+
 """
 	demo()
 
 Demonstrate simulation of a simple 2-body problem.
 """
 function demo()
+	# Initialise the system:
 	nb = NBody( 2.25, 10000)
-	nb.addbody( -1, 0)
-	nb.addbody( 1, 0)
+	addbody!( nb, -1, 0)
+	addbody!( nb,  1, 0)
 	
-	[t,x] = nb.simulate()
-	plot( ...
-		t,squeeze(x(1,1,:)),'b', ...
-		t,squeeze(x(1,2,:)),'r' ...
-	);
+	# Run the simulation:
+	(t,x,p) = simulate(nb)
+
+	# Display some fancy graphics:
+	fig = Figure(resolution=(600, 600))
+	ax = Axis(fig[1, 1], xlabel = "Time (t)", title = "N-body Trajectories")
+
+	lines!(ax, t, map(el->el[1],x), color=:blue)		# Body 1
+	lines!(ax, t, map(el->el[2],x), color=:red)			# Body 2
+	display(fig)
 end
-		
+
 end		# of NBodies
