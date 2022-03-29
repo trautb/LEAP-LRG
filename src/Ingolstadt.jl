@@ -20,9 +20,9 @@ using Pluto								# We want to be able to use Pluto notebooks
 #-----------------------------------------------------------------------------------------
 # Module fields:
 
-include("Session.jl")			# Include definitions of Session and Activity types.
+include("Session.jl")					# Include definitions of Session and Activity types.
 
-session = Session()				# Create the single Ingolstadt session
+session = Session()						# Create the single Ingolstadt session
 
 #-----------------------------------------------------------------------------------------
 # Module methods:

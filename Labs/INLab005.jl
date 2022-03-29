@@ -191,7 +191,7 @@
 		Create a Vector containing a random sample of 21 PetalWidths:
 		""",
 		"rand(range,10)",
-		x -> length(x)==21 && all(map(x) do pw in(Main.pw,Main.iris[:,"PetalWidth"]) end)
+		x -> length(x)==21 && all(map(x) do pw in(pw,Main.iris[:,"PetalWidth"]) end)
 	),
 	Activity(
 		"""
