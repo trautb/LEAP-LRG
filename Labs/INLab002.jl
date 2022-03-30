@@ -15,7 +15,7 @@
 		First let's start with the structure of a Julia program. Every Julia program
 		starts off as a string:
 
-		prog = "8 / (2 + 3.0)"
+			prog = "8 / (2 + 3.0)"
 
 		Enter this mini-program, then use Meta.parse() to analyse the program into an expression
 		'expr' and tell me the typeof() expr:
@@ -55,7 +55,7 @@
 		Let's look at a more complicated evaluation tree. Create the following method for
 		calculating the factorial of an Integer value:
 
-		fact(n::Integer) = Meta.parse("(\$n ≤ 1) ? 1 : \$n * eval(fact(\$(n-1)))")
+			fact(n::Integer) = Meta.parse("(\$n ≤ 1) ? 1 : \$n * eval(fact(\$(n-1)))")
 
 		Notice how we're using string interpolation here to insert the value of the
 		argument n into an Expr tree structure that we can study. Use dump, .head and .args
@@ -74,7 +74,7 @@
 		how would we go about calculating fact(5.01)? To calculate the factorial of a float
 		value, we need to use the Gamma function gamma(). First load the SpecialFunctions library:
 
-		using SpecialFunctions
+			using SpecialFunctions
 
 		Now experiment with the gamma function to find out its relationship to factorial.
 		For example, what value of n yields the result gamma(n) == fact(5)?
@@ -86,7 +86,7 @@
 		"""
 		Now write a new factorial method for Real numbers:
 
-		fact(n::Real) = Meta.parse("gamma(\$(n+1))")
+			fact(n::Real) = Meta.parse("gamma(\$(n+1))")
 
 		Now use dump, .head and .args to study the tree structure of fact(5.0), and then
 		evaluate that tree ...
@@ -128,8 +128,8 @@
 		own user-defined types. First create a few ABSTRACT types to represent various
 		biological organisms:
 
-		abstract type Organism end
-		abstract type Animal <: Organism end
+			abstract type Organism end
+			abstract type Animal <: Organism end
 
 		Now use the supertype() function to find the supertype of Animal. What type is
 		returned if you ask for the subtypes() of Organism?
@@ -141,11 +141,11 @@
 		"""
 		Next create a CONCRETE subtype of our abstract Animal type:
 
-		struct Weasel <: Animal
-			name::String
-			weight::Integer
-			female::Bool
-		end
+			struct Weasel <: Animal
+				name::String
+				weight::Integer
+				female::Bool
+			end
 
 		Use the function fieldnames() to inspect the individual fields of the Weasel
 		type, then give me the descriptor of the third field
@@ -158,8 +158,8 @@
 		We use struct types to instantiate concrete OBJECTs in computer memory by
 		entering specific values for the individual fields of the Weasel struct:
 		
-		wendy = Weasel( "Wendy", 101, true)
-		willy = Weasel( "Willy", 115, false)
+			wendy = Weasel( "Wendy", 101, true)
+			willy = Weasel( "Willy", 115, false)
 
 		Notice that types start with an UPpercase letter, whereas objects start with a
 		lowercase letter. By default, Julia creates structs as IMMUTABLE - that is, we
@@ -178,12 +178,12 @@
 		of using objects is far faster and less error-prone. If, however, we do want to
 		change the fields of a type, we must define it as MUTABLE, like this:
 
-		mutable struct Rabbit <: Animal
-			name::String
-			length::Integer
-		end
+			mutable struct Rabbit <: Animal
+				name::String
+				length::Integer
+			end
 
-		rabia = Rabbit( "Rabia", 27)
+			rabia = Rabbit( "Rabia", 27)
 
 		Change Rabia's length to 29 cm. What is the supertype of her type?
 		""",
@@ -202,11 +202,11 @@
 		different interactions using if-else conditionals, but it is easier to use
 		multiple dispatching. Enter the following definitions at the Julia prompt:
 
-		meet( meeter::Weasel, meetee::Rabbit) = "attacks"
-		meet( meeter::Weasel, meetee::Weasel) = "challenges"
-		meet( meeter::Rabbit, meetee::Rabbit) = "sniffs"
-		meet( meeter::Rabbit, meetee::Weasel) = "hides"
-		meet( meeter::Organism, meetee::Organism) = "ignores"
+			meet( meeter::Weasel, meetee::Rabbit) = "attacks"
+			meet( meeter::Weasel, meetee::Weasel) = "challenges"
+			meet( meeter::Rabbit, meetee::Rabbit) = "sniffs"
+			meet( meeter::Rabbit, meetee::Weasel) = "hides"
+			meet( meeter::Organism, meetee::Organism) = "ignores"
 		
 		Test these definitions by finding out what happens when Rabia meets Wendy:
 		""",
@@ -218,9 +218,9 @@
 		The dispatcher must make these decisions during the execution time of our
 		simulation program. Enter the following function definition:
 
-		function encounter( meeter::Organism, meetee::Organism)
-			println( meeter.name, " meets ", meetee.name, " and ", meet(meeter,meetee), ".")
-		end
+			function encounter( meeter::Organism, meetee::Organism)
+				println( meeter.name, " meets ", meetee.name, " and ", meet(meeter,meetee), ".")
+			end
 		
 		Now test this function by calling encounter() with various combinations of
 		Wendy, Willy and Rabia.
@@ -236,8 +236,8 @@
 		type and then check how an encounter between your type and Rabia works out. Do
 		it something like this:
 
-		struct Tree <: Organism; name::String end
-		tilly = Tree( "Tilly")
+			struct Tree <: Organism; name::String end
+			tilly = Tree( "Tilly")
 
 		How does Rabia react to Tilly?
 		""",

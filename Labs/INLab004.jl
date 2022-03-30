@@ -15,7 +15,7 @@
 		A Tuple is an immutable container that can contain several different types. We
 		construct Tuples using round brackets, for example:
 
-		my_tuple = (5, 2.718, "Niall")
+			my_tuple = (5, 2.718, "Niall")
 
 		What is my_tuple[2]?
 		""",
@@ -26,7 +26,7 @@
 		"""
 		You have already seen that size() returns a Tuple. Enter the following code:
 
-		ret_size = size(zeros(3,4))
+			ret_size = size(zeros(3,4))
 
 		What is the value of ret_size[1]? Try changing the value of ret_size[2].
 		Finally, what is the type of ret_size? 
@@ -39,7 +39,7 @@
 		Tuples are especially useful when we want to define anonymous functions with
 		more than one argument:
 
-		map((x,y)->3x+2y,4,5)
+			map((x,y)->3x+2y,4,5)
 
 		Construct a single line mapping that calculates sin(x*y) for corresponding
 		elements in the two ranges x = 1:5 and y = 5:-1:1
@@ -52,7 +52,7 @@
 		A Pair is a structure that contains two objects - typically a key and its
 		entry in a dictionary. We construct a Pair like this:
 
-		my_pair = "Yellow Submarine" => "Beatles"
+			my_pair = "Yellow Submarine" => "Beatles"
 
 		Construct my_pair and then find the value of last(my_pair):
 		""",
@@ -65,7 +65,7 @@
 		we can easily use them in everyday code. We construct a Dict by passing a
 		sequence of Pairs to the constructor:
 
-		my_dict = Dict( "pi" => 3.142, "e" => 2.718)
+			my_dict = Dict( "pi" => 3.142, "e" => 2.718)
 
 		Construct my_dict, and notice that the Pairs are not necessarily in the same
 		order that you entered them. Now look up the value of "pi" in my_dict:
@@ -77,7 +77,7 @@
 		"""
 		We can find out whether our Dict contains the key "e" by using the keys() function:
 
-		"e" in keys(my_dict)
+			"e" in keys(my_dict)
 
 		Delete the entry for "e" from my_dict using the delete!() function. What word do
 		you now see in red if you enter my_dict["e"]?
@@ -89,8 +89,8 @@
 		"""
 		Now add two extra entries to my_dict:
 
-		my_dict["root2"] = 1.414
-		my_dict["epsilon0"] = 8.854e-12
+			my_dict["root2"] = 1.414
+			my_dict["epsilon0"] = 8.854e-12
 
 		What is the result of calling haskey(my_dict,"root2")?
 		""",
@@ -103,9 +103,9 @@
 		we use them to extend the language with new components. We construct Symbols
 		using the colon ':'. Enter the following lines:
 
-		a,b = 2,3
-		expr = :(a+b)
-		dump(expr)
+			a,b = 2,3
+			expr = :(a+b)
+			dump(expr)
 
 		What is the value of expr.args?
 		""",
@@ -116,7 +116,7 @@
 		"""
 		You can see that the arguments of expr are Symbols waiting to be evaluated. Try:
 
-		typeof(expr.args[2])
+			typeof(expr.args[2])
 
 		What do you get if you enter string(expr)?
 		""",

@@ -16,7 +16,7 @@
 		answer to the current question. Try this now - at the Julia prompt, enter the
 		following code:
 
-		city = "Ingolstadt"
+			city = "Ingolstadt"
 
 		Then enter your answer as "reply(city)":
 		""",
@@ -115,9 +115,9 @@
 		Functions are centrally important in Julia, and the language offers us three
 		different ways of defining them. Use this format to define your own squaring
 		function, then use it to compute the square of -253:
-		function sq1( x)
-			x * x
-		end
+			function sq1( x)
+				x * x
+			end
 		""",
 		"64009",
 		x -> x == 64009
@@ -126,7 +126,8 @@
 		"""
 		Now use this shorter format to define a new squaring function, and use it to
 		compute the square of the imaginary number 5im:
-		sq2( x) = x * x
+
+			sq2( x) = x * x
 		""",
 		"-25",
 		x -> x == -25
@@ -136,7 +137,8 @@
 		Finally, functions are so important in Julia that we often want to create an
 		anonymous function quickly in the middle of a calculation. Use the following
 		anonymous notation to compute the square of the complex number 1+im:
-		(x -> x*x)(1+im)
+
+			(x -> x*x)(1+im)
 		""",
 		"2im",
 		x -> x == 2im
@@ -144,7 +146,9 @@
 	Activity(
 		"""
 		Use tuples to assign values in parallel to the variables x and y:
-		(x,y) = (2,3)
+
+			(x,y) = (2,3)
+
 		Then give me (as a string) the code to swap the values of x and y:
 		""",
 		"(x,y) = (y,x)",
@@ -181,8 +185,8 @@
 		We can concatenate two or more Strings into a single String using the operator *.
 		Define the two strings:
 
-		name1 = \"Niall\"
-		name2 = \"Palfreyman\"
+			name1 = \"Niall\"
+			name2 = \"Palfreyman\"
 
 		What result do you get if you concatenate these two Strings?
 		""",
@@ -201,13 +205,13 @@
 		"""
 		We can pattern text more simply using STRING INTERPOLATION. Enter this code:
 
-		\"\$name1 \$name2\"
+			\"\$name1 \$name2\"
 
 		The dollar sign (\$) interpolates the values of name1 and name2 into the string.
 		Enter the following code and then see if you can work out the return value of
 		the function println():
 
-		x = π/2; println("The sine of \$x is \$(sin(x)).")
+			x = π/2; println("The sine of \$x is \$(sin(x)).")
 
 		(Note: You can enter the symbol π by typing "\\pi" and then pressing Tab.
 		Alternatively, you can replace this symbol by the named constant "pi".)
@@ -220,7 +224,7 @@
 		Julia offers us many different functions for manipulating strings. Let's start
 		by creating a String that we can play around with:
 
-		a_string = "We are one and we are many, and from all the lands on Earth we come."
+			a_string = "We are one and we are many, and from all the lands on Earth we come."
 
 		Now ask whether the substring "Earth" occurs in the string a_quote: What is the
 		return value of the function call occursin("Earth",a_string)?
