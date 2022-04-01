@@ -13,7 +13,7 @@ Author: Niall Palfreyman, 7/12/2021
 module Ingolstadt
 
 # Externally callable methods of Ingolstadt
-export gimme, lab, act, reply, help, hint, save, nextlab, nextact, niall
+export gimme, lab, act, reply, help, hint, nextlab, nextact, niall
 
 using Pluto								# We want to be able to use Pluto notebooks
 

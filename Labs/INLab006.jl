@@ -44,7 +44,7 @@
 		"C:\\\\Users\\\\hswt136nia\\\\...\\\\Projects\\\\Ingolstadt\\\\src"
 
 		In the chapter "Filesystem" of the Julia user manual you will find many functions for
-		exploring the filesystem - we shall just use one or two here. Look at the return vale of
+		exploring the filesystem - we shall just use one or two here. Look at the return value of
 		the following command and tell me its type:
 
 		readdir()
