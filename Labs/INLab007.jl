@@ -35,7 +35,7 @@
 		Now enter the following function:
 
 		function change_paula()
-			paula = paula + 2
+			paula = 7
 			paula
 		end
 
@@ -46,9 +46,9 @@
 	),
 	Activity(
 		"""
-		Your result shows us two things: a) The value of the GLOBAL variable paula is available
-		inside the LOCAL scope of the function change_paula(); b) We can change the value of
-		paula within this LOCAL scope.
+		Your result shows us that the variable paula has two different meanings: the meaning in
+		the GLOBAL scope outside the function change_paula, and the meaning inside the LOCAL
+		scope of change_paula.
 
 		Now tell me the current value of paula:
 		""",
