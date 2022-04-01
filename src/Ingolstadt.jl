@@ -113,10 +113,8 @@ function help()
 	println( "   act()                : Display the current activity number")
 	println( "   lab()                : Display the current laboratory number")
 	println( "   reply(response=skip) : Submit a response to the current activity")
-	println( "   save()               : Save the current status of this session")
 	println( "   nextact(act=next)    : Move to the learning activity act")
-	println( "   nextlab(lab=next)    : Move to the laboratory lab ",
-											"(then restart Julia before continuing!)")
+	println( "   nextlab(lab=next)    : Move to the laboratory lab")
 end
 
 #-----------------------------------------------------------------------------------------

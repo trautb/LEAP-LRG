@@ -90,7 +90,7 @@
 		REPL? The REPL is a very basic environment that cannot display graphics, but we can easily
 		include this functionality by adding and loading the package ElectronDisplay. When you have
 		done this, just enter fig at the Julia prompt and ElectronDisplay will automatically
-		display() your image.
+		display your image.
 
 		What is the type of the return value from this display?
 		""",
@@ -107,7 +107,7 @@
 		Check out the attributes field of plt to find out how many attributes it has:
 		""",
 		"",
-		x -> x >= 15
+		x -> x >= 14
 	),
 	Activity(
 		"""
@@ -302,8 +302,8 @@
 		instead contains our most recent graph of the mountains() function.
 
 		I want you to think now about this question: Why has the value of fig changed, and what
-		single word can you delete in this laboratory to fix this problem? Don't worry if you
-		can't immediately work it out: we will return to this important issue of encapsulation
+		single word can you delete in this laboratory to fix this problem? Don't worry too much if
+		you don't manage to work it out: we will return to this important issue of encapsulation
 		in laboratory 7.
 		""",
 		"",
