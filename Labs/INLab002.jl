@@ -185,10 +185,10 @@
 
 			rabia = Rabbit( "Rabia", 27)
 
-		Change Rabia's length to 29 cm. What is the supertype of her type?
+		Change Rabia's length to 29 cm, then give Rabia to me to look at for myself:
 		""",
 		"rabia.length = 29",
-		x -> (x == Main.Animal)
+		x -> (x.length == 29)
 	),
 	Activity(
 		"""

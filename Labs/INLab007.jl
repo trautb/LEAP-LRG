@@ -223,7 +223,7 @@
 		If you enter Casinos.unittest() at the Julia prompt, you should see that the command
 		runs, but throws various errors (exceptions). We will now start to fix those errors...
 
-		First let's get comment out the lines of unittest() that are causing problems. Insert the
+		First, let's comment out the lines of unittest() that are causing problems. Insert the
 		multi-line comment marker #= at the beginning of the third line of unittest() so that
 		it looks like this:
 			
@@ -397,10 +397,10 @@
 		export Casino, draw, shuffle!
 		
 		Now reinclude Casinos.jl and repeat your tests from the previous activity, but this time
-		first enter "using .Casinos" at the Julia prompt. Can you now call all the Casinos
-		functionality without typing "Casinos." in front of everything?
+		first enter "using .Casinos" at the Julia prompt. You should now be able to call all the
+		Casinos functionality without typing "Casinos." in front of everything. :)
 		""",
 		"",
-		x -> occursin('y',lowercase(x))
+		x -> true
 	),
 ]

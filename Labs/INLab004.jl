@@ -110,7 +110,7 @@
 		What is the value of expr.args?
 		""",
 		"",
-		x -> x==(:(Main.a+Main.b)).args
+		x -> x==Main.expr.args
 	),
 	Activity(
 		"""
