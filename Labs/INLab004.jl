@@ -161,7 +161,7 @@
 		What you get back is the path of the current folder. Now enter: readdir() ...
 
 		This gives you a list of filenames in the current folder. Choose a filname in
-		this list - for example maybe "filename.ext". Ask whether this file is in the
+		this list - for example maybe "filename.ext". Ask whether your file is in the
 		current folder. What answer do you get back?
 		""",
 		"\"filename.ext\" in readdir()",
