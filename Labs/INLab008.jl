@@ -112,7 +112,7 @@
 		real numbers. We therefore need a Decoder to convert our GA chromosomes into input
 		numbers for an Objective.
 		
-		The method Objectives.demo() demonstrates how to use a Decoder to decode the two
+		The method Decoders.demo() demonstrates how to use a Decoder to decode the two
 		bit-vectors [1,0,1,0,1,0,1,0,0,0,0,1,0,1,1] and [0,1,0,1,0,1,0,1,1,0,1,0,1,1,0]. How
 		many bits does each of these two bit-vectors contain?
 		""",
