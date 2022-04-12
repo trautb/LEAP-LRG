@@ -224,8 +224,8 @@
 			figure=(; resolution=(600,400))
 		)
 		limits!(-3,3,-3,3)
-		Legend( fig[1,2], ax, valign=:top)
-		Colorbar( fig[1,2], pltobj, height=Relative(3/4))
+		Legend( figr[1,2], ax, valign=:top)
+		Colorbar( figr[1,2], pltobj, height=Relative(3/4))
 		figr
 
 		Do you like my pretty bubble-plot?

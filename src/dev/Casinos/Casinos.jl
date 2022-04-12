@@ -20,14 +20,14 @@ using Random
 	Casino
 
 A Casino can return arrays of random numbers in the range [0,1), up to a maximum number of rows
-(maxrows), and a maximum number of columns (maxcols). It also contains a vault of prepared
+(maxrows), and a maximum number of columns (maxcols). It also contains a deck of prepared
 random numbers from which it draws the arrays.
 """
 struct Casino
 	maxrows::Int					# Maximum number of drawable rows
 	maxcols::Int					# Maximum number of drawable columns
 	randomness::Int					# How randomised will our withdrawals be?
-	vault::Matrix					# Repository of random numbers in [0,1)
+	deck::Matrix					# Repository of random numbers in [0,1)
 	bernoulli						# Dictionary of Bernoulli outcomes
 
 	"The one and only Casino constructor"
@@ -46,8 +46,8 @@ end
 """
 	draw( casino, nrows, ncols)
 
-Draw the required number of rows and columns from the casino vault, first ensuring that the
-vault is large enough to support the withdrawal.
+Draw the required number of rows and columns from the casino deck, first ensuring that the
+deck is large enough to support the withdrawal.
 """
 function draw( casino::Casino, nrows::Int, ncols::Int)
 	if nrows > casino.maxrows || ncols > casino.maxcols
@@ -55,8 +55,8 @@ function draw( casino::Casino, nrows::Int, ncols::Int)
 		error( "Requested withdrawal is too large")
 	end
 
-	# Access the vault:
-	access( casino.vault, nrows, ncols)
+	# Access the deck:
+	access( casino.deck, nrows, ncols)
 end
 
 #-----------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ Draw (nrows x ncols) Boolean coin-toss values from the casino, using a bernoulli
 """
 function draw( casino::Casino, nrows::Int, ncols::Int, bernoulli::Float64)
 	if nrows > casino.maxrows || ncols > casino.maxcols
-		# Vault is too small - throw exception:
+		# Deck is too small - throw exception:
 		error( "Requested withdrawal is too large")
 	end
 
@@ -76,7 +76,7 @@ function draw( casino::Casino, nrows::Int, ncols::Int, bernoulli::Float64)
 
 	# Ensure Bernoulli entry exists in the Dictionary:
 	if !haskey( casino.bernoulli, bernoulli)
-		casino.bernoulli[bernoulli] = (casino.vault .< bernoulli)
+		casino.bernoulli[bernoulli] = (casino.deck .< bernoulli)
 	end
 
 	# Access the bernoulli-biased matrix entry:
@@ -87,10 +87,10 @@ end
 """
 	shuffle!( casino)
 
-Reassign random values in the vault.
+Reassign random values in the deck.
 """
 function shuffle!( casino::Casino)
-    rand!( casino.vault)
+    rand!( casino.deck)
 end
 
 #-----------------------------------------------------------------------------------------
@@ -124,9 +124,9 @@ Unit-test the Casinos module.
 """
 function unittest()
 	println("\n============ Unit test Casinos: ===============")
-	println("Casino vault of randomness 2 for matrix withdrawals up to size (2x3):")
+	println("Casino deck of randomness 2 for matrix withdrawals up to size (2x3):")
 	casino = Casino(2,3,2)
-	display( casino.vault)
+	display( casino.deck)
 	println()
 
 	println("Draw several (2x3) matrices from the casino:")
@@ -134,9 +134,9 @@ function unittest()
 	display( draw( casino,2,3)); println()
 	display( draw( casino,2,3)); println()
 
-	println("Finally, reshuffle the casino and redisplay its vault:")
+	println("Finally, reshuffle the casino and redisplay its deck:")
 	shuffle!(casino)
-	display(casino.vault)
+	display(casino.deck)
 end
 
 end		# ... of module Casinos

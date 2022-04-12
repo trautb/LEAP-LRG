@@ -194,9 +194,9 @@
 		\"""
 		function unittest()
 			println("\\n============ Unit test Casinos: ===============")
-			println("Casino vault of randomness 2 for matrix withdrawals up to size (2x3):")
+			println("Casino deck of randomness 2 for matrix withdrawals up to size (2x3):")
 			casino = Casino(2,3,2)
-			display( casino.vault)
+			display( casino.deck)
 			println()
 		
 			println("Draw several (2x3) matrices from the casino:")
@@ -204,9 +204,9 @@
 			display( draw( casino,2,3)); println()
 			display( draw( casino,2,3)); println()
 		
-			println("Finally, reshuffle the casino and redisplay its vault:")
+			println("Finally, reshuffle the casino and redisplay its deck:")
 			shuffle!(casino)
-			display(casino.vault)
+			display(casino.deck)
 		end
 
 		end # of Casinos
@@ -232,7 +232,7 @@
 		Next, close this multi-line comment by inserting the marker =# to the right of the final
 		line of unittest():
 
-			display(casino.vault) =#
+			display(casino.deck) =#
 
 		Reinclude Casinos.jl. Now you should be able to run Casino.unittest() without errors.
 		Tell me the last six characters that you see in the output:
@@ -255,14 +255,14 @@
 			Casino
 		
 		A Casino can return arrays of random numbers in the range [0,1), up to a maximum number of rows
-		(maxrows), and a maximum number of columns (maxcols). It also contains a vault of prepared
+		(maxrows), and a maximum number of columns (maxcols). It also contains a deck of prepared
 		random numbers from which it draws the arrays.
 		\"""
 		struct Casino
 			maxrows::Int							# Maximum number of drawable rows
 			maxcols::Int							# Maximum number of drawable columns
 			randomness::Int							# How randomised will our withdrawals be?
-			vault::Matrix							# Repository of random numbers in [0,1)
+			deck::Matrix							# Repository of random numbers in [0,1)
 		
 			"The one and only constructor"
 			function Casino(maxrows::Int,maxcols::Int,randomness::Int=5)
@@ -287,7 +287,7 @@
 		#=	println("Draw several (2x3) matrices from the casino:")
 
 		This reveals the lines 3-6. Test that your program can now correctly create and display a
-		Casino. Now tell me the size of the Casino vault, and think about why I have designed this
+		Casino. Now tell me the size of the Casino deck, and think about why I have designed this
 		size to depend on the constructor argument randomness:
 		""",
 		"",
@@ -295,7 +295,7 @@
 	),
 	Activity(
 		"""
-		Did you work out why the size of the vault depends on randomness? The idea is that we
+		Did you work out why the size of the deck depends on randomness? The idea is that we
 		want to draw random matricess from the Casino like drawing cards from a shuffled deck of
 		cards, and that is only possible if the deck contains more cards than we actually need.
 
@@ -306,8 +306,8 @@
 		\"""
 			draw( casino, nrows, ncols)
 		
-		Draw the required number of rows and columns from the casino vault, first ensuring that the
-		vault is large enough to support the withdrawal.
+		Draw the required number of rows and columns from the casino deck, first ensuring that the
+		deck is large enough to support the withdrawal.
 		\"""
 		function draw( casino::Casino, nrows::Int, ncols::Int)
 			if nrows > casino.maxrows || ncols > casino.maxcols
@@ -316,7 +316,7 @@
 			end
 		
 			# Choose random offsets and strides for drawing a matrix of size (nrows x ncols) from
-			# the vault, assuming that it is big enough to support the withdrawal:
+			# the deck, assuming that it is big enough to support the withdrawal:
 			ones(nrows,ncols)
 		end
 
@@ -331,16 +331,16 @@
 		ncols being small enough to be able to draw our new random matrix. Now replace this
 		dummy line by the following code and test it:
 
-			vaultrows, vaultcols = size(casino.vault)
-			offset_r = rand( 1 : (vaultrows-nrows))
+			deckrows, deckcols = size(casino.deck)
+			offset_r = rand( 1 : (deckrows-nrows))
 			stride_r = (nrows <= 1) ? 1 :
-							rand( 1 : (vaultrows-offset_r) ÷ (nrows-1))
-			offset_c = rand( 1 : (vaultcols-ncols))
+							rand( 1 : (deckrows-offset_r) ÷ (nrows-1))
+			offset_c = rand( 1 : (deckcols-ncols))
 			stride_c = (ncols <= 1) ? 1 :
-							rand( 1 : (vaultcols-offset_c) ÷ (ncols-1))
+							rand( 1 : (deckcols-offset_c) ÷ (ncols-1))
 		
-			# Return a randomly chosen table of slices from the vault:
-			casino.vault[
+			# Return a randomly chosen table of slices from the deck:
+			casino.deck[
 				(offset_r : stride_r : (offset_r + (nrows-1)*stride_r)),
 				(offset_c : stride_c : (offset_c + (ncols-1)*stride_c))
 			]
@@ -351,7 +351,7 @@
 	Activity(
 		"""
 		Finally, we'll now give Casinos the functionality of shuffling. We want users to be
-		able to shuffle the contents of the vault to give new random values. Reveal all lines
+		able to shuffle the contents of the deck to give new random values. Reveal all lines
 		of code in unittest(), insert the command "using Random" at the beginning of the Casinos
 		module - immediately after the line "module Casinos", then insert the following code after
 		draw() in Casinos. Then test the module again:
@@ -360,10 +360,10 @@
 		\"""
 			shuffle!( casino)
 
-		Reassign random values in the vault.
+		Reassign random values in the deck.
 		\"""
 		function shuffle!( casino::Casino)
-			rand!( casino.vault)
+			rand!( casino.deck)
 		end
 
 		""",
