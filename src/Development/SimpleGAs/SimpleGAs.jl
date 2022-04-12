@@ -135,7 +135,7 @@ end
 Display current status of population.
 """
 function depict( sga)
-	fit,evals = fitness(sga)
+	fit,evals,individuals = fitness(sga)
 	_,maxi = findmax(fit)
 	println( "Avg value:       ", mean(evals))
 	println( "Best value:      ", evals[maxi])
