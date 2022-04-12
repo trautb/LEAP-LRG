@@ -376,7 +376,7 @@
 		for yourself by doing something like this at the Julia prompt:
 
 		include("src/Development/Casinos/Casinos.jl")
-		casinos = Casinos.Casino(3,3,5)
+		casino = Casinos.Casino(3,3,5)
 		Casinos.draw(casino,3,3)
 
 		Make sure you also test error cases like this:
