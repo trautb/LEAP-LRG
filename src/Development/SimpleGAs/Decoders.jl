@@ -48,17 +48,18 @@ end
 """
 	decode( decoder, x)
 
-Decode the bit-vector x into floating-point numbers. x is a data vector of ndims
-floating-point values, each of which is encoded by nbits bits. Therefore, x contains
-ndims*nbits bits that we must decode into a data vector of ndims floating-point values.
+Decode the bit-vector x into ndims floating-point numbers. x contains ndims*nbits bit-values,
+of which each group of nbits values encodes a single floating-point number. Here, we decode
+the ndims*nbits bit-values into a data vector of ndims floating-point values.
 """
 function decode( decoder::Decoder, x::Vector)
-	# Reshape this column of x into a data matrix of ndims columns, each of which contains
-	# nbits rows. Then decode each column of data by multiplying it by components in the
-	# corresponding column of coeffs, summing the column and adding the corresponding lwb:
-	data = ones( decoder.nbits, decoder.ndims)		# reshape() x to the right size.
-	sum(decoder.coeffs .* data,dims=1)'				# Add the sum of each column to lwb, then
-end													# transpose it back into a column vector.
+	# Task: First reshape the bit-vector x into a (nbits*ndims) matrix. Then decode each column
+	# of this matrix by multiplying it by components in the corresponding column of coeffs,
+	# summing the resulting column of products and adding the corresponding lwb
+	# HINT: Notice that this operation of adding products is simply a scalar product!
+	data = ones( decoder.nbits, decoder.ndims)		# Task 1: reshape() x to the right size.
+	sum(decoder.coeffs .* data,dims=1)'				# Task 2: Add the sum of each column to lwb,
+end													# then transpose it back into a column vector.
 
 #-----------------------------------------------------------------------------------------
 """
