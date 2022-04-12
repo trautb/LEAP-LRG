@@ -80,9 +80,10 @@
 		to solve. To see how difficult it is to find this function's minimum, you can explore the
 		mepi function in any number of dimensions (here 3):
 
-			Objectives.mepi.([rand(3) for _ in 1:9])
+			Objectives.mepi([1,0,1])						# Returns the value 8
+			Objectives.mepi.([rand(3) for _ in 1:9])		# Returns nine different mepi values
 
-		What is the minimum value of the mepi function in 4 dimensions?
+		Play around with the mepi function to discover its minimum value in 4 dimensions:
 		""",
 		"Try confining your search to vectors with components either 0 or 1",
 		x -> x==4
