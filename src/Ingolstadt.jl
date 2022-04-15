@@ -13,7 +13,7 @@ Author: Niall Palfreyman, 7/12/2021
 module Ingolstadt
 
 # Externally callable methods of Ingolstadt
-export gimme, lab, act, reply, help, hint, nextlab, nextact, niall
+export gimme, lab, act, reply, hint, nextlab, nextact
 
 using Pluto								# We want to be able to use Pluto notebooks
 
@@ -107,7 +107,6 @@ Display a list of Ingolstadt commands.
 """
 function help()
 	println( "List of Ingolstadt commands:")
-	println( "   help()               : Display this list of options")
 	println( "   hint()               : Display a hint for the current activity")
 	println( "   gimme()              : Give me the current activity")
 	println( "   act()                : Display the current activity number")
@@ -271,7 +270,7 @@ function nextlab( lab_num::Int = 0, current_act::Int = 1)
 	println( "Great - I've set up the laboratory. If you've just completed working on another")
 	println( "laboratory, I recommend that you restart Julia now. This will keep your environment")
 	println( "clean and avoid naming conflicts.")
-	println( "Enter help() at any time to see the available options. Have fun! :)")
+	println( "Enter Ingolstadt.help() at any time to see your available options. Have fun! :)")
 	println()
 
 	# Display the new laboratory number:
