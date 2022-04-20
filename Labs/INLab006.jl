@@ -11,18 +11,18 @@
 		In this laboratory we learn how to use Julia's Makie plotting package to create
 		publication-quality graphics for data visualisation. Makie is the front-end for
 		several different backend graphics packages - for example, Cairo, GL and WebGL. We
-		shall focus here on Cairo. First, we add and load the CairoMakie package. You already
+		shall focus here on GLMakie. First, we add and load the GLMakie package. You already
 		know how to do this using the Julia PackageManager, but like everything in Julia, we
 		can also do it ourselves from within a program using method calls:
 
 		using Pkg
-		Pkg.add("CairoMakie")
-		using CairoMakie
+		Pkg.add("GLMakie")
+		using GLMakie
 
 		This will take a while - as will also your first graphics call. Julia uses JiT (Just-
 		in-time) compilation, so the first time you call a method, it will always take longer
-		than the second time you call it. Enter the following command, then tell me the type of
-		your return value fig:
+		than the second time you call it. Enter the following command (remembering the semicolon
+		at the end!), then tell me the type of your return value fig:
 
 		fig = scatterlines(0:10,(0:10).^2);
 		""",
@@ -31,17 +31,76 @@
 	),
 	Activity(
 		"""
-		If you enter fig at the Julia prompt, you will see that a Makie figure contains a whole
-		bunch of fields necessary for producing a graphic image. We will look at this image by
-		saving it to a pdf file, but first we need to study the filesystem underlying the Julia
-		REPL. Enter now the following command:
+		Plotting commands like scatterlines() create three things: a Figure that can be displayed,
+		an Axis system contained in the Figure, and a Plot object (such as a curve) that is drawn
+		within the Axis system. When we display the Figure, it already contains one or more
+		Axis systems, and one of these Axis systems contains our Plot curve.
+
+		Tell me the result of entering:
+
+			fieldnames(typeof(fig))
+		""",
+		"",
+		x -> x <: (:figure,:axis,:plot)
+	),
+	Activity(
+		"""
+		OK, well now we know about the structure of Figures, let's take a look at our curve.
+		Enter this at the Julia prompt, and Julia will automatically display the value of fig:
+
+			fig
+
+		Doesn't it look pretty? :) What is the type of the return value from entering this?
+		""",
+		"",
+		x -> x <: Main.Makie.FigureAxisPlot
+	),
+	Activity(
+		"""
+		Our figure is still a little primitive - let's customise its attributes. First capture
+		the three different fields of fig so that we can manipulate them for ourselves:
+
+		fg,ax,plt = fig;
+
+		Check out the attributes field of plt to find out how many attributes it has:
+		""",
+		"",
+		x -> x >= 14
+	),
+	Activity(
+		"""
+		We can ask for help on any function in the REPL by using the help() function. Try:
+		
+		help(lines)
+
+		and then tell me how many different ways there are of calling the lines() function:
+		""",
+		"The signature of a function is the pattern of arguments that defines which method to call",
+		x -> x==3
+	),
+	Activity(
+		"""
+		Now we'll use this information on line attributes to replot our curve. Try entering this:
+		
+		fig = scatterlines(0:10,(0:10).^2,color=:red)
+
+		Now replot this graph using a line with thickness 9-point, then tell me exactly which value
+		you needed to assign to the relevant attribute in order to do this:
+		""",
+		"The important point here is that numbers are already symbols, so you don't need the colon",
+		x -> x==9
+	),
+	Activity(
+		"""
+		It might be useful to save our curve to a pdf file, but to do this, we first need to study
+		the filesystem underlying the Julia REPL. Enter now the following command:
 
 		pwd()
 
 		The returned string tells you the path of your Present Working Directory. It should look
 		something like this:
 
-		"C:\\\\Users\\\\hswt136nia\\\\...\\\\Projects\\\\Ingolstadt\\\\src"
+		"C:\\\\Users\\\\hswt136nia\\\\...\\\\Projects\\\\Ingolstadt"
 
 		In the chapter "Filesystem" of the Julia user manual you will find many functions for
 		exploring the filesystem - we shall just use one or two here. Look at the return value of
@@ -86,46 +145,10 @@
 	),
 	Activity(
 		"""
-		Didn't it look pretty? :) Wouldn't it be nice to view the graphic from within the Julia
-		REPL? The REPL is a very basic environment that cannot display graphics, but we can easily
-		include this functionality by adding and loading the package ElectronDisplay. When you have
-		done this, just enter fig at the Julia prompt and ElectronDisplay will automatically
-		display your image.
-
-		What is the type of the return value from this display?
-		""",
-		"",
-		x -> x <: Main.Makie.FigureAxisPlot
-	),
-	Activity(
-		"""
-		Our figure is still a little primitive - let's customise its attributes. First notice
-		that fig has a structure that includes a figure, an axis and a plot object:
-
-		fg,ax,plt = fig;
-
-		Check out the attributes field of plt to find out how many attributes it has:
-		""",
-		"",
-		x -> x >= 14
-	),
-	Activity(
-		"""
-		We can ask for help on any function in the REPL by using the help() function. Try:
-		
-		help(lines)
-
-		and then tell me how many different ways there are of calling the lines() function:
-		""",
-		"The signature of a function is the pattern of arguments that defines which method to call",
-		x -> x==3
-	),
-	Activity(
-		"""
 		OK, now let's get fancy. We don't always want the scatter points on our plot, so we'll try
 		out the lines() function. Also, it would be nice to plot something a little more exciting,
 		like maybe the Hill function. The Hill function describes the activation and inhibition of
-		DNA expression in biological cells by a transcription factor (TF):
+		DNA expression in biological cells by a transcription factor (TF):???
 
 		function hill( tf, K::Real=2, n::Real=1)
 			abs_n = abs(n)

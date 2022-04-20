@@ -1,16 +1,18 @@
 using Observables, GLMakie
 
-phase = Observable(0.0)
-x = 0:0.01:10
+function animo()
+    phase = Observable(0.0)
+    T = 0:0.1:10
 
-y = lift(phase) do p
-    @. sin(x - p)
-end
+    s = lift(phase) do t
+        @. sin(T - t)
+    end
 
-fig, ax, lin = lines(x, y)
-display(fig)
+    fig, _ = lines(T,s)
+    display(fig)
 
-for _phase in 0:0.1:10
-    phase[] = _phase
-    sleep(1/60)
+    for t in T
+        phase[] = t
+        sleep(1/60)
+    end
 end
