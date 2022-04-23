@@ -299,37 +299,34 @@
 	),
 	Activity(
 		"""
-		You see how useful it is to encapsulate (i.e.: hide) code? As soon as we have hidden the
-		complicated graphics code inside the function myheatmap(), we can easily reuse this
-		encapsulated code, by simply passing to it the name of the function we wish to plot:
+		I want to show you just one more trick. Wouldn't it be cool if we could animate our
+		graphics and make them move? We can do this by using the Observables package:
 
-		Encapsulation is THE CENTRAL tool for abstraction in modern computer languages!
+			using Observables
 		
-		However, encapsulation can get broken! Before we move on to the next laboratory, I want
-		you to notice something important. Do you remember our graph of the quadratic function
-		y=x^2 that we saved in a file at the beginning of this laboratory? If you remember, we
-		stored this graphic in a global variable fig, so we should be able to look at it again
-		now, yes?
+		Now enter the following lines of code to make a moving sine-wave:
+
+			T = 0:0.1:10					# Time range of simulation
+			x = 0:0.1:4pi					# Spatial range of wave
 		
-		OK, so please now display the quadratic graph contained in the global variable fig, and
-		then, without doing anything else, move on to the next activity in this laboratory:
-
-		fig
+			λ = 2π;		k = 2π/λ			# Wavelength and wave-number
+			f = 0.5;	ω = 2π*f			# Frequency and angular frequency
+		
+			simtime = Observable(0.0)		# Set up simulation time as an Observable
+			signal = lift(simtime) do t		# signal is an Observable that watches animtime
+				sin.(k*x .- ω*t)			# signal is a time-dependent sine-graph
+			end
+		
+			fig = lines(x,signal)			# Draw the sine-signal (for the current simtime)
+			display(fig)					# Display the figure
+		
+			for t in T						# Step through the time range
+				simtime[] = t				# Update simtime, and watch the signal change!
+				sleep(0.1)					# Wait for clock-time to catch up
+			end
 		""",
-		"Your result may puzzle you, but please just move on to the next activity",
-		x -> true
-	),
-	Activity(
-		"""
-		You should have found that the variable fig no longer contains the quadratic graph, but
-		instead contains our most recent graph of the mountains() function.
-
-		I want you to think now about this question: Why has the value of fig changed, and what
-		single word can you delete in this laboratory to fix this problem? Don't worry too much if
-		you don't manage to work it out: we will return to this important issue of encapsulation
-		in laboratory 7.
-		""",
-		"",
+		"If you have problems, restart Julia, load both Observables and GLMakie, " *
+			"and retrieve the above commands using up-arrow",
 		x -> true
 	),
 ]
