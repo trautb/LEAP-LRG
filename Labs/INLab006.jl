@@ -300,11 +300,11 @@
 	Activity(
 		"""
 		I want to show you just one more trick. Wouldn't it be cool if we could animate our
-		graphics and make them move? We can do this by using the Observables package:
+		graphics and make them move? We can do this using the Observables package:
 
 			using Observables
 		
-		Now enter the following lines of code to make a moving sine-wave:
+		Now enter the following lines of code to make an exciting sine-wave movie!
 
 			T = 0:0.1:10					# Time range of simulation
 			x = 0:0.1:4pi					# Spatial range of wave
@@ -313,7 +313,7 @@
 			f = 0.5;	ω = 2π*f			# Frequency and angular frequency
 		
 			simtime = Observable(0.0)		# Set up simulation time as an Observable
-			signal = lift(simtime) do t		# signal is an Observable that watches animtime
+			signal = lift(simtime) do t		# signal is an Observable that watches simtime
 				sin.(k*x .- ω*t)			# signal is a time-dependent sine-graph
 			end
 		

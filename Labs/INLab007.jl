@@ -8,19 +8,23 @@
 [
 	Activity(
 		"""
-		In this laboratory we look at the issue of encapsulation that we saw at the end of the
-		previous laboratory. There, we found that the value of the GLOBAL variable fig had been
-		overwritten by the code inside the function myheatmap() ...
+		In this laboratory we look at the issue of encapsulation - a super-important topic in
+		modern software engineering. The point is that if everyone is able to change the
+		value of important variables, our code will be EXTREMELY hard for people to understand
+		and debug. I have seen one firm come to bankruptcy because of this problem. How does it
+		come about?
 
-			THIS IS SOMETHING THAT SHOULD _NEVER_EVER_ HAPPEN!
+		In a moment, you will discover that the variables inside a module or function have LOCAL
+		SCOPE - that is, they are only visible and available inside that function, and not in
+		the GLOBAL SCOPE outside the function.
 
-		We are sometimes tempted to use global variables to pass data between functions, but
-		this ALWAYS carries the danger that someone might change the value of these variables
-		by accident - particularly since it is usually extremely difficult for users of our
+		Sometimes, we are tempted to pass data from one function to another by storing that data
+		in global variables, but this ALWAYS brings with it the danger that someone might change
+		that data by accident - particularly because it is often very difficult for users of our
 		program to notice that we are using global variables to pass the data!
 
 		A large part of the science of informatics concerns how to pass data in ways that
-		protect that data from being changed by accident, and that is what we will investigate
+		protect that data from being changed by accident, so that is what we will investigate
 		in this laboratory.
 
 		In our first experiment, enter the following code, then tell me the value of paula:
@@ -57,8 +61,8 @@
 	),
 	Activity(
 		"""
-		Aha! So although we can change the value of paula locally within change_paula(), this
-		does not change the GLOBAL value of paula. In fact, there exist two different variables
+		Aha! So although we can change the value of LOCAL paula inside the function change_paula(),
+		this does not affect the value of GLOBAL paula. In fact, there exist two different variables
 		named paula: the GLOBAL variable containing the value 5, and a LOCAL variable containing
 		the value 7. When change_paula() ends, the variables in its local scope are thrown away,
 		and the LOCAL paula disappears.
@@ -67,12 +71,11 @@
 		function change_paula():
 
 		function change_paula()
-			global paula = paula + 2
+			global paula = 7
 			paula
 		end
 
-		This is what I did in the function myheatmap of laboratory 6. It is NOT a good idea! Tell
-		me the value of paula now:
+		NOTE: Doing this is a Very Bad Idea! Tell me the value of paula now:
 		""",
 		"",
 		x -> x==7
@@ -97,13 +100,15 @@
 	),
 	Activity(
 		"""
-		The problem is that linus is a Vector that refers to its contents (5,4,3,2,1). We are not
-		allowed to change the value of linus, but we ARE allowed to change the contents that it
-		refers to. So global variables are still unsafe! What are we to do? The solution is this:
+		The point here is that linus is a Vector that refers to its contents (5,4,3,2,1). Julia
+		does not allow us to change the value of linus, however it DOES allow us to change the
+		CONTENTS that linus refers to. So global variables are still unsafe! What are we to do?
+		The solution is this:
 
-		ALWAYS encapsulate (i.e.: wrap/hide) EVERYTHING you do inside a MODULE!
+			ALWAYS encapsulate (i.e.: wrap/hide) EVERYTHING you do inside a MODULE!
 
-		Let's see how to do this. Enter the following code:
+		Modules offer a very effective of preventing our variables and code from being changed by
+		other programmers. Let's see how to do this. Enter the following code:
 
 		module MyModule
 			function change_paula1()
@@ -136,41 +141,34 @@
 		Great! Now that we know how to hide variables and functions inside a module, we can do
 		some real live software development! In the next laboratory, we will develop a genetic
 		algorithm (GA), and GAs need to work with arrays of random values. However, generating
-		random numbers is very time-expensive, so in this laboratory we develop a Casino module
-		that can generate arrays of random values very quickly.
+		random numbers is very time-expensive, so in this laboratory we will develop a software
+		tool called a Casino that will later help us generate arrays of random values very quickly.
 
 		There is just one thing we need to do first. Our modules can get quite complex, so we
-		will build them up step-by-step within the Ingolstadt filesystem. Please create now a
-		subfolder of Ingolstadt\\src named "Development", then create within the Development
-		folder another subfolder named "Casinos". Finally, create withïn the Casinos folder an
-		empty file named "Casinos.jl" that will contain our wonderful new module ...
-		""",
-		"Create this file structure now, before continuing",
-		x -> isfile("Development/Casinos/Casinos.jl")
-	),
-	Activity(
-		"""
-		If you study the file Ingolstadt.jl, you will see that it contains my source code. It's
-		all packed into a module named Ingolstadt, and this module is prefixed by a triple-quoted
-		multi-line string that describes its purpose. Use my source code as a template to create
-		in the file Casinos.jl a module Casinos prefixed by an explanatory help-string, and which
-		contains the following test code:
+		will build them up step-by-step within the Ingolstadt filesystem. If you look in the
+		directory Ingolstadt/Development/Casinos, you will find a file named Casinos.jl. At
+		present, this is just a dummy file that doesn't do anything except create a module named
+		Casinos that contains the single variable test. Notice that the module Casinos is prefixed
+		by a triple-quoted multi-line string that describes its purpose.
+		
+		Whenever you start writing a new module, always start the same way I have here - creating
+		a very simple file that you can gradually expand into a complex program. We call this
+		style of programming AGILE programming, because it is a good way to get started quickly
+		on the job of programming a new module.
 
-		module Casinos
-		test = 5
-		end
+		Tell me the value that I have assigned to test inside the Casinos module:
 		""",
-		"",
-		x -> true
+		"The program statement is in line 11 of Casinos.jl",
+		x -> x==5
 	),
 	Activity(
 		"""
-		Now test your new module by entering this line at the Julia prompt:
+		Now we'll test the Casinos module by reading and parsing the file Casinos.jl. Enter the
+		following line from inside the Ingolstadt folder:
 
 		include("src/Development/Casinos/Casinos.jl")
 
-		This will read and parse the Casino module, and you can test it by telling me the
-		answer to the following line:
+		Now you can test the Casinos module by telling me the answer to the following line of code:
 
 		Casinos.test
 		""",
@@ -179,37 +177,37 @@
 	),
 	Activity(
 		"""
-		Now we can develop our Casinos module in the file Casinos.jl. We start by setting up a
-		use-case for the module - that is, we sketch out how we will want to use the module when it
-		is finished. Replace your module definition in the file Casinos.jl by the following code,
-		then move on to the next activity:
+		Bingo! Our new module works! Now we can develop our Casinos module in the file Casinos.jl.
+		We start by setting up a USE-CASE for the module - that is, we sketch out how we will want
+		to use the module when it is finished. Replace your module definition in the file Casinos.jl
+		by the following code, then move on to the next activity:
 
-		module Casinos
+			module Casinos
 
-		#-----------------------------------------------------------------------------------------
-		\"""
-			unittest()
+			#--------------------------------------------------------------------------------------
+			\"""
+				unittest()
 
-		Unit-test the Casinos module.
-		\"""
-		function unittest()
-			println("\\n============ Unit test Casinos: ===============")
-			println("Casino deck of randomness 2 for matrix withdrawals up to size (2x3):")
-			casino = Casino(2,3,2)
-			display( casino.deck)
-			println()
-		
-			println("Draw several (2x3) matrices from the casino:")
-			display( draw( casino,2,3)); println()
-			display( draw( casino,2,3)); println()
-			display( draw( casino,2,3)); println()
-		
-			println("Finally, reshuffle the casino and redisplay its deck:")
-			shuffle!(casino)
-			display(casino.deck)
-		end
+			Unit-test the Casinos module.
+			\"""
+			function unittest()
+				println("\\n============ Unit test Casinos: ===============")
+				println("Casino deck of randomness 2 for matrix withdrawals up to size (2x3):")
+				casino = Casino(2,3,2)
+				display( casino.deck)
+				println()
+			
+				println("Draw several (2x3) matrices from the casino:")
+				display( draw( casino,2,3)); println()
+				display( draw( casino,2,3)); println()
+				display( draw( casino,2,3)); println()
+			
+				println("Finally, reshuffle the casino and redisplay its deck:")
+				shuffle!(casino)
+				display(casino.deck)
+			end
 
-		end # of Casinos
+			end # of Casinos
 		""",
 		"Note: you can't compile or run Casinos yet - just enter this code and move on",
 		x -> true
@@ -220,10 +218,10 @@
 
 		include("src/Development/Casinos/Casinos.jl")
 
-		If you enter Casinos.unittest() at the Julia prompt, you should see that the command
-		runs, but throws various errors (exceptions). We will now start to fix those errors...
+		If you enter Casinos.unittest() at the Julia prompt, you will see that the command
+		runs, but throws lots of errors (exceptions). We'll now start fixing those errors...
 
-		First, let's comment out the lines of unittest() that are causing problems. Insert the
+		First, comment out the lines of unittest() that are causing problems. Insert the
 		multi-line comment marker #= at the beginning of the third line of unittest() so that
 		it looks like this:
 			
