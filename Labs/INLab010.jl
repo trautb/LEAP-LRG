@@ -1,14 +1,14 @@
 #========================================================================================#
 #	Laboratory 10
 #
-# Working with arrays.
+# Accessing the data in arrays.
 #
 # Author: Niall Palfreyman, 22/03/2022
 #========================================================================================#
 [
 	Activity(
 		"""
-		Arrays play a very fundamental role in Julia, so we need to learn how to deal with them
+		Arrays play a very fundamental role in Julia, so we need to learn how to access them
 		efficiently. In this laboratory we learn how to index into arrays in Julia - that is,
 		how to use indices to access and manipulate the entries in an array. We will also look
 		at various ways of applying code to the elements in an array.

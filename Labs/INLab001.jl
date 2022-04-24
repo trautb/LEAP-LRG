@@ -18,9 +18,11 @@
 
 			city = "Ingolstadt"
 
-		Then enter your answer as "reply(city)":
+		Then enter your answer as:
+		
+			reply(city)
 		""",
-		"We're still getting acquainted - simply follow the above instructions precisely. :-)",
+		"We're still getting started - simply follow the above instructions precisely. :)",
 		x -> (x=="Ingolstadt")
 	),
 	Activity(
