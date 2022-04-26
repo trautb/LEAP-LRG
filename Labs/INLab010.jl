@@ -39,7 +39,7 @@
 		"""
 		We have already used the colon operator to create ranges of numbers, for example 1:3 can
 		be collected into a vector [1,2,3]. We can also use ranges to select regions of an array.
-		Use m[1:3,2:4] to display the top-right (3×3) region of m, then tell me the result
+		Use m[1:3,2:4] to display the top-right (3x3) region of m, then tell me the result
 		(Remember you can use reply(ans) to tell me the result of the previous calculation):
 		""",
 		"",
@@ -48,8 +48,8 @@
 	Activity(
 		"""
 		1:2:7 creates a range of numbers from 1 to 7 in steps of 2: [1,3,5,7]. Reshape 1:81 into a
-		(9×9) matrix, then extract from it the (3×3) matrix obtained by taking the first, then
-		every third, row and column of your (9×9) matrix. Then tell me the result:
+		(9x9) matrix, then extract from it the (3x3) matrix obtained by taking the first, then
+		every third, row and column of your (9x9) matrix. Then tell me the result:
 		""",
 		"",
 		x -> x == [1 28 55;4 31 58;7 34 61]
@@ -138,7 +138,7 @@
 
 			A = [1 2 3;4 5 6]
 
-		If we just enter A at the Julia prompt, we see a (2×3) matrix, but if you enter A[:], you
+		If we just enter A at the Julia prompt, we see a (2x3) matrix, but if you enter A[:], you
 		will see a list of all elements of A in a linear order. Does this order first run down the
 		columns or along the rows?
 		""",
@@ -154,13 +154,13 @@
 	),
 	Activity(
 		"""
-		We can also use linear indexing to change the elements of A. What is the contents of A
+		We can also use linear indexing to change the elements of A. What is the content of A
 		after entering this line of code?
 
 			A[5] = 99
 		""",
 		"",
-		x -> [1 2 99;4 5 6]
+		x -> x==[1 2 99;4 5 6]
 	),
 	Activity(
 		"""

@@ -118,7 +118,7 @@
 		What is the type of the curve_fit() result "fit"?
 		""",
 		"You may first need to open Package Manager (']') to add the package CurveFit",
-		x -> x == Main.Polynomial
+		x -> x <: Main.Polynomial
 	),
 	Activity(
 		"""
@@ -183,7 +183,7 @@
 	),
 	Activity(
 		"""
-		The circhshift function is an important tool, so let's take a moment to see how it works.
+		The circshift() function is an important tool, so let's take a moment to see how it works.
 		circshift rotates the elements of an array circularly in the direction given by its second
 		argument, for example:
 
@@ -220,7 +220,7 @@
 		At approximately which point between 0 and 1 is the curve parallel to the straight line?
 		""",
 		"It's about halfway, isn't it?",
-		x -> x == 1.5
+		x -> x == 0.5
 	),
 	Activity(
 		"""

@@ -271,7 +271,7 @@
 		objective function at this point?
 		""",
 		"",
-		x -> x==-18
+		x -> x==-16
 	),
 	Activity(
 		"""
