@@ -53,7 +53,7 @@
 		numbers. What is the Julia function for producing random values?
 		""",
 		"",
-		x -> x[1:4] == "rand"
+		x -> x == rand
 	),
 	Activity(
 		"""
