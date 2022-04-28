@@ -155,6 +155,7 @@
 
 			data = besselj.(6,9:.5:15);
 
+		(Note: To use the function besselj, you first need to load the package SpecialFunctions)
 		As a first approximation, use the findmin function to find the position of the minimum
 		value. Which component of the data is the smallest?
 		""",
