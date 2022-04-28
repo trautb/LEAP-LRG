@@ -155,9 +155,9 @@
 
 			data = besselj.(6,9:.5:15);
 
-		(Note: To use the function besselj, you first need to load the package SpecialFunctions)
+		(Note: To use the function besselj, you will need to load the package SpecialFunctions)
 		As a first approximation, use the findmin function to find the position of the minimum
-		value. Which component of the data is the smallest?
+		value. Which element of the data is the smallest?
 		""",
 		"",
 		x -> x==6
@@ -190,11 +190,11 @@
 
 			a = 1:5
 			circshift(a,1)
-			circhshift(a,-1)
+			circshift(a,-1)
 
 		We can use circshift with arrays of any size. Enter the following lines and in each case,
 		follow the shift in position of the number 1 from its position in the original array b.
-		Notice how this shift corresponds to the second argument of circhshift:
+		Notice how this shift corresponds to the second argument of circshift:
 
 			b = reshape(1:16,(4,4))
 			circshift(b,(-1,0))
