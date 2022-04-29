@@ -29,7 +29,7 @@
 		diameter 1μm. Use Julia to calculate the volume of this cell in litres:
 		""",
 		"Remember the formula for cylinder volume, and use the float notation 1e-6",
-		x -> (1e-12 < x < 2e-12)
+		x -> (1e-15 < x < 2e-15)
 	),
 	Activity(
 		"""
@@ -38,12 +38,12 @@
 		transcription factor molecules inside the E.coli cell:
 		""",
 		"Remember that you will need the Avogadro constant: 6e23 particles per mole",
-		x -> (900 < x < 1000)
+		x -> (0.5 < x < 2)
 	),
 	Activity(
 		"""
-		As you can see, there are only under 1000 molecules of the transcription factor inside the
-		E.coli cell, so statistical variations play an important role in determining the
+		As you can see, there are only very few molecules of the transcription factor inside
+		the E.coli cell, so statistical variations play an important role in determining the
 		decisions that the cell makes. Organisms form themselves in sizes and ways that can
 		make use of random noise to explore multiple possible solutions.
 
