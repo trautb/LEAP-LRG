@@ -103,7 +103,7 @@ function simulate( nbody)
 end
 
 #-----------------------------------------------------------------------------------------
-using CairoMakie
+using GLMakie
 
 """
 	demo()
