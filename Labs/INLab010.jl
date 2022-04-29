@@ -207,7 +207,7 @@
 	Activity(
 		"""
 		We can generate new magic squares by swapping columns of an existing magic square. Study
-		the matrix B = A(:,[1,3,2,4]). Is this also a magic square (remember that rows, columns and
+		the matrix B = A[:,[1,3,2,4]]. Is this also a magic square (remember that rows, columns and
 		diagonals of a magic square must all sum to the same number)? Which substructures of A were
 		permuted by using the Vector [1,3,2,4] as a permutation index?
 		""",
