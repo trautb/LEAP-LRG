@@ -20,7 +20,7 @@
 		the 7-th function in our test-suite of Objective functions:
 
 			include("src/Development/SimpleGAs/Objectives.jl")
-			using ElectronDisplay, .Objectives
+			using .Objectives
 			Objectives.demo1()
 		""",
 		"The low values in this contour map are colourd deep blue - look to the top-left! :)",
