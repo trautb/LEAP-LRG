@@ -426,15 +426,15 @@
 		"""
 		The special point about the trace of a matrix is that the trace of an outer product is
 		equal to the corresponding inner product. Let's verify this using the two Pauli spin
-		eigenkets ψ_yp and ψ_ym. Let a be either of these two kets, and b is again either of
-		them (b might even be the same as a), then we can combine these two kets either as an
+		eigenkets ψ_yp and ψ_ym. Suppose x is one of these two kets, and y is again either of
+		the two (y might even be the same as x), then we can combine these two kets either as an
 		inner or an outer product:
 
-			<a|b> == (a' * b) , or
-			|a><b| == (a * b')
+			<x|y> == (x' * y) , or
+			|x><y| == (x * y')
 
-		The first of these expressions is a number - the INNER product of a and b - while the
-		second expression is a matrix - the OUTER product of a and b. Now take the trace of the
+		The first of these expressions is a number - the INNER product of x and y - while the
+		second expression is a matrix - the OUTER product of x and y. Now take the trace of the
 		outer product - is it equal to the inner product?
 		""",
 		"",
@@ -443,8 +443,8 @@
 	Activity(
 		"""
 		OK, now we have all the mathematical apparatus we need to get started with quantum
-		computation! The first thing we will do in the following lab is to build our very
-		own quantum computer simulator, so that we can get started writing quantum algorithms
+		computation! The first thing we will do in the following lab is to build Our Very
+		Own Quantum Computer simulator, so that we can get started writing quantum algorithms
 		to run on it. What fun! :)
 		""",
 		"",
