@@ -8,3 +8,13 @@ function nestlist( f::Function, x0, n::Integer)
 		list
 	end
 end
+
+function bin2dec(bvect::BitVector)
+    v = 1
+	s = 0
+    for i in view(bvect,length(bvect):-1:1)
+        s += v*i
+        v <<= 1
+    end 
+    s
+end
