@@ -9,12 +9,13 @@ function nestlist( f::Function, x0, n::Integer)
 	end
 end
 
-function bin2dec(bvect::BitVector)
-    v = 1
-	s = 0
-    for i in view(bvect,length(bvect):-1:1)
-        s += v*i
-        v <<= 1
-    end 
-    s
+function bs2float(str::String)
+    unsignedbits = Meta.parse(string("0b", str))
+    reinterpret(Float64, unsignedbits)
 end
+
+ϕ = (sqrt(5) + 1) / 2
+println( "ϕ = ", ϕ)
+str = bitstring(ϕ)
+println( "str = ", str)
+println( "bs2float(str) = ", bs2float(str))
