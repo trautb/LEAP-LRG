@@ -127,6 +127,46 @@ Base.setindex(s::State,i) = setindex(s.amp,i)
 Base.getindex(s::State,i) = getindex(s.amp,i)
 
 #-----------------------------------------------------------------------------------------
+# State constructors:
+#-----------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------
+"""
+	basis( s1::State, s2::State)
+
+Construct a pure State.
+"""
+function pureStt( dim:Int)
+	State(kron(s1.amp,s2.amp))
+end
+
+"""
+	qubit( alpha::Complex, beta::Complex)
+
+Create a single qubit State from the given amplitudes.
+"""
+function qubit( alpha::Number, beta=nothing)
+	if beta===nothing
+		beta = sqrt(1.0 - alpha'*alpha)
+	end
+
+	State([alpha,beta])
+end
+
+function qubit(; alpha=nothing, beta=nothing)
+	if alpha === beta === nothing
+		# Neither amplitude is given:
+		error("alpha, beta or both are required.")
+	end
+
+	if alpha === nothing
+		# alpha not given:
+		alpha = sqrt(1.0 - beta'*beta)
+	end
+
+	qubit(alpha,beta)
+end
+
+#-----------------------------------------------------------------------------------------
 """
 	kron( s1::State, s2::State)
 
@@ -185,38 +225,6 @@ function normalise(s::State)
 		error("Attempting to normaise zero-probability state.")
 	end
 	s /= nrm
-end
-
-#-----------------------------------------------------------------------------------------
-"""
-	qubit( alpha::Complex, beta::Complex)
-
-Create a single qubit State from the given amplitudes.
-"""
-function qubit( alpha::Number, beta=nothing)
-	if beta===nothing
-		beta = sqrt(1.0 - alpha'*alpha)
-	end
-
-#=	if !isclose( alpha'*alpha+beta'*beta, 1.0)
-		error("Qubit probabilities do not add up to 1.")
-	end=#
-
-	State([alpha,beta])
-end
-
-function qubit(; alpha=nothing, beta=nothing)
-	if alpha === beta === nothing
-		# Neither amplitude is given:
-		error("alpha, beta or both are required.")
-	end
-
-	if alpha === nothing
-		# alpha not given:
-		alpha = sqrt(1.0 - beta'*beta)
-	end
-
-	qubit(alpha,beta)
 end
 
 #-----------------------------------------------------------------------------------------
