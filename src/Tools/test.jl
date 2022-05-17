@@ -9,13 +9,7 @@ function nestlist( f::Function, x0, n::Integer)
 	end
 end
 
-function bs2float(str::String)
-    unsignedbits = Meta.parse(string("0b", str))
-    reinterpret(Float64, unsignedbits)
-end
+Vectuple = Union{Vector,Tuple}
 
-ϕ = (sqrt(5) + 1) / 2
-println( "ϕ = ", ϕ)
-str = bitstring(ϕ)
-println( "str = ", str)
-println( "bs2float(str) = ", bs2float(str))
+niall(bits...) = (print("Receiving ", bits..., ", Passing on ", bits, " ... "); niall(bits))
+niall(v::Vectuple) = println( typeof(v), ":", v, " ", BitVector(v))
