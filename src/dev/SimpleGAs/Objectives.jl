@@ -10,7 +10,7 @@ module Objectives
 
 export Objective, dim, domain, sample, evaluate, depict
 
-using GLakie
+using GLMakie
 
 #-----------------------------------------------------------------------------------------
 # Module types:

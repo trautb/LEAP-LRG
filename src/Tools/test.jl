@@ -9,12 +9,7 @@ function nestlist( f::Function, x0, n::Integer)
 	end
 end
 
-function bin2dec(bvect::BitVector)
-    v = 1
-	s = 0
-    for i in view(bvect,length(bvect):-1:1)
-        s += v*i
-        v <<= 1
-    end 
-    s
-end
+Vectuple = Union{Vector,Tuple}
+
+niall(bits...) = (print("Receiving ", bits..., ", Passing on ", bits, " ... "); niall(bits))
+niall(v::Vectuple) = println( typeof(v), ":", v, " ", BitVector(v))
