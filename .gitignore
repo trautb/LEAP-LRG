@@ -2,3 +2,10 @@
 *.jl.*.cov
 *.jl.mem
 deps/deps.jl
+
+# client specific
+.vscode/settings.json
+
+# Video files
+*.mp4
+
