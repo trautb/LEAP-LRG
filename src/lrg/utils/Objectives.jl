@@ -1,17 +1,17 @@
-#========================================================================================#
+#= ====================================================================================== =#
 """
 	Objectives
 
 A collection of displayable objective functions
-Authors: Alina Arneth, 17/5/2022.
+Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 """
-module Objectivs
+module Objectives
 
-export Objective, dim, domain, evaluate
+export Objective, dim, domain, evaluate, dummyObjective
 
-#using 
+# using 
 
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 # Module types:
 
 """
@@ -26,7 +26,7 @@ struct Objective
 end
 
 "Construct a new Objective from the test suite with default dimension and donain."
-function Objective( fun::Int = 1)
+function Objective(fun::Int=1)
 	if ~(fun in 1:length(testSuite))
 		fun = 1
 	end
@@ -34,11 +34,11 @@ function Objective( fun::Int = 1)
 end
 		
 "Construct a new Objective from the test suite with newly provided domain."
-function Objective( fun::Int, dom::Vector, dim::Int=1)
+function Objective(fun::Int, dom::Vector, dim::Int=1)
 	if ~(fun in 1:length(testSuite))
 		fun = 1
 	end
-	Objective(testSuite[fun][1],dom,dim)
+	Objective(testSuite[fun][1], dom, dim)
 end
 
 """
@@ -49,46 +49,46 @@ Numbers, it is a range that should be replicated over several dimensions; otherw
 if it is a vector of such ranges, it is a complete domain and the dimensionality should
 be ignored.
 """
-function Objective( fun::Function, dom, dim::Int)
+function Objective(fun::Function, dom, dim::Int)
 	if dom[1] isa Vector
 		# This is a ready-made domain - ignore the given dimension:
-		if any(length.(dom) .!= 2) || any(first.(a).>=last.(a))
+		if any(length.(dom) .!= 2) || any(first.(a) .>= last.(a))
 			# The domain structure is invalid - abort:
-			error( "Domain specification is invalid")
+			error("Domain specification is invalid")
 		end
-		Objective( fun, dom)
+		Objective(fun, dom)
 	else
 		# This a 1-dimensional range that should be replicated over dim dimensions:
-		if length(dom) != 2 || dom[1]>=dom[2] || dim < 1
+		if length(dom) != 2 || dom[1] >= dom[2] || dim < 1
 			# The domain structure is invalid - abort:
-			error( "Single domain/dimension specification is invalid")
+			error("Single domain/dimension specification is invalid")
 		end
-		Objective( fun, [dom for _ in 1:dim])
+		Objective(fun, [dom for _ in 1:dim])
 	end
 end
 
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 # Module methods:
 
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 "Return dimension of Objective function domain."
-function dim( obj::Objective)
+function dim(obj::Objective)
 	length(obj.domain)
 end
 
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 "Return domain of Objective function."
-function domain( obj::Objective)
+function domain(obj::Objective)
 	obj.domain
 end
 
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 "Evaluate Objective function for the given collection of arguments."
-function evaluate( obj::Objective, args)
+function evaluate(obj::Objective, args)
 	obj.functn.(args)
 end
 
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 """
 	mepi(x)
 
@@ -101,8 +101,8 @@ function mepi(x::Vector{Int64})
 		1
 	else
 		# Form product of the first and second halves of x separately:
-		halflen = div(dim,2)
-		dim*(1 - prod(x) - prod(1 .- x)) + mepi(x[1:halflen]) + mepi(x[halflen+1:end])
+		halflen = div(dim, 2)
+		dim * (1 - prod(x) - prod(1 .- x)) + mepi(x[1:halflen]) + mepi(x[halflen + 1:end])
 	end
 end
 
@@ -123,7 +123,7 @@ end
 # 	end
 # end
 
-#-----------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------
 # Module data:
 
 """
@@ -139,7 +139,17 @@ testSuite = [
 	# (fitness, [0,1], 128),
 ]
 
-end # of Objectives
 
 
+# -----------------------------------------------------------------------------------------
+# Debugging- & testing-stuff
+function dummyObjective()
+	return Objective(x -> x, [[0, 10], [0, 10]])
+end
 
+function dummyFitness()
+	return
+end
+
+
+end # of module Objectives
