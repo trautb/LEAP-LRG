@@ -46,7 +46,7 @@ the session accordingly.
 
 # Examples
 ```julia
-julia> letsgo!("Niall")
+julia> letsgo("Niall")
 Hi Niall! Wait just half a second ...
 ```
 """
@@ -296,7 +296,18 @@ end # End of Module Ingolstadt
 
 #-----------------------------------------------------------------------------------------
 # Initialisation code:
-using .Ingolstadt
+# using .Ingolstadt
 
 # Comment out the following line when executing/debugging within VSC:
-Ingolstadt.letsgo()							# Initialise persistently saved session
+# Ingolstadt.letsgo()							# Initialise persistently saved session
+
+
+# changed ingo function in startup.jl to include the code above:
+# function ingo()
+# 	# Initialisation code:
+# 	localProjectPath = expanduser("~/.julia/dev/Ingolstadt.jl")
+# 	cd(localProjectPath)
+# 	include("src/Ingolstadt.jl")
+# 	@eval using .Ingolstadt						# avoid running 'using' when initialising function (https://stackoverflow.com/questions/55531397/load-julia-modules-on-demand)
+# 	Base.invokelatest(Ingolstadt.letsgo)							# Initialise persistently saved session
+# end
