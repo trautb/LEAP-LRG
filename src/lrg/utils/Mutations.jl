@@ -9,7 +9,7 @@ Authors: Benedikt Traut, Michael Staab, 12/5/2022.
 # Warning: not tested code! Just to show the structural idea!
 module Mutations
 
-export PointMutation, mutate
+export Mutation, BitFlip, DummyMutation, mutate
 
 include("../../dev/Casinos/Casinos.jl")
 
@@ -25,6 +25,14 @@ A Mutation encapsulates the ability of GAs to mutate the genome after recombinat
 Mutation is basically a function R^x -> R^x that mutates a genome (i.e. array of alleles).
 """
 abstract type Mutation end
+
+"""
+	DummyMutation
+
+Dummy Mutation, does nothing.
+"""
+struct DummyMutation <: Mutation end
+function mutate(mutation::DummyMutation, genome::Vector{Vector{Bool}}) return genome end
 
 """
 	BitFlip
@@ -53,9 +61,4 @@ function mutate(mutation::BitFlip, genome::Vector{Vector{Bool}})
 		end
 	end
 	return genome
-end
-
-function mutate(mutation::PointMutation)
-
-
 end
