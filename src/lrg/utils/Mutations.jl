@@ -4,7 +4,7 @@
 
 A collection of functions for mutating genomes.
 
-Authors: Benedikt Traut, Michael Staab, 12/5/2022.
+Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 """
 # Warning: not tested code! Just to show the structural idea!
 module Mutations
@@ -42,7 +42,7 @@ end
 "Classical" Point Mutation (see /SimpleGAs/SimpleGAs.jl) that flips each allele 
 with a given propability mu.
 """
-struct BitFlip <: Mutation 
+struct BitFlip <: Mutation
 	mu::AbstractFloat
 	casino::Casino
 
@@ -94,7 +94,8 @@ end
 """
 	mutate!(genpool::Matrix{T}, alleles::Vector{T}, mutation::BitFlip) where {T <: Integer}
 
-Mutates the given genpool with Integer elements (alleles) according to the BitFlip mutation (see above), but with the subsequent changes:
+Mutates the given genpool with Integer elements (alleles) according to the BitFlip mutation (see above), 
+but with the subsequent changes:
 	1. For each locus, a corresponding allele probability is fetched
 	2. Each allele probability is converted into a allele index
 	3. For mutation, each orginal allele at a selected locus is replaced by the allele 
@@ -129,7 +130,8 @@ end
 """
 	mutate!(genpool::Matrix{T}, mutation::BitFlip) where {T <: Enum}
 
-Mutates the given genpool of alleles (represented by enums) by modifying the underlying integers (see above: mutate!(genpool::Matrix{T}, alleles::Vector{T}, mutation::BitFlip) where {T <: Integer})
+Mutates the given genpool of alleles (represented by enums) by modifying the underlying integers 
+(see above: mutate!(genpool::Matrix{T}, alleles::Vector{T}, mutation::BitFlip) where {T <: Integer})
 """
 function mutate!(genpool::Matrix{T}, mutation::BitFlip) where {T <: Enum}
 	# Determine possible alleles

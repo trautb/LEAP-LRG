@@ -1,7 +1,28 @@
-
-
-"One Implementation:"
+#= ====================================================================================== =#
 """
+    Selections
+
+A collection of functions for selecting individuals.
+
+Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
+"""
+module Selections
+
+export Selection # , DummySelection, performSelection
+
+"""
+    Selection
+
+A Selection encapsulates the ability of GAs to select individuals (depending on their fitness)
+for matings. 
+A Selection represents a function of R^x^y -> R^x^y. 
+(Vector{Vector{Allele}} -> Vector{Vector{Allele}})
+"""
+abstract type Selection end
+
+"""
+    One Implementation:
+
 The selection operation is implemented as a tournament selection. 
 In this case, we select a few individuals (tournament size) at random in the population. 
 Then, the tournament takes place : with the probability ptour, the best individual from the sampled population is selected. 
@@ -20,7 +41,7 @@ function selectIndividual(tournamentSize::Int64, ptour::Float64, pop::Array{Indi
         if rand(Float64) < ptour
             notSelected = false
             selected = subPop[mxindx]
-        elseif length(fitnesses)==1
+        elseif length(fitnesses) == 1
             selected = subPop[mxindx]
         else
             deleteat!(fitnesses, mxindx)
@@ -59,7 +80,23 @@ function tournamentSelection(pop::Array{Individual,1})
                 parent[j] = fighter1
             else
                 parent[j] = fighter2
+            end
         end
         children[i] = recombination(parent[1], parent[2])
     end
 end
+
+
+        
+
+# # -----------------------------------------------------------------------------------------
+# # Debugging- & testing-stuff
+# """
+#     DummySelection
+
+# Dummy Selection, does nothing.
+# """
+# struct DummySelection <: Selection end
+# function select(selection::DummySelection; kwargs...) end
+
+end # of module Selections
