@@ -20,6 +20,10 @@ A Selection represents a function of R^x^y -> R^x^y.
 """
 abstract type Selection end
 
+struct TournamentSelection <: Selection
+
+end
+
 """
     One Implementation:
 
@@ -73,7 +77,7 @@ function tournamentSelection(pop::Array{Individual,1})
     parent = Array{Individual}(2)
     for i in 1:nPop
         for j in 1:2
-            "Could be solved with smaple function from StatsBase.jl"
+            "Could be solved with sample function from StatsBase.jl"
             fighter1 = pop[rand(1:nPop)]
             fighter2 = pop[rand(1:nPop)]
             if fighter1.fitness > fighter2.fitness
@@ -87,7 +91,30 @@ function tournamentSelection(pop::Array{Individual,1})
 end
 
 
+
+"""
+    This implementation of tournamentSelection expects a matrix of fitness values with the datatype float64
+
+"""
+function performSelection(popFitness::Array, selection::TournamentSelection)
+    nPop = length(popFitness)
+    parents = Array(2*nPop)
+
+    for i in 1:2*nPop
         
+        "Could be solved with sample function from StatsBase.jl"
+        firstFigther = rand(1:nPop)
+        secondFighter = rand(1:nPop)
+        
+        if popFitness[firstFigher] > popFitness[secondFigher]
+            parents[i] = firstFighter
+        else
+            parents[i] = secondFighter
+        end
+    end
+    return parents
+end
+
 
 # # -----------------------------------------------------------------------------------------
 # # Debugging- & testing-stuff
