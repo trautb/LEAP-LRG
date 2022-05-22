@@ -8,8 +8,9 @@ Author: , 16/05/22
 """
 module EmergentBehaviour
 
-export demo									                # Externally available names
-using Agents, LinearAlgebra, InteractiveDynamics, GLMakie   # Required packages
+export demo                # Externally available names
+using Agents, GLMakie, InteractiveDynamics   # Required packages
+using LinearAlgebra # TODO: is this currently used?
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -22,21 +23,7 @@ To construct a new agent implementation, use the @agent macro and add all necess
 attributes. Again, id, pos and vel are automatically inserted.
 """
 @agent Particle ContinuousAgent{2} begin
-
 end
-
-#-----------------------------------------------------------------------------------------
-"""
-	Vertex
-
-To construct a new agent implementation, use the @agent macro and add all necessary extra
-attributes. Again, id, pos and vel are automatically inserted.
-"""
-@agent Vertex ContinuousAgent{2} begin
-	# not used as of now, they are just markers
-end
-
-const r = 0.5
 
 #-----------------------------------------------------------------------------------------
 """
@@ -57,27 +44,48 @@ end
 
 Create the world model.
 """
-function createWorld(;
-	n_particles			= 1,
-	extent				= (100, 100)
+function initialize_model(;
+    n_particles=1,
+	r = 0.5,
+	n_vertices = 3,
+    extent=(100, 100)
 )
-	world = ABM( Particle, ContinuousSpace(extent), scheduler = Schedulers.randomly)
-	vertices = createVertices() |> Tuple;
-	random_vertex = rand(vertices)
-	for _ in 1:n_particles
-		add_agent!( world,
-			Tuple(random_vertex)
-		)
-	end
-	return world
+	vertices = createVertices(n_vertices)
+
+    properties = Dict(:n_particles => n_particles,
+        :r => r,
+        :n_vertices => n_vertices,
+		:vertices => vertices)
+
+    model = ABM(Particle, ContinuousSpace(extent); properties=properties, scheduler=Schedulers.randomly)
+    spawn_particles!(model)
+    return model
 end
 
+function random_vertex(model)
+    model.vertices[rand(1:model.n_vertices),:] |> Tuple
+end
 
-function createVertices(n_vertices=3, extent = 100) 
-	angle_step = 360 / n_vertices
-	angles = 0:angle_step:360-angle_step
+function spawn_particles!(model, n_particles = model.n_particles)
+    for _ in 1:n_particles
+        add_agent_pos!( # this was the only way to set the position so far (to my knowledge)
+            Particle(
+                nextid(model),  # Using `nextid` prevents us from having to 
+                                # manually keep track of particle IDs
+                random_vertex(model),
+                (0.0,0.0)       # vel
+            ),
+            model,
+        )
+    end
+    return model
+end
 
-	map(x -> [0.9 * extent * sin(x), 0.9 * extent * cos(x)], angles)
+function createVertices(n_vertices=3, extent=100)
+    angle_step = 2π / n_vertices
+    angles = 0:angle_step:2π-angle_step
+
+    [0.45 * extent .* sin.(angles)   0.45 * extent .* cos.(angles)] .+ 50
 end
 
 #-----------------------------------------------------------------------------------------
@@ -86,29 +94,53 @@ end
 
 Define how a particel moves within the particle world
 """
-function agent_step!( particle, world)
-	vertices = createVertices()
-	random_vertex = rand(vertices)
+function agent_step!(particle, model)
+    vertex = random_vertex(model)
+    pos = particle.pos .+ model.r .* (vertex .- particle.pos)
 
-	pos = particle.pos .+ r .* (random_vertex .- particle.pos) |> Tuple
+    # Move particle
+    move_agent!(particle, pos, model)
+end
 
-	# TODO: put down stamp
+function model_step!(model)
+    if model.agents.count != model.n_particles
+        genocide!(model)            # remove all particles
+        spawn_particles!(model)     # repopulate with correct number
+    end
+    if model.n_vertices !=  size(model.vertices,1)
+        model.vertices = createVertices(model.n_vertices)
+        # TODO: somehow update the scatter vertices on the plot
+    end
+    # TODO: put down stamp
+        # * maybe with another property in the model saving all the positions
+        # * but how can a plotting function be called from within here?
 
-	# Move particle
-	move_agent!(particle, pos, world)
 end
 
 #-----------------------------------------------------------------------------------------
 function demo()
-    world = createWorld()							# Create a EmergentBehaviour world ...
+    model = initialize_model()# Create a EmergentBehaviour world ...
 
-    abmvideo(										# ... then make a pretty video of it.
-        "03 Emergent Behaviour.mp4", world, agent_step!;
-        ac = :red, am = particle_marker, as = 10,
-        framerate = 20,
-        frames = 100,
-        title = "03 Emergent Behaviour"
+    abmvideo(# ... then make a pretty video of it.
+        "03 Emergent Behaviour.mp4", model, agent_step!, model_step!;
+        ac=:red, am=particle_marker, as=10,
+        framerate=20,
+        frames=100,
+        title="03 Emergent Behaviour"
     )
 end
 
-end		# ... of module EmergentBehaviour
+function demo_explorer()
+    params = Dict(:n_particles => 1:10,
+        :r => 0:0.1:1,
+        :n_vertices => 3:7)
+
+    model = initialize_model()
+    fig, p = abmexploration(model; (agent_step!)=agent_step!, model_step!, params, ac=:red, as=13, am=particle_marker, add_controls = true)
+	# Axis(fig[1, 1], backgroundcolor = :black)
+    fig
+    scatter!(model.vertices[:,1], model.vertices[:,2], color = :black, markersize = 20)
+    fig
+end
+
+end # ... of module EmergentBehaviour
