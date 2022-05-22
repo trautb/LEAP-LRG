@@ -7,9 +7,9 @@ Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 """
 module Objectives
 
-export Objective, dim, domain, evaluate, dummyObjective
+export Objective, dim, domain, evaluate, dummyObjective # evaluate necessary?
 
-# using 
+using Statistics
 
 # -----------------------------------------------------------------------------------------
 # Module types:
@@ -94,34 +94,49 @@ end
 
 Watson's maximally epistatic objective function.
 """
-function mepi(x::Vector{Int64})
-	dim = length(x)
+function mepi(genome::BitVector)
+	dim = length(genome)
 
 	if dim == 1
 		1
 	else
-		# Form product of the first and second halves of x separately:
+		# mepi is minimized if allels are the same
+		penality = all(genome) || !any(genome) ? 0 : 1
+		# Form product of the first and second halves of genome separately:
 		halflen = div(dim, 2)
-		dim * (1 - prod(x) - prod(1 .- x)) + mepi(x[1:halflen]) + mepi(x[halflen + 1:end])
+		dim * penality + mepi(genome[1:halflen]) + mepi(genome[halflen + 1:end])
 	end
 end
 
-# """
-# 	fitness(x)
+"""
+	fitness(sga)
 
-# reverse Watson's maximally epistatic objective function.
-# """
-# function fitness(x::Vector{Int64})
-# 	dim = length(x)
+Calculate normalised fitness based on the Objective function. fitness is a column vector of normalised 
+fitnesses of sga population, minus all sub-sigma-scaled individuals (see Mitchell p.168).
+Negative sigma-scaling maximises the objective function; higher magnitudes raise the fitness pressure. 
+evaluations is a colum vector of evaluations of the population. 
+"""
+function fitness(genpool::BitMatrix, obj::Objective) 
 
-# 	if dim == 1
-# 		1
-# 	else
-# 		# Form product of the first and second halves of x separately:
-# 		halflen = div(dim,2)
-# 		dim*(0 + prod(x) + prod(1 .- x)) + fitness(x[1:halflen]) + fitness(x[halflen+1:end])
-# 	end
-# end
+	npop = size(genpool)[1]
+
+	# Calculate the current objective evaluations of the population:
+	evaluations = evaluate(obj, [genpool[i,:] for i = 1:npop]) # , genpool]) when genpool::Vector{BitVector}
+	#evaluations = mepi.([genpool[i,:] for i = 1:npop]) # = mepi.(genpool) when genpool::Vector{BitVector}
+	# Normalise the evaluations into frequencies:
+	sigma = std(evaluations)				# Standard deviation
+	if sigma == 0
+		# Singular case: all evaluations were equal to the mean:
+		fitness = ones(npop)
+	else
+		# Exorcise all evaluations worse than one standard
+		# deviations above mean value:
+		fitness = 1 .+ (mean(evaluations) .- evaluations) ./ (sigma)
+		fitness[fitness .<= 0] .= 0
+	end
+	
+	(fitness,evaluations)					# Return value
+end
 
 # -----------------------------------------------------------------------------------------
 # Module data:
@@ -129,14 +144,12 @@ end
 """
 	testSuite
 
-A vector of standard test functions together with appropriate domains. Functions 1-17 are
-roughly drawn from De Jong. Function 18 is Watson's (2004) maximally epistatic function.
+Vector of functions together with appropriate domains. 
+Function 1 is Watson's (2004) maximally epistatic function.
 """
 testSuite = [
 	# 1. Watson's maximally epistatic function:
-	(mepi, [0,1], 128),
-	# # 2. reverse Watson's maximally epistatic function:
-	# (fitness, [0,1], 128),
+	(mepi, [0,100], 128), ###CHANGE DOMAIN !!!
 ]
 
 
