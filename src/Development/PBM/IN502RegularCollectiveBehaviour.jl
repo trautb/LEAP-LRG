@@ -12,7 +12,7 @@ mutable struct Particle <: AbstractAgent
 end
 function initialize_model(;
     n_particles = 50,
-    speed  = 0.001,
+    speed  = 0.1,
     size = 1.5,
     cic = 0.0001
 )
@@ -20,7 +20,7 @@ space2d = ContinuousSpace((100,100), 1.0)
 model = ABM(Particle, space2d, scheduler = Schedulers.randomly)
 for _ in 1:n_particles
     π = 3.1415926535897
-    vel = Tuple(rand(model.rng,2))
+    vel = Tuple(rand(1,2))
     add_agent!(
         model,
         vel,
@@ -34,7 +34,9 @@ end
 function agent_step!(particle,model)
     π = 3.1415926535897
     particle.cic += 0.5*π
-    particle.vel = particle.pos.+(particle.vel .* sin(particle.cic))
+    vector = [particle.vel[1]  particle.vel[2]]'
+    mat = [cos(particle.cic) -sin(particle.cic); sin(particle.cic) cos(particle.cic)]*vector
+    particle.vel = particle.pos.+(mat[1],mat[2])
     move_agent!(particle,model,particle.speed)
 end
 function demo()
