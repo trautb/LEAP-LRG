@@ -2,18 +2,28 @@
 """
 	IN503EmergentBehaviour
 
-Module EmergentBehaviour: 
+Module EmergentBehaviour: work in progress.
+
+* Code still needs cleaning up
+* implement alternative to adding agents for stamping
 
 Author: , 16/05/22
 """
 module EmergentBehaviour
 
-export demo                # Externally available names
+export demo_explorer                # Externally available names
 using Agents, GLMakie, InteractiveDynamics   # Required packages
-using LinearAlgebra # TODO: is this currently used?
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
+
+#-----------------------------------------------------------------------------------------
+"""
+	Agent_type
+
+To differentiate between agents types for plotting.
+"""
+@enum Agent_type movable vertex stamp
 
 #-----------------------------------------------------------------------------------------
 """
@@ -23,11 +33,12 @@ To construct a new agent implementation, use the @agent macro and add all necess
 attributes. Again, id, pos and vel are automatically inserted.
 """
 @agent Particle ContinuousAgent{2} begin
+    type::Agent_type
 end
 
 #-----------------------------------------------------------------------------------------
 """
-particle_marker(p)
+    particle_marker(p)
 
 The graphical marker for particles
 """
@@ -36,11 +47,27 @@ function particle_marker(p::Particle)
 end
 
 #-----------------------------------------------------------------------------------------
+"""
+    typecolor(p)
+
+The color of the graphical marker for particles
+"""
+typecolor(p) = p.type == vertex ? :black : :red
+
+#-----------------------------------------------------------------------------------------
+"""
+    typesize(p)
+
+The size of the graphical marker for particles
+"""
+typesize(p) = p.type == vertex ? 20 : 10
+
+#-----------------------------------------------------------------------------------------
 # Module methods:
 
 #-----------------------------------------------------------------------------------------
 """
-	createWorld()
+    initialize_model()
 
 Create the world model.
 """
@@ -50,15 +77,17 @@ function initialize_model(;
 	n_vertices = 3,
     extent=(100, 100)
 )
-	vertices = createVertices(n_vertices)
+	vertices = createVertexCoordinates(n_vertices)
 
     properties = Dict(:n_particles => n_particles,
         :r => r,
         :n_vertices => n_vertices,
-		:vertices => vertices)
+		:vertices => vertices,
+        :spu => 30)
 
     model = ABM(Particle, ContinuousSpace(extent); properties=properties, scheduler=Schedulers.randomly)
     spawn_particles!(model)
+    spawnVertices!(model)
     return model
 end
 
@@ -68,12 +97,59 @@ end
 
 function spawn_particles!(model, n_particles = model.n_particles)
     for _ in 1:n_particles
-        add_agent_pos!( # this was the only way to set the position so far (to my knowledge)
+        add_agent_pos!(             # this was the only way to set the position so far (to my knowledge)
             Particle(
-                nextid(model),  # Using `nextid` prevents us from having to 
-                                # manually keep track of particle IDs
+                nextid(model),      
                 random_vertex(model),
-                (0.0,0.0)       # vel
+                (0.0,0.0),          # vel
+                movable             # type
+            ),
+            model
+        )
+    end
+    return model
+end
+
+function spawn_stamps!(model)
+    particles = getAgentsByType(model, movable)
+    for p in particles
+        add_agent_pos!(             # this was the only way to set the position so far (to my knowledge)
+            Particle(
+                nextid(model),      
+                p.pos,              # pos
+                (0.0,0.0),          # vel
+                stamp               # type
+            ),
+            model
+        )
+    end
+end
+
+getAgentsByType(model, type) = [particle for particle in allagents(model) if particle.type == type]
+
+function createVertexCoordinates(n_vertices=3, extent=100)
+    angle_step = 2π / n_vertices
+    angles = 0:angle_step:2π-angle_step
+
+    [0.45 * extent .* sin.(angles)   0.45 * extent .* cos.(angles)] .+ 50
+end
+
+"""
+    spawnVertices(model)
+
+(Re-) Sets all vertices corresponding to the property `n_vertices` of the `model`.
+"""
+function spawnVertices!(model)
+    genocide!(model, p -> p.type == vertex)
+
+    for i in 1:model.n_vertices
+        pos = model.vertices[i,:] |> Tuple
+        add_agent_pos!(         # this was the only way to set the position so far (to my knowledge)
+            Particle(
+                nextid(model),  # id    
+                pos,            # pos
+                (0.0,0.0),      # vel
+                vertex          # type
             ),
             model,
         )
@@ -81,12 +157,6 @@ function spawn_particles!(model, n_particles = model.n_particles)
     return model
 end
 
-function createVertices(n_vertices=3, extent=100)
-    angle_step = 2π / n_vertices
-    angles = 0:angle_step:2π-angle_step
-
-    [0.45 * extent .* sin.(angles)   0.45 * extent .* cos.(angles)] .+ 50
-end
 
 #-----------------------------------------------------------------------------------------
 """
@@ -95,51 +165,58 @@ end
 Define how a particel moves within the particle world
 """
 function agent_step!(particle, model)
+    if particle.type != movable
+        return
+    end
     vertex = random_vertex(model)
-    pos = particle.pos .+ model.r .* (vertex .- particle.pos)
+    newpos = particle.pos .+ model.r .* (vertex .- particle.pos)
 
     # Move particle
-    move_agent!(particle, pos, model)
+    move_agent!(particle, newpos, model)
 end
 
 function model_step!(model)
-    if model.agents.count != model.n_particles
-        genocide!(model)            # remove all particles
-        spawn_particles!(model)     # repopulate with correct number
+    particles = getAgentsByType(model, movable)
+    if  length(particles) != model.n_particles
+        genocide!(model, p -> p.type == movable)    
+        spawn_particles!(model)                     
     end
     if model.n_vertices !=  size(model.vertices,1)
-        model.vertices = createVertices(model.n_vertices)
-        # TODO: somehow update the scatter vertices on the plot
+        model.vertices = createVertexCoordinates(model.n_vertices)
+        spawnVertices!(model)
     end
-    # TODO: put down stamp
-        # * maybe with another property in the model saving all the positions
+    # TODO: put down stamp as plot
+        # * maybe with another property in the model saving all the positions (something with observables)
         # * but how can a plotting function be called from within here?
-
+    spawn_stamps!(model)
 end
 
 #-----------------------------------------------------------------------------------------
-function demo()
-    model = initialize_model()# Create a EmergentBehaviour world ...
+# function demo()
+#     model = initialize_model()# Create a EmergentBehaviour world ...
 
-    abmvideo(# ... then make a pretty video of it.
-        "03 Emergent Behaviour.mp4", model, agent_step!, model_step!;
-        ac=:red, am=particle_marker, as=10,
-        framerate=20,
-        frames=100,
-        title="03 Emergent Behaviour"
-    )
-end
+#     abmvideo(# ... then make a pretty video of it.
+#         "03 Emergent Behaviour.mp4", model, agent_step!, model_step!;
+#         ac=:red, am=particle_marker, as=10,
+#         framerate=20,
+#         frames=100,
+#         title="03 Emergent Behaviour"
+#     )
+# end
 
+"""
+    demo_explorer()
+
+    increase the `spu` slider to see faster progress
+    Currently very laggy since creating agents and not plotting
+"""
 function demo_explorer()
     params = Dict(:n_particles => 1:10,
         :r => 0:0.1:1,
         :n_vertices => 3:7)
 
     model = initialize_model()
-    fig, p = abmexploration(model; (agent_step!)=agent_step!, model_step!, params, ac=:red, as=13, am=particle_marker, add_controls = true)
-	# Axis(fig[1, 1], backgroundcolor = :black)
-    fig
-    scatter!(model.vertices[:,1], model.vertices[:,2], color = :black, markersize = 20)
+    fig, p = abmexploration(model; (agent_step!)=agent_step!, model_step!, params, ac=typecolor, as=typesize, am=particle_marker)
     fig
 end
 
