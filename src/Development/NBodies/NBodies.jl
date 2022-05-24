@@ -92,7 +92,7 @@ end
 
 Perform a single Euler-step of the given NBody system.
 """
-function rkstep!( nb::NBody)
+function euler!( nb::NBody)
 	nb.x = nb.x + nb.dt * nb.p./nb.m
 	nb.p = nb.p + nb.dt * forceOnSources(nb.x,nb.m,nb.G)[:]
 end
@@ -114,7 +114,7 @@ function simulate( nb::NBody)
 
 	# Simulation using Runge-Kutta 2:
 	for n = 1:nb.nsteps
-		rkstep!(nb)
+		euler!(nb)
 		x[n+1] = nb.x
 		p[n+1] = nb.p
 	end
