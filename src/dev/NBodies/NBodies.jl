@@ -8,10 +8,9 @@ Author: Niall Palfreyman, 24/3/2022.
 """
 module NBodies
 
-# Externally callable methods of NBodies
-export NBody, add!, simulate
+using GLMakie
 
-#========================================================================================#
+#-----------------------------------------------------------------------------------------
 # Module types:
 #-----------------------------------------------------------------------------------------
 """
@@ -21,40 +20,48 @@ An NBody system capable of containing multiple (N) bodies that gravitationally i
 with each other.
 """
 mutable struct NBody
-	N::Int						# Number of bodies
-	T::Float64					# Duration of simulation
-	res::Int					# Timestep resolution
-	xi::Vector{Vector}			# Initial positions of bodies
-	pi::Vector{Vector}			# Initial momenta of bodies
-	m::Vector{Float64}			# Masses of bodies
-	G::Float64					# Universal gravitational constant
+	N							# Number of bodies
+	nsteps						# Duration of simulation
+	dt							# Timestep resolution
+	G							# Gravitational constant
+	x0							# Initial positions of bodies
+	p0							# Initial momenta of bodies
+	m							# Masses of bodies
+	t							# Current time of system
+	x							# Current position of system
+	p							# Current momentum of system
 
 	"Construct a new NBody"
 	function NBody( T=40, resolution=20000, G=1)
 		# Initialise all fields of the decoding apparatus:
 		new(
 			0,					# Initially no bodies in the system
-			T,					# Duration
-			resolution,			# Timestep resolution
+			resolution,			# Duration
+			T/resolution,		# Timestep resolution
+			G,					# Gravitational constant
 			[],					# Initial positions
 			[],					# Initial momenta
 			[],					# Masses of bodies
-			G					# Gravitational constant
+			0.0,				# Start time at zero
+			[],					# Current position empty
+			[]					# Current momentum empty
 		)
 	end
 end
 
-#========================================================================================#
+#-----------------------------------------------------------------------------------------
 # Module methods:
 #-----------------------------------------------------------------------------------------
 """
-	addbody!( nbody::NBody, xi, pi, m=1)
+	addbody!( nbody::NBody, x0::Vector{Float64}, p0::Vector{Float64}, m::Float64=1)
 
-Add to the system a new body with initial position and momentum xi, pi, and with mass m.
+Add to the system a new body with initial position and momentum x0, p0, and with mass m.
 """
-function addbody!( nbody::NBody, xi, pi, m=1)
-	push!( nbody.xi, xi)
-	push!( nbody.pi, pi)
+function addbody!( nbody::NBody, x0::Vector{Float64}, p0::Vector{Float64}, m::Float64=1.0)
+	push!( nbody.x0, x0)
+	push!( nbody.x, deepcopy(x0))					# Question: Why do I use deepcopy here?
+	push!( nbody.p0, p0)
+	push!( nbody.p, deepcopy(p0))
 	push!( nbody.m, m)
 	nbody.N  += 1
 end
@@ -66,7 +73,7 @@ end
 Internal utility function: Calculate the force on each source with given mass at the
 given locations.
 """
-function forceOnSources( locations::Vector, masses::Vector{Float64}, G=1.0)
+function forceOnSources( locations::Vector, masses::Vector, G=1.0)
 	gmm = G * masses * masses'								# Precalculate mass products
 
 	locPerBody = repeat(locations,1,length(locations))		# Set up locations alongside each other
@@ -81,37 +88,46 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-	simulate( nbody::NBody)
+	rkstep!( nbody::NBody)
 
-Run a simulation of the given NBody system over duration divided into res timesteps.
+Perform a single RK2-step of the given NBody system over duration divided into res timesteps.
 """
-function simulate( nbody)
-	dt = nbody.T / nbody.res
-	dt2 = dt/2
-	t = 0:dt:nbody.T
-	x = Vector{typeof(nbody.xi)}(undef,nbody.res+1)
-	p = Vector{typeof(nbody.pi)}(undef,nbody.res+1)
+function rkstep!( nb::NBody)
+	dt2 = nb.dt/2
+
+	# Half-step:
+	xh = nb.x + dt2 * nb.p./nb.m
+	ph = nb.p + dt2 * forceOnSources(nb.x,nb.m,nb.G)[:]
+	
+	# Full-step:
+	nb.x = nb.x + nb.dt * ph./nb.m
+	nb.p = nb.p + nb.dt * forceOnSources(xh,nb.m,nb.G)[:]
+end
+
+#-----------------------------------------------------------------------------------------
+"""
+	simulate( nb::NBody)
+
+Run a simulation of the given NBody system over duration nb.nsteps * nb.dt.
+"""
+function simulate( nb::NBody)
+	t = 0:nb.dt:nb.nsteps*nb.dt
+	x = Vector{typeof(nb.x0)}(undef,nb.nsteps+1)
+	p = Vector{typeof(nb.p0)}(undef,nb.nsteps+1)
 
 	# Initialisation:
-	x[1] = nbody.xi
-	p[1] = nbody.pi
+	x[1] = nb.x0
+	p[1] = nb.p0
 
 	# Simulation using Runge-Kutta 2:
-	for n = 1:nbody.res
-		# Half-step:
-		xh = x[n] + dt2 * p[n]./nbody.m
-		ph = p[n] + dt2 * forceOnSources(x[n],nbody.m,nbody.G)[:]
-		
-		# Full-step:
-		x[n+1] = x[n] + dt * ph./nbody.m
-		p[n+1] = p[n] + dt * forceOnSources(xh,nbody.m,nbody.G)[:]
+	for n = 1:nb.nsteps
+		rkstep!(nb)
+		x[n+1] = nb.x
+		p[n+1] = nb.p
 	end
 
 	(t,x,p)
 end
-
-#========================================================================================#
-using GLMakie
 
 """
 	demo()
@@ -120,24 +136,37 @@ Demonstrate simulation of a simple 2-body problem.
 """
 function demo()
 	# Initialise the system:
-	nb = NBody( 300, 100000, 100)
+	nb = NBody( 25, 3000, 100)
 
-	addbody!( nb, [ 4.5,0.0], 	[ 0.000, 2.000],		1.000)			# Sun 1
-	addbody!( nb, [-4.5,0.0],	[-0.001,-2.003],		2.000)			# Sun 2
-	addbody!( nb, [25.0,0.0],	[-0.001, 0.003],		0.001)			# Planet
+	addbody!( nb, [ 4.5,0.0], 	[0.0, 2.00],	1.00)		# Sun 1
+	addbody!( nb, [-4.5,0.0],	[0.0,-1.01],	2.00)		# Sun 2
+	addbody!( nb, [25.0,0.0],	[0.0, 0.02],	0.02)		# Planet
 	
 	# Run the simulation:
 	(t,x,p) = simulate(nb)
 
-	# Display the trajectories:
-	fig = Figure(resolution=(600, 600))
-	ax = Axis(fig[1, 1], xlabel = "Time (t)", title = "N-body Trajectories")
+	map(pos->pos[1],x[1])
+	x_curr = Observable(map(body->body[1],x[1]))
+	y_curr = Observable(map(body->body[2],x[1]))
+	t_curr = Observable(string("t = ", round(t[1], digits=2)))
 
-	lines!(ax, map(el->el[1][1],x), map(el->el[1][2],x), color=:red)	# Sun 1
-	lines!(ax, map(el->el[2][1],x), map(el->el[2][2],x), color=:orange)	# Sun 2
-	lines!(ax, map(el->el[3][1],x), map(el->el[3][2],x), color=:blue)	# Planet
+	# Display some fancy graphics:
+	fig = Figure(resolution=(2000, 1000))
+	ax = Axis(fig[1, 1], xlabel = "x", ylabel = "y", title = "N-body 2D Motion")
+	limits!(ax, -30, 30, -30, 30)
+	scatter!(ax, x_curr, y_curr, markersize=(20), color=[:orange,:red,:blue])
+	text!(t_curr, position=(-4, 4), textsize=40, align=(:left, :center))
 
 	display(fig)
+
+	# Run the animation:
+	for i in 1:length(t)
+		x_curr[] = map(body->body[1],x[i])
+		y_curr[] = map(body->body[2],x[i])
+		t_curr[] = string("t = ", round(t[i]; digits=2))
+
+		sleep(1e-5)
+	end
 end
 
 end		# of NBodies
