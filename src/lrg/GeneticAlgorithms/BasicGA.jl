@@ -7,9 +7,12 @@ genetic mutation and recombination).
 
 Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 """
+include("./Casinos.jl") #TODO change path
+
 using Statistics
 using Agents, Random
 using InteractiveDynamics, GLMakie
+using .Casinos
 
 # -----------------------------------------------------------------------------------------
 # Module types:
@@ -42,9 +45,14 @@ function initialize(; N=100, M=1, seed=42, genome_length=128)
 
 	Random.seed!(seed);
 	space = GridSpace((M, M); periodic=false)
+	properties = Dict([
+		:mu => 0.0001,
+		:casino => Casino(N+1, genome_length+1)
+	])
 
 	model = ABM(
 		BasicGAAgent, space;
+		properties
 	)
 	for n in 1:N
         agent = BasicGAAgent(n, (1, 1), BasicGAAlleles.(rand([0,1], genome_length)))
@@ -61,19 +69,27 @@ Modifies the simulation every step. Here it calculates the fitness matrix and th
 the selection, recombination and mutation depending on the properties of the ABM.
 """
 function model_step!(model)
+	nAgents = nagents(model)
 	population = map(agent -> Int8.(agent.genome), allagents(model))
+	population = reduce(vcat, transpose.(population))
+	pop = BasicGAAlleles.(population)
 	nAlleles = length(random_agent(model).genome)
 	# get fitness matrix:
-	popFitness = fitness(population)
+	popFitness, _ = fitness(Bool.(population))
 	# Selection:
-	selectionWinners = population[performSelection(popFitness), 1:end]
+	selectionWinners = population[performSelection(popFitness),:]
 	# Recombination:
+	popₙ = BasicGAAlleles.(selectionWinners[1:size(population,1),:]) # TODO implement
 	# popₙ = recombine(model.recombination, selectionWinners)
 	# Mutation:
-	popₙ = mutate(popₙ, model.mu, model.obj)
+	mutate!(pop, model.mu, model.casino)
 	# TODO: remove mock code that just makes all Alleles to ones and replace with actual mutation
-	for agent ∈ allagents(model)
-		agent.genome = fill(BasicGAAlleles(1), nAlleles)
+	genocide!(model)
+
+	for i ∈ 1:nAgents
+		agent = BasicGAAgent(i, (1, 1), popₙ[i,:])
+
+		add_agent!(agent, model)
 	end
 	return 
 end
@@ -86,7 +102,7 @@ Creates and runs the simulation.
 """
 function simulate()
 	model = initialize()
-	data, _ = run!(model, dummystep, model_step!, 5; adata=[a -> sum(Int.(a.genome))])
+	data, _ = run!(model, dummystep, model_step!, 5; adata=[(a -> sum(Int.(a.genome)), mean)])
 	return data
 end
 
@@ -140,7 +156,7 @@ function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 	intAlleles = [Int(i) for i in instances(alleles)]
 	
 	# Perform mutation on the genpool of the population:
-	mutatedGenpool = mutate!(Int.(genpool), intAlleles, mu, casino)
+	mutatedGenpool = mutate!(Int.(genpool), intAlleles; mu, casino)
 
 	# Convert integers back to alleles and modfiy original matrix:
 	return genpool .= alleles.(mutatedGenpool)
@@ -198,17 +214,17 @@ end
 """
     This implementation of tournamentSelection expects a matrix of fitness values with the datatype float64
 """
-function performSelection(popFitness::Array)
+function performSelection(popFitness::AbstractVector)
     nPop = length(popFitness)
-    parents = Array(2*nPop)
+    parents = Array{Int64,1}(undef, 2*nPop)
 
     for i in 1:2*nPop
         
         "Could be solved with sample function from StatsBase.jl"
-        firstFigther = rand(1:nPop)
+        firstFighter = rand(1:nPop)
         secondFighter = rand(1:nPop)
         
-        if popFitness[firstFigher] > popFitness[secondFigher]
+        if popFitness[firstFighter] > popFitness[secondFighter]
             parents[i] = firstFighter
         else
             parents[i] = secondFighter
