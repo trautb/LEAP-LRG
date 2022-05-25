@@ -10,8 +10,8 @@ module QuBits
 
 # Externally available names:
 export Tensor, ⊗, kron, ⊚, kpow, isclose
-export State, qubit, ampl, phase, prob, maxprob, nbits, off, on, pure, bitvec, density
-export Operator, ishermitian, isunitary
+export State, qubit, ampl, phase, prob, maxprob, nbits, off, on, pure, bitvec, density, ONN, OFF
+export Operator, ishermitian, isunitary, paulix, pauliy, pauliz, PauliX, PauliY, PauliZ
 export string, call
 
 # Imports:
@@ -439,7 +439,7 @@ end
 
 Kronecker product of two Operators is itself an Operator.
 """
-kron( op1::Operator, op2::Operator) = Operator(kron(op1.matrix,op2.matrix))
+kron( op1::Operator, op2::Operator) = Operator( kron(op1.matrix,op2.matrix))
 
 #-----------------------------------------------------------------------------------------
 """
@@ -469,17 +469,17 @@ end
 Compose the Operator op1 followed by the Operator op2. Note the reversed order of multiplication!!
 """
 function (op1::Operator)(op2::Operator, idx::Int=1)
-	applyop = op2
+	nbits2 = nbits(op2)
 
 	if idx > 1
-		applyop = identity(idx-1) ⊗ applyop
+		op2 = identity(idx-1) ⊗ op2
 	end
 
-	if nbits(op1) > nbits(applyop)
-		applyop = applyop ⊗ identity(nbits(op1) - idx - nbits(op2) + 1)
+	if nbits(op1) > nbits(op2)
+		op2 = op2 ⊗ identity(nbits(op1) - idx - nbits2 + 1)
 	end
 	
-	Operator(applyop*op1)
+	Operator(op2*op1)
 end
 
 #-----------------------------------------------------------------------------------------
@@ -552,6 +552,32 @@ function Base.show( io::IO, ::MIME"text/plain", op::Operator)
 	end
 end
 
+#-----------------------------------------------------------------------------------------
+# Operator constants:
+#-----------------------------------------------------------------------------------------
+"""
+	PauliX = paulix(1)
+
+The 1-d Pauli X-gate.
+"""
+const PauliX = paulix()
+
+#-----------------------------------------------------------------------------------------
+"""
+	PauliY = pauliy(1)
+
+The 1-d Pauli Y-gate.
+"""
+const PauliY = pauliy()
+
+#-----------------------------------------------------------------------------------------
+"""
+	PauliZ = pauliz(1)
+
+The 1-d Pauli Z-gate.
+"""
+const PauliZ = pauliz()
+
 #========================================================================================#
 # Helper methods:
 #-----------------------------------------------------------------------------------------
@@ -603,7 +629,9 @@ end
 
 #-----------------------------------------------------------------------------------------
 function demo()
-	true
+	op1 = paulix()
+	op2 = pauliy()
+	(:($op1($op2)),op1(op2))
 end
 
 end		# ... of module QuBits
