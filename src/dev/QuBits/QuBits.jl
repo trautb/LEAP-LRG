@@ -10,12 +10,12 @@ module QuBits
 
 # Externally available names:
 export Tensor, ⊗, kron, ⊚, kpow, isclose
-export State, qubit, ampl, phase, prob, maxprob, nbits, off, on, pure, bitvec, density, ONN, OFF
+export State, qubit, ampl, phase, prob, maxprob, nbits, off, on, pure, bitvec, density, ON, OFF
 export Operator, ishermitian, isunitary, paulix, pauliy, pauliz, PauliX, PauliY, PauliZ
 export string, call
 
 # Imports:
-import Base:kron
+import Base: kron, *
 
 using LinearAlgebra
 
@@ -443,23 +443,39 @@ kron( op1::Operator, op2::Operator) = Operator( kron(op1.matrix,op2.matrix))
 
 #-----------------------------------------------------------------------------------------
 """
+	*( op1::Operator, op2::Operator)
+
+Inner product of two Operators is itself an Operator.
+"""
+*( op1::Operator, op2::Operator) = Operator( *(op1.matrix,op2.matrix))
+
+#-----------------------------------------------------------------------------------------
+"""
+	*( op::Operator, s::State)
+
+Inner product of an Operator with a state is a transformed State.
+"""
+*( op::Operator, s::State) = State( *(op.matrix,s.amp))
+
+#-----------------------------------------------------------------------------------------
+"""
 	call( op::Operator, s::State, idx::Int=1)
 
 Apply the Operator op to the State s at the idx-th bit.
 """
 function (op::Operator)( s::State, idx::Int=1)
-	applyop = op
+	nbitsop = nbits(op)
 
 	if idx > 1
-		applyop = identity(idx-1) ⊗ applyop
+		op = identity(idx-1) ⊗ op
 	end
 
-	remainingdims = nbits(s) - idx - nbits(op) + 1
+	remainingdims = nbits(s) - idx - nbitsop + 1
 	if remainingdims > 0
-		applyop = applyop ⊗ identity(remainingdims)
+		op = op ⊗ identity(remainingdims)
 	end
 	
-	State(applyop.matrix*s.amp)
+	op * s
 end
 
 #-----------------------------------------------------------------------------------------
@@ -479,7 +495,7 @@ function (op1::Operator)(op2::Operator, idx::Int=1)
 		op2 = op2 ⊗ identity(nbits(op1) - idx - nbits2 + 1)
 	end
 	
-	Operator(op2*op1)
+	op2 * op1
 end
 
 #-----------------------------------------------------------------------------------------
