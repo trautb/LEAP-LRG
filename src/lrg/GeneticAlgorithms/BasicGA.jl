@@ -7,11 +7,13 @@ genetic mutation and recombination).
 
 Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 """
-include("./Casinos.jl") #TODO change path
+
+include("./Casinos.jl") # TODO: make it so that it functions
 
 using Statistics
-using Agents, Random
+using Agents, Random, Distributions
 using InteractiveDynamics, GLMakie
+
 using .Casinos
 
 # -----------------------------------------------------------------------------------------
@@ -47,7 +49,7 @@ function initialize(; N=100, M=1, seed=42, genome_length=128)
 	space = GridSpace((M, M); periodic=false)
 	properties = Dict([
 		:mu => 0.0001,
-		:casino => Casino(N+1, genome_length+1)
+		:casino => Casino(N + 1, genome_length + 1)
 	])
 
 	model = ABM(
@@ -77,15 +79,14 @@ function model_step!(model)
 	# get fitness matrix:
 	popFitness, _ = fitness(Bool.(population))
 	# Selection:
-	selectionWinners = population[performSelection(popFitness),:]
+	selectionWinners = performSelection(popFitness)
 	# Recombination:
-	popₙ = BasicGAAlleles.(selectionWinners[1:size(population,1),:]) # TODO implement
-	# popₙ = recombine(model.recombination, selectionWinners)
+	popₙ = recombine(pop, selectionWinners)
 	# Mutation:
 	mutate!(pop, model.mu, model.casino)
-	# TODO: remove mock code that just makes all Alleles to ones and replace with actual mutation
-	genocide!(model)
 
+	# "import" new genome into ABM
+	genocide!(model)
 	for i ∈ 1:nAgents
 		agent = BasicGAAgent(i, (1, 1), popₙ[i,:])
 
@@ -102,7 +103,7 @@ Creates and runs the simulation.
 """
 function simulate()
 	model = initialize()
-	data, _ = run!(model, dummystep, model_step!, 5; adata=[(a -> sum(Int.(a.genome)), mean)])
+	data, _ = run!(model, dummystep, model_step!, 100; adata=[(a -> mepi(Bool.(Int.(a.genome))), mean)])
 	return data
 end
 
@@ -140,7 +141,7 @@ function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <:
 	return genpool
 end
 
-#---------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------
 
 """
 	mutate!(genpool::Matrix{T}, mutation::BitFlip) where {T <: Enum}
@@ -208,7 +209,7 @@ function fitness(genpool::BitMatrix)
 		fitness[fitness .<= 0] .= 0
 	end
 	
-	(fitness,evaluations)					# Return value
+	(fitness, evaluations)					# Return value
 end
 
 """
@@ -216,9 +217,9 @@ end
 """
 function performSelection(popFitness::AbstractVector)
     nPop = length(popFitness)
-    parents = Array{Int64,1}(undef, 2*nPop)
+    parents = Array{Int64,1}(undef, 2 * nPop)
 
-    for i in 1:2*nPop
+    for i in 1:2 * nPop
         
         "Could be solved with sample function from StatsBase.jl"
         firstFighter = rand(1:nPop)
@@ -231,4 +232,40 @@ function performSelection(popFitness::AbstractVector)
         end
     end
     return parents
+end
+
+
+"""
+
+    """
+function recombine(genpool::Matrix{BasicGAAlleles}, parents::Array{Int})
+	nAgents, nAlleles = (div(length(parents), 2), size(genpool, 2))
+
+	# random implementation:
+	# crossOverPnts = rand(1:nAgents, nAgents)
+	
+	# normal distribution:
+	deviation = nAlleles * .1
+	genome_middle = nAlleles / 2
+	distr = censored(Normal(genome_middle, deviation), 0, nAlleles)
+	crossOverPnts = round.(Int, rand(distr, nAgents))
+
+	# Poisson Distribution
+	# distr = censored(Poisson(genome_middle), 0, nAlleles)
+	# crossOverPnts = round.(Int, rand(distr, nAgents))
+
+	moms = BitArray(y ≤ crossOverPnts[x] for x = 1:nAgents, y = 1:nAlleles)
+	p = parents .- 1
+	indices = ((moms .* p[1:nAgents] .+ .!moms .* p[nAgents + 1:end]) .* nAlleles) .+ collect(1:nAlleles)'
+
+	popₙ = transpose(genpool)[indices]
+	return popₙ
+end
+
+
+"""
+Adds dispatch for (Base.)transpose() for a Matrix of Enums
+"""
+function Base.transpose(A::Matrix{T}) where T <: Enum
+	return T.(transpose(Int.(A)))
 end
