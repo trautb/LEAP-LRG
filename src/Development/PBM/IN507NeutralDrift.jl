@@ -37,11 +37,11 @@ const lime = false;
 
 #-----------------------------------------------------------------------------------------
 """
-    initialize_model()
+    create_model()
 
 Create the world model.
 """
-function initialize_model(;
+function create_model(;
     pB=0.5,                 # proportion of blues
     AB=0.000,                 # Evolutionary advantage of blue individuals
     worldsize=32,
@@ -61,6 +61,8 @@ function initialize_model(;
     return model
 end
 
+#-----------------------------------------------------------------------------------------
+
 """
     spawn_blues!()
 
@@ -71,10 +73,8 @@ function spawn_blues!(model)
     return model
 end
 
-getAgentsByType(model, type) = [particle for particle in allagents(model) if particle.type == type]
-
-
 #-----------------------------------------------------------------------------------------
+
 """
     model_step!(world)
 
@@ -83,8 +83,7 @@ child from a random neighbour, except that blues may have an evolutionary advant
 """
 function model_step!(model)
     if !model.initialized
-        spawn_blues!(model)
-        model.initialized = true
+        initialize_model!(model)
     end
 
     patch = rand(CartesianIndices(model.patches))
@@ -103,23 +102,26 @@ function model_step!(model)
 end
 
 #-----------------------------------------------------------------------------------------
-# function demo()
-#     model = initialize_model()# Create a EmergentBehaviour world ...
 
-#     abmvideo(# ... then make a pretty video of it.
-#         "03 Emergent Behaviour.mp4", model, agent_step!, model_step!;
-#         ac=:red, am=particle_marker, as=10,
-#         framerate=20,
-#         frames=100,
-#         title="03 Emergent Behaviour"
-#     )
-# end
+"""
+    initialize_model!(model)
+
+This method is needed to initialize the system. This is specially important to
+reflect the adjustements made with the parameters on the abmplot.
+"""
+function initialize_model!(model)
+    spawn_blues!(model)
+    model.initialized = true
+    return model;
+end
+
+#-----------------------------------------------------------------------------------------
 
 """
     demo_explorer()
 
-    increase the `spu` slider to see faster progress
-    Currently very laggy since creating agents and not plotting
+creates an interactive abmplot of the EmergentBehaviour module to visualize
+Sierpinski's triangle.
 """
 function demo_explorer()
     params = Dict(
@@ -138,9 +140,9 @@ function demo_explorer()
         title = "Nuetral Drift:",
     )
 
-    model = initialize_model()
+    model = create_model()
     fig, p = abmexploration(model; (agent_step!)=dummystep, model_step!, params, plotkwargs...)
     fig
 end
 
-end # ... of module EmergentBehaviour
+end # ... of module NeutralDrift
