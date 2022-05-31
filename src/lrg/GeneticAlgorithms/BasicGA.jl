@@ -11,8 +11,9 @@ Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 include("./Casinos.jl")
 
 using Statistics
-using Agents, Random, Distributions, Plots, PlotlyJS
+using Agents, Random, Plots, PlotlyJS, DataFrames
 using InteractiveDynamics, GLMakie
+using Distributions: censored, Normal
 
 using .Casinos
 
@@ -31,7 +32,7 @@ Enum for Alleles in Basic GA, Possible values are 1 and 0
 
 The basic agent in the simulation
 """
-@agent BasicGAAgent GridAgent{2} begin
+@agent BasicGAAgent{BasicGAAlleles} GridAgent{2} begin
 	genome::Vector{BasicGAAlleles}
 end
 
@@ -115,7 +116,7 @@ function simulate(nSteps=100; N=100, M=1, seed=42, genome_length=128)
 		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
 		#]
 	)
-	rename!(adf, 4 => :mepi, 5 => :genomeDistance)
+	DataFrames.rename!(adf, 4 => :mepi, 5 => :genomeDistance)
 	plotlyjs()
 	adf2 = unstack(adf, :step,:id, :mepi)
 	plt = Plots.plot(Matrix(adf2[!,2:N+1]), legend=false, title=repr(seed))
