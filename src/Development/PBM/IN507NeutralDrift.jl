@@ -2,7 +2,7 @@
 """
 	IN507NeutralDrift
 
-**Module NeturalDrift**: work in progress. \\
+**Module NeutralDrift**: \\
     This model runs a very simple simulation called a Moran process. At each
     step, a random individual dies, and is replaced by a child of one of its
     neighbours. We have added in here the possibility that blue individuals have
