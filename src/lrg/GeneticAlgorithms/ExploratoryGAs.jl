@@ -61,7 +61,8 @@ function model_step!(model)
 	population = reduce(vcat, transpose.(population))
 	pop = ExploratoryGAAlleles.(population)
 	nAlleles = length(random_agent(model).genome)
-	@show(sum(asPhenotype(pop, model.casino), dims=2))
+	phenotypes = asPhenotype(pop, model.casino)
+	@show(sum(phenotypes, dims=2))
 	# get fitness matrix:
 	# popFitness, _ = fitness(Bool.(population))
 	# Selection:
@@ -154,9 +155,9 @@ function asPhenotype(genpool::Matrix{ExploratoryGAAlleles}, casino)
 
 	alleleDefinitions = draw(casino, nIndividuals, nGenes, 0.5)
 
-	phenotype = BitMatrix(undef, nIndividuals, nGenes)
-	phenotype[undefAlleles] = alleleDefinitions[undefAlleles]
-	phenotype[.!(undefAlleles)] = Int.(genpool[.!(undefAlleles)])
+	phenotypes = BitMatrix(undef, nIndividuals, nGenes)
+	phenotypes[undefAlleles] = alleleDefinitions[undefAlleles]
+	phenotypes[.!(undefAlleles)] = Int.(genpool[.!(undefAlleles)])
 
-	return phenotype
+	return phenotypes
 end
