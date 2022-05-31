@@ -1,4 +1,4 @@
-include("../utils/Casinos.jl")
+include("./Casinos.jl")
 
 using Agents
 using Random
@@ -61,6 +61,7 @@ function model_step!(model)
 	population = reduce(vcat, transpose.(population))
 	pop = ExploratoryGAAlleles.(population)
 	nAlleles = length(random_agent(model).genome)
+	@show(sum(asPhenotype(pop, model.casino), dims=2))
 	# get fitness matrix:
 	# popFitness, _ = fitness(Bool.(population))
 	# Selection:
@@ -144,4 +145,18 @@ function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 
 	# Convert integers back to alleles and modfiy original matrix:
 	return genpool .= alleles.(mutatedGenpool)
+end
+
+#---------------------------------------------------------------------------------------------------
+function asPhenotype(genpool::Matrix{ExploratoryGAAlleles}, casino)
+	undefAlleles = genpool .== two
+	nIndividuals, nGenes = size(genpool)
+
+	alleleDefinitions = draw(casino, nIndividuals, nGenes, 0.5)
+
+	phenotype = BitMatrix(undef, nIndividuals, nGenes)
+	phenotype[undefAlleles] = alleleDefinitions[undefAlleles]
+	phenotype[.!(undefAlleles)] = Int.(genpool[.!(undefAlleles)])
+
+	return phenotype
 end
