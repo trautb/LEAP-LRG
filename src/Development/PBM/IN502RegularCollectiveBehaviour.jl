@@ -117,7 +117,7 @@ function demo(world_size,particle_size,particle_speed)
     p = lines!( model_step!, model.globaldist, color = :red)
     agent_df, model_df =run!(model, agent_step!, model_step!, 1000; mdata = mdata)
     figure, p = abmexploration(model;agent_step!,params = Dict(),am = particle_marker)#,plotkwargs...);
-    
+     
     #ax1 = figure[1, 1] = Axis(p, ylabel = "main_plot", textsize = 12)
     #ax3 = p[1, 2] = Axis(p, ylabel = "temperature", textsize = 12)
     
