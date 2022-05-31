@@ -11,7 +11,7 @@ Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 include("./Casinos.jl")
 
 using Statistics
-using Agents, Random, Distributions
+using Agents, Random, Distributions, Plots, PlotlyJS
 using InteractiveDynamics, GLMakie
 
 using .Casinos
