@@ -8,7 +8,7 @@ genetic mutation and recombination).
 Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 """
 
-include("./Casinos.jl") # TODO: make it so that it functions
+include("./Casinos.jl")
 
 using Statistics
 using Agents, Random, Distributions
@@ -101,10 +101,25 @@ end
 
 Creates and runs the simulation.
 """
-function simulate()
-	model = initialize()
-	data, _ = run!(model, dummystep, model_step!, 100; adata=[(a -> mepi(Bool.(Int.(a.genome))), mean)])
-	return data
+function simulate(nSteps=100; N=100, M=1, seed=42, genome_length=128)
+	model = initialize(; N, M, seed, genome_length)
+	adf, mdf = run!(model, dummystep, model_step!, nSteps; 
+		adata=[
+			:genome,
+			a -> mepi(Bool.(Int.(a.genome))),
+			#(a -> mepi(Bool.(Int.(a.genome))), max),
+			(a -> min(genome_length - sum(Int.(a.genome)),
+					  sum(Int.(a.genome))))
+		],
+		#mdata=[
+		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
+		#]
+	)
+	rename!(adf, 4 => :mepi, 5 => :genomeDistance)
+	plotlyjs()
+	adf2 = unstack(adf, :step,:id, :mepi)
+	plt = Plots.plot(Matrix(adf2[!,2:N+1]), legend=false, title=repr(seed))
+	return (adf, mdf, plt)
 end
 
 """
