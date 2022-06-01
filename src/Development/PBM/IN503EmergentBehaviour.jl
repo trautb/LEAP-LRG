@@ -1,6 +1,6 @@
 #========================================================================================#
 
-# TODO: fix Makie thorwing Errors when resetting!
+# TODO: fix Makie throwing Errors when resetting!
 
 """
 	IN503EmergentBehaviour
@@ -87,7 +87,7 @@ function spawn_particles!(model, n_particles=model.n_particles)
             Particle(
                 nextid(model),          # id
                 random_vertex(model),   # pos
-                (0.0, 0.0)               # vel
+                (0.0, 0.0)              # vel
             ),
             model
         )
@@ -169,7 +169,7 @@ function initialize_model!(model)
     # ----
     locs = model.visited_locations
     positions = @lift(Point2f.($locs[:, 1], $locs[:, 2]))
-    scatter!(positions, color=:red, markersize=10)
+    scatter!(positions, color=:red, markersize=5)
     # ----
     model.initialized = true
     return model

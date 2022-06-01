@@ -137,7 +137,7 @@ function demo_explorer()
             colormap=cgrad([:lime, :blue]; categorical=true),
         ),
         as = 0,
-        title = "Nuetral Drift:",
+        title = "Neutral Drift:",
     )
 
     model = create_model()
