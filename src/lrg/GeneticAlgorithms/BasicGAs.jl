@@ -47,13 +47,13 @@ end
 
 Initializes the simulation.
 """
-function initialize(; N=100, M=1, seed=42, genome_length=128)
+function initialize(; N=100, M=1, seed=42, genomeLength=128)
 
 	Random.seed!(seed);
 	space = GridSpace((M, M); periodic=false)
 	properties = Dict([
 		:mu => 0.0001,
-		:casino => Casino(N + 1, genome_length + 1)
+		:casino => Casino(N + 1, genomeLength + 1)
 	])
 
 	model = ABM(
@@ -61,8 +61,8 @@ function initialize(; N=100, M=1, seed=42, genome_length=128)
 		properties
 	)
 	for n in 1:N
-        agent = BasicGAAgent(n, (1, 1), BasicGAAlleles.(rand([0,1], genome_length)))
-        # agent = BasicGAAgent(n, (1, 1), rand(Bool, genome_lenght))
+        agent = BasicGAAgent(n, (1, 1), BasicGAAlleles.(rand([0,1], genomeLength)))
+        # agent = BasicGAAgent(n, (1, 1), rand(Bool, genomeLenght))
 		add_agent!(agent, model)
     end
 	return model
@@ -208,7 +208,7 @@ end
 """
     This implementation of tournamentSelection expects a matrix of fitness values with the datatype float64
 """
-function performSelection(popFitness::AbstractVector)
+function encounter(popFitness::AbstractVector)
     nPop = length(popFitness)
     parents = Array{Int64,1}(undef, 2 * nPop)
 
@@ -263,25 +263,25 @@ end
 
 USE-CASE. Creates and runs the simulation.
 """
-function simulate(nSteps=100; N=100, M=1, seed=42, genome_length=128)
-	model = initialize(; N, M, seed, genome_length)
-	adf, mdf = run!(model, dummystep, model_step!, nSteps; 
+function simulate(nSteps=100; N=100, M=1, seed=42, genomeLength=128)
+	model = initialize(; N, M, seed, genomeLength)
+	agentDF, modelDF = run!(model, dummystep, model_step!, nSteps; 
 		adata=[
 			:genome,
 			a -> mepi(Bool.(Int.(a.genome))),
 			# (a -> mepi(Bool.(Int.(a.genome))), max),
-			(a -> min(genome_length - sum(Int.(a.genome)),
+			(a -> min(genomeLength - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
 		# mdata=[
 		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
 		# ]
 	)
-	DataFrames.rename!(adf, 4 => :mepi, 5 => :genomeDistance)
+	DataFrames.rename!(agentDF, 4 => :mepi, 5 => :genomeDistance)
 	# plotlyjs() # for prettier (and interactive) plots
-	adf2 = unstack(adf, :step, :id, :mepi)
-	plt = Plots.plot(Matrix(adf2[!,2:N + 1]), legend=false, title=repr(seed))
-	return (adf, mdf, plt)
+	aDF2 = unstack(agentDF, :step, :id, :mepi)
+	plt = Plots.plot(Matrix(aDF2[!,2:N + 1]), legend=false, title=repr(seed))
+	return (agentDF, modelDF, plt)
 end
 
 
