@@ -1,0 +1,24 @@
+{
+    "files.autoSave": "afterDelay",
+    "terminal.integrated.shell.windows": "C:/Users/Admin/Julia/Julia-1.7.2/bin/julia.exe",
+    "[typescript]": {
+    
+    
+    },
+    "window.zoomLevel": 1,
+    "git.autofetch": true,
+    "[julia]": {
+    
+        
+    
+    
+    },
+    "terminal.integrated.commandsToSkipShell": [
+        "language-julia.interrupt"
+    ],
+    "julia.symbolCacheDownload": true,
+    "terminal.integrated.autoReplies": {
+    
+    },
+    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx1G -Xms100m -javaagent:\"c:\\Users\\Admin\\.vscode\\extensions\\gabrielbb.vscode-lombok-1.0.1\\server\\lombok.jar\""
+}
