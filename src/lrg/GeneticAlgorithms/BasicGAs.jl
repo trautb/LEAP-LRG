@@ -1,6 +1,6 @@
 #= ====================================================================================== =#
 """
-	BasicGA
+	BasicGAs
 
 An agentbased Implementation of the Basic Genetic Algorithm (i.e. just using selection, 
 genetic mutation and recombination).
@@ -8,48 +8,20 @@ genetic mutation and recombination).
 Authors: Alina Arneth, Michael Staab, Benedikt Traut, Adrian Wild 2022.
 """
 
+module BasicGAs
+
 include("./Casinos.jl")
 
 using Statistics
 using Agents, Random, Plots, DataFrames
 # using InteractiveDynamics, GLMakie # not needed for now
-using Distributions: censored, Normal
 # using PlotlyJS # for prettier (and interactive) plots
 
 using .Casinos
 
 # -----------------------------------------------------------------------------------------
-# "Main" method for running the simulation:
-
-"""
-	simulate
-
-Creates and runs the simulation.
-"""
-function simulate(nSteps=100; N=100, M=1, seed=42, genome_length=128)
-	model = initialize(; N, M, seed, genome_length)
-	adf, mdf = run!(model, dummystep, model_step!, nSteps; 
-		adata=[
-			:genome,
-			a -> mepi(Bool.(Int.(a.genome))),
-			# (a -> mepi(Bool.(Int.(a.genome))), max),
-			(a -> min(genome_length - sum(Int.(a.genome)),
-					  sum(Int.(a.genome))))
-		],
-		# mdata=[
-		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
-		# ]
-	)
-	DataFrames.rename!(adf, 4 => :mepi, 5 => :genomeDistance)
-	# plotlyjs() # for prettier (and interactive) plots
-	adf2 = unstack(adf, :step, :id, :mepi)
-	plt = Plots.plot(Matrix(adf2[!,2:N + 1]), legend=false, title=repr(seed))
-	return (adf, mdf, plt)
-end
-
-# -----------------------------------------------------------------------------------------
 # Module types:
-
+# -----------------------------------------------------------------------------------------
 """
 	BasicGAAlleles
 
@@ -57,6 +29,7 @@ Enum for Alleles in Basic GA, Possible values are 0 and 1
 """
 @enum BasicGAAlleles zero one
 
+# -----------------------------------------------------------------------------------------
 """
 	BasicGAAgent
 
@@ -68,7 +41,7 @@ end
 
 # -----------------------------------------------------------------------------------------
 # Module methods:
-
+# -----------------------------------------------------------------------------------------
 """
 	initialize
 
@@ -95,6 +68,7 @@ function initialize(; N=100, M=1, seed=42, genome_length=128)
 	return model
 end
 
+# -----------------------------------------------------------------------------------------
 """
 	model_step!
 
@@ -115,17 +89,16 @@ function model_step!(model)
 	# Mutation:
 	mutate!(pop, model.mu, model.casino)
 
-	# "import" new genome into ABM
+	# delete old agents and "import" new genome into ABM
 	genocide!(model)
 	for i ∈ 1:nAgents
 		agent = BasicGAAgent(i, (1, 1), popₙ[i,:])
-
 		add_agent!(agent, model)
 	end
 	return 
 end
 
-
+# -----------------------------------------------------------------------------------------
 """
 	mutate!(genpool::Matrix{T}, alleles::Vector{T}, mutation::BitFlip) where {T <: Integer}
 
@@ -160,7 +133,7 @@ function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <:
 	return genpool
 end
 
-
+# -----------------------------------------------------------------------------------------
 """
 	mutate!(genpool::Matrix{T}, mutation::BitFlip) where {T <: Enum}
 
@@ -181,7 +154,7 @@ function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 	return genpool .= alleles.(mutatedGenpool)
 end
 
-
+# -----------------------------------------------------------------------------------------
 """
 	mepi(x)
 
@@ -201,7 +174,7 @@ function mepi(genome::BitVector)
 	end
 end
 
-
+# -----------------------------------------------------------------------------------------
 """
 	fitness(sga)
 
@@ -231,7 +204,7 @@ function fitness(genpool::BitMatrix)
 	(fitness, evaluations)					# Return value
 end
 
-
+# -----------------------------------------------------------------------------------------
 """
     This implementation of tournamentSelection expects a matrix of fitness values with the datatype float64
 """
@@ -254,43 +227,62 @@ function performSelection(popFitness::AbstractVector)
     return parents
 end
 
-
+# -----------------------------------------------------------------------------------------
 """
 	recombine
 
 This function takes a matrix (individual * genome) and an Array of indices (of parents) as an input.
 It recombines the genomes corresponding to the first 1:N indices (where N is the population size and length(parents) == 2N) 
-with the genomes corresponding to the second half of the parents Array. It uses a Normal Distribution to take the cross-over
-points and combines the genomes.
+with the genomes corresponding to the second half of the parents Array.
 """
 function recombine(genpool::Matrix{BasicGAAlleles}, parents::Array{Int})
 	nAgents, nAlleles = (div(length(parents), 2), size(genpool, 2))
 
 	# random implementation:
-	# crossOverPnts = rand(1:nAgents, nAgents)
-	
-	# normal distribution:
-	deviation = nAlleles * .1
-	genome_middle = nAlleles / 2
-	distr = censored(Normal(genome_middle, deviation), 0, nAlleles)
-	crossOverPnts = round.(Int, rand(distr, nAgents))
-
-	# Poisson Distribution:
-	# distr = censored(Poisson(genome_middle), 0, nAlleles)
-	# crossOverPnts = round.(Int, rand(distr, nAgents))
+	crossOverPnts = rand(1:nAlleles, nAgents)
 
 	moms = BitArray(y ≤ crossOverPnts[x] for x = 1:nAgents, y = 1:nAlleles)
 	p = parents .- 1
 	indices = ((moms .* p[1:nAgents] .+ .!moms .* p[nAgents + 1:end]) .* nAlleles) .+ collect(1:nAlleles)'
-
+	
 	popₙ = transpose(genpool)[indices]
 	return popₙ
 end
 
-
+# -----------------------------------------------------------------------------------------
 """
-Adds dispatch for (Base.)transpose() for a Matrix of Enums
+Adds dispatch for (Base.)transpose() on a Matrix of Enums
 """
 function Base.transpose(A::Matrix{T}) where T <: Enum
 	return T.(transpose(Int.(A)))
 end
+
+# -----------------------------------------------------------------------------------------
+"""
+	simulate
+
+USE-CASE. Creates and runs the simulation.
+"""
+function simulate(nSteps=100; N=100, M=1, seed=42, genome_length=128)
+	model = initialize(; N, M, seed, genome_length)
+	adf, mdf = run!(model, dummystep, model_step!, nSteps; 
+		adata=[
+			:genome,
+			a -> mepi(Bool.(Int.(a.genome))),
+			# (a -> mepi(Bool.(Int.(a.genome))), max),
+			(a -> min(genome_length - sum(Int.(a.genome)),
+					  sum(Int.(a.genome))))
+		],
+		# mdata=[
+		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
+		# ]
+	)
+	DataFrames.rename!(adf, 4 => :mepi, 5 => :genomeDistance)
+	# plotlyjs() # for prettier (and interactive) plots
+	adf2 = unstack(adf, :step, :id, :mepi)
+	plt = Plots.plot(Matrix(adf2[!,2:N + 1]), legend=false, title=repr(seed))
+	return (adf, mdf, plt)
+end
+
+
+end 	# of module SimpleGAs
