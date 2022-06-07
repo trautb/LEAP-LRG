@@ -1,8 +1,8 @@
 include("./Casinos.jl")
 
 using Agents
-using Random
-using Statistics
+using Random #ToDO just Random: shuffle! ???
+using Statistics: std, mean
 using .Casinos
 
 """
@@ -61,10 +61,10 @@ function model_step!(model)
 	population = reduce(vcat, transpose.(population))
 	pop = ExploratoryGAAlleles.(population)
 	nAlleles = length(random_agent(model).genome)
-	phenotypes = asPhenotype(pop, model.casino)
+	phenotypes = evolvePhenotype(pop, model.casino)
 	@show(sum(phenotypes, dims=2))
 	# get fitness matrix:
-	# popFitness, _ = fitness(Bool.(population))
+	popFitness, _ = plasticityFitness(Bool.(population), 10) #ToDo add n plasticityTrials to properties
 	# Selection:
 	# selectionWinners = population[performSelection(popFitness),:]
 	# Recombination:
@@ -149,7 +149,7 @@ function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 end
 
 #---------------------------------------------------------------------------------------------------
-function asPhenotype(genpool::Matrix{ExploratoryGAAlleles}, casino)
+function evolvePhenotype(genpool::Matrix{ExploratoryGAAlleles}, casino)
 	undefAlleles = genpool .== two
 	nIndividuals, nGenes = size(genpool)
 
@@ -167,4 +167,39 @@ end
 function findFitness!(fitnessMatrix, population, currentStep, nSteps)
 	popFitness, _ = fitness(Bool.(population))
 	return fitnessMatrix[:,currentStep] = popFitness .* (10 - 10*currentStep/nSteps)
+end
+
+#---------------------------------------------------------------------------------------------------
+
+"""
+	plasticityFitness(genpool::BitMatrix, plasticityTrials::Int64) 
+
+Calculates normalised fitness based on the Objective function at each plasticity trial. 
+and keeps the best fitness and underlying evaluation for each individual. 
+fitness is a column vector of normalised fitnesses of the population, minus all sub-sigma-scaled individuals (see Mitchell p.168).
+Negative sigma-scaling maximises the objective function; higher magnitudes raise the fitness pressure. 
+evaluations is a colum vector of evaluations of the population. 
+
+"""
+function plasticityFitness(genpool::BitMatrix, plasticityTrials::Int64) 
+
+	nIndividuals, _ = size(genpool)
+
+	# fitness and evaluations at plasticity trial 0
+	fitness = zeros(nIndividuals)
+	evaluations = zeros(nIndividuals)
+
+	# calculates the fitness at each plasticity trial and keeps the best for each individual
+	for i in 1:plasticityTrials
+		fitness_i, evaluations_i = fitness(evolvePhenotype(genpool)) 
+		# rewarding finding good fitness quickly
+		fitness_i = fitness_i .* (10 - 10 * i / plasticityTrials) 
+
+		# keep the best fitness values and underlying evaluations 
+		index = fitness .< fitness_i
+		fitness[index] = fitness_i[index]
+		evaluations[index] = evaluations_i[index]
+	end
+
+	(fitness, evaluations)
 end
