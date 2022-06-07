@@ -10,7 +10,7 @@ using .Casinos
 
 Enum for Alleles in Exploratory GA, Possible values are 1, 0, 2
 """
-@enum ExploratoryGAAlleles zero one two
+@enum ExploratoryGAAlleles zero one qMark
 
 """
 	ExploratoryGAAgent
@@ -160,4 +160,11 @@ function asPhenotype(genpool::Matrix{ExploratoryGAAlleles}, casino)
 	phenotypes[.!(undefAlleles)] = Int.(genpool[.!(undefAlleles)])
 
 	return phenotypes
+end
+
+
+#---------------------------------------------------------------------------------------------------
+function findFitness!(fitnessMatrix, population, currentStep, nSteps)
+	popFitness, _ = fitness(Bool.(population))
+	return fitnessMatrix[:,currentStep] = popFitness .* (10 - 10*currentStep/nSteps)
 end
