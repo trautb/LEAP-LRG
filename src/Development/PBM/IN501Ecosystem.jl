@@ -289,7 +289,7 @@ end
 
 
 using InteractiveDynamics
-using CairoMakie
+using GLMakie
 
 # To view our starting population, we can build an overview plot using abm_plot. 
 # We define the plotting details for the wolves and sheep:
@@ -343,13 +343,16 @@ model = initialize_model(
     seed = 23182, # Seed for randomization
 )
 # generate video of model
-abmvideo(
-    "Documents/VSC Julia/Videos/turtles.mp4", # name of file
-    model, # model for simulation
+fig,_ = abmexploration(
+    #"Documents/VSC Julia/Videos/turtles.mp4", # name of file
+    model; # model for simulation
     turtle_step!, #steps
-    grass_step!; # steps
-    frames = 150, # frames for video
-    framerate = 8, # frames pre second
+    #dummystep,
+    grass_step!, # steps
+    #frames = 150, # frames for video
+    #framerate = 8, # frames pre second
     plotkwargs..., # plot-arguments
 )
+
+fig;
 #
