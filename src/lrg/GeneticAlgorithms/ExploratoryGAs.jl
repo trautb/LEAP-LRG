@@ -60,23 +60,26 @@ function model_step!(model)
 	population = map(agent -> Int8.(agent.genome), allagents(model))
 	population = reduce(vcat, transpose.(population))
 	pop = ExploratoryGAAlleles.(population)
-	nAlleles = length(random_agent(model).genome)
-	phenotypes = evolvePhenotype(pop, model.casino)
-	@show(sum(phenotypes, dims=2))
+
+	#nAlleles = length(random_agent(model).genome)
+	#phenotypes = evolvePhenotype(pop, model.casino)
+	#@show(sum(phenotypes, dims=2))
+
 	# get fitness matrix:
-	popFitness, _ = plasticityFitness(Bool.(population), 10) #ToDo add n plasticityTrials to properties
+	# ToDo add n plasticityTrials to properties
+	popFitness, _ = plasticityFitness(pop, 10, model.casino) 
+
 	# Selection:
-	# selectionWinners = population[performSelection(popFitness),:]
+	selectionWinners = encounter(popFitness)
 	# Recombination:
-	# popₙ = ExploratoryGAAlleles.(selectionWinners[1:size(population,1),:]) # TODO implement
-	# popₙ = recombine(model.recombination, selectionWinners)
+	popₙ = recombine(pop, selectionWinners)
 	# Mutation:
-	mutate!(pop, model.mu, model.casino)
+	mutate!(popₙ, model.mu, model.casino)
 	# TODO: remove mock code that just makes all Alleles to ones and replace with actual mutation
 	genocide!(model)
 
 	for i ∈ 1:nAgents
-		agent = ExploratoryGAAgent(i, (1, 1), pop[i,:])
+		agent = ExploratoryGAAgent(i, (1, 1), popₙ[i,:])
 		add_agent!(agent, model)
 	end
 	return 
@@ -148,9 +151,112 @@ function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 	return genpool .= alleles.(mutatedGenpool)
 end
 
+# -----------------------------------------------------------------------------------------
+"""
+	mepi(x)
+
+Watson's maximally epistatic objective function.
+"""
+function mepi(genome::BitVector)
+	dim = length(genome)
+
+	if dim == 1
+		1
+	else
+		# mepi is minimized if allels are the same
+		penality = all(genome) || !any(genome) ? 0 : 1
+		# Form product of the first and second halves of genome separately:
+		halflen = div(dim, 2)
+		dim * penality + mepi(genome[1:halflen]) + mepi(genome[halflen + 1:end])
+	end
+end
+
+# -----------------------------------------------------------------------------------------
+"""
+	fitness(sga)
+
+Calculate normalised fitness based on the Objective function. fitness is a column vector of normalised 
+fitnesses of sga population, minus all sub-sigma-scaled individuals (see Mitchell p.168).
+Negative sigma-scaling maximises the objective function; higher magnitudes raise the fitness pressure. 
+evaluations is a colum vector of evaluations of the population. 
+"""
+function fitness(genpool::BitMatrix) 
+
+	npop = size(genpool)[1]
+
+	# Calculate the current objective evaluations of the population:
+	evaluations = mepi.([genpool[i,:] for i = 1:npop]) # = mepi.(genpool) when genpool::Vector{BitVector}
+	# Normalise the evaluations into frequencies:
+	sigma = std(evaluations)				# Standard deviation
+	if sigma == 0
+		# Singular case: all evaluations were equal to the mean:
+		fitness = ones(npop)
+	else
+		# Exorcise all evaluations worse than one standard
+		# deviations above mean value:
+		fitness = 1 .+ (mean(evaluations) .- evaluations) ./ (sigma)
+		fitness[fitness .<= 0] .= 0
+	end
+	
+	(fitness, evaluations)					# Return value
+end
+
+# -----------------------------------------------------------------------------------------
+"""
+    This implementation of tournamentSelection expects a matrix of fitness values with the datatype float64
+"""
+function encounter(popFitness::AbstractVector)
+    nPop = length(popFitness)
+    parents = Array{Int64,1}(undef, 2 * nPop)
+
+    for i in 1:2 * nPop
+        
+        "Could be solved with sample function from StatsBase.jl"
+        firstFighter = rand(1:nPop)
+        secondFighter = rand(1:nPop)
+        
+        if popFitness[firstFighter] > popFitness[secondFighter]
+            parents[i] = firstFighter
+        else
+            parents[i] = secondFighter
+        end
+    end
+    return parents
+end
+
+# -----------------------------------------------------------------------------------------
+"""
+	recombine
+
+This function takes a matrix (individual * genome) and an Array of indices (of parents) as an input.
+It recombines the genomes corresponding to the first 1:N indices (where N is the population size and length(parents) == 2N) 
+with the genomes corresponding to the second half of the parents Array.
+"""
+function recombine(genpool::Matrix{T}, parents::AbstractVector) where {T <: Enum}
+	nAgents, nAlleles = (div(length(parents), 2), size(genpool, 2))
+
+	# random implementation:
+	crossOverPnts = rand(1:nAlleles, nAgents)
+
+	moms = BitArray(y ≤ crossOverPnts[x] for x = 1:nAgents, y = 1:nAlleles)
+	p = parents .- 1
+	indices = ((moms .* p[1:nAgents] .+ .!moms .* p[nAgents + 1:end]) .* nAlleles) .+ collect(1:nAlleles)'
+
+	popₙ = transpose(genpool)[indices]
+	return popₙ
+end
+
+# -----------------------------------------------------------------------------------------
+"""
+Adds dispatch for (Base.)transpose() on a Matrix of Enums
+"""
+function Base.transpose(A::Matrix{T}) where T <: Enum
+	return T.(transpose(Int.(A)))
+end
+
 #---------------------------------------------------------------------------------------------------
 function evolvePhenotype(genpool::Matrix{ExploratoryGAAlleles}, casino)
-	undefAlleles = genpool .== two
+	undefAlleles = genpool .== qMark
 	nIndividuals, nGenes = size(genpool)
 
 	alleleDefinitions = draw(casino, nIndividuals, nGenes, 0.5)
@@ -172,7 +278,7 @@ end
 #---------------------------------------------------------------------------------------------------
 
 """
-	plasticityFitness(genpool::BitMatrix, plasticityTrials::Int64) 
+	plasticityFitness(genpool::BitMatrix, plasticityTrials::Int64, casino) 
 
 Calculates normalised fitness based on the Objective function at each plasticity trial. 
 and keeps the best fitness and underlying evaluation for each individual. 
@@ -181,25 +287,25 @@ Negative sigma-scaling maximises the objective function; higher magnitudes raise
 evaluations is a colum vector of evaluations of the population. 
 
 """
-function plasticityFitness(genpool::BitMatrix, plasticityTrials::Int64) 
+function plasticityFitness(genpool::Matrix{ExploratoryGAAlleles}, plasticityTrials::Int64, casino) 
 
 	nIndividuals, _ = size(genpool)
 
 	# fitness and evaluations at plasticity trial 0
-	fitness = zeros(nIndividuals)
-	evaluations = zeros(nIndividuals)
+	best_fitness_vals = zeros(nIndividuals)
+	best_evaluations = zeros(nIndividuals)
 
 	# calculates the fitness at each plasticity trial and keeps the best for each individual
 	for i in 1:plasticityTrials
-		fitness_i, evaluations_i = fitness(evolvePhenotype(genpool)) 
+		fitness_i, evaluations_i = fitness(evolvePhenotype(genpool, casino)) 
 		# rewarding finding good fitness quickly
 		fitness_i = fitness_i .* (10 - 10 * i / plasticityTrials) 
 
 		# keep the best fitness values and underlying evaluations 
-		index = fitness .< fitness_i
-		fitness[index] = fitness_i[index]
-		evaluations[index] = evaluations_i[index]
+		index = best_fitness_vals .< fitness_i
+		best_fitness_vals[index] = fitness_i[index]
+		best_evaluations[index] = evaluations_i[index]
 	end
 
-	(fitness, evaluations)
+	(best_fitness_vals, best_evaluations)
 end

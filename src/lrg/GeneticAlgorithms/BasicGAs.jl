@@ -81,13 +81,13 @@ function model_step!(model)
 	population = reduce(vcat, transpose.(population))
 	pop = BasicGAAlleles.(population)
 	# get fitness matrix:
-	popFitness, _ = fitness(Bool.(population))
+	popFitness, _ = fitness(Bool.(pop))
 	# Selection:
-	selectionWinners = performSelection(popFitness)
+	selectionWinners = encounter(popFitness)
 	# Recombination:
 	popₙ = recombine(pop, selectionWinners)
 	# Mutation:
-	mutate!(pop, model.mu, model.casino)
+	mutate!(popₙ, model.mu, model.casino)
 
 	# delete old agents and "import" new genome into ABM
 	genocide!(model)
@@ -235,7 +235,7 @@ This function takes a matrix (individual * genome) and an Array of indices (of p
 It recombines the genomes corresponding to the first 1:N indices (where N is the population size and length(parents) == 2N) 
 with the genomes corresponding to the second half of the parents Array.
 """
-function recombine(genpool::Matrix{BasicGAAlleles}, parents::Array{Int})
+function recombine(genpool::Matrix{T}, parents::AbstractVector) where {T <: Enum}
 	nAgents, nAlleles = (div(length(parents), 2), size(genpool, 2))
 
 	# random implementation:
