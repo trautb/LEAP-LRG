@@ -19,6 +19,7 @@ The exploratory agent in the simulation
 """
 @agent ExploratoryGAAgent{ExploratoryGAAlleles} GridAgent{2} begin
 	genome::Vector{ExploratoryGAAlleles}
+	mepiCache::Number
 end
 
 # -----------------------------------------------------------------------------------------
@@ -29,12 +30,12 @@ end
 
 Initializes the simulation.
 """
-function initialize(; N=100, M=1, seed=42, genome_length=128)
+function initialize(; N=100, M=1, seed=42, genomeLength=128)
 	Random.seed!(seed);
 	space = GridSpace((M, M); periodic=false)
 	properties = Dict([
 		:mu => 0.0001,
-		:casino => Casino(N+1, genome_length+1)
+		:casino => Casino(N+1, genomeLength+1)
 	])
 
 	model = ABM(
@@ -42,7 +43,7 @@ function initialize(; N=100, M=1, seed=42, genome_length=128)
 		properties
 	)
 	for n in 1:N
-        agent = ExploratoryGAAgent(n, (1, 1), ExploratoryGAAlleles.(rand([0,1], genome_length)))
+        agent = ExploratoryGAAgent(n, (1, 1), ExploratoryGAAlleles.(rand([0,1], genomeLength)), 0)
 		add_agent!(agent, model)
     end
 
@@ -67,7 +68,7 @@ function model_step!(model)
 
 	# get fitness matrix:
 	# ToDo add n plasticityTrials to properties
-	popFitness, _ = plasticityFitness(pop, 10, model.casino) 
+	popFitness, evaluations = plasticityFitness(pop, 10, model.casino) 
 
 	# Selection:
 	selectionWinners = encounter(popFitness)
@@ -79,7 +80,7 @@ function model_step!(model)
 	genocide!(model)
 
 	for i ∈ 1:nAgents
-		agent = ExploratoryGAAgent(i, (1, 1), popₙ[i,:])
+		agent = ExploratoryGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
 		add_agent!(agent, model)
 	end
 	return 
@@ -91,10 +92,24 @@ end
 
 Creates and runs the simulation.
 """
-function simulate()
-	model = initialize()
-	data, _ = run!(model, dummystep, model_step!, 5; adata=[(a -> sum(Int.(a.genome)), mean)])
-	return data
+function simulate(nSteps=100; N=100, M=1, seed=42, genomeLength=128)
+	model = initialize(; N, M, seed, genomeLength)
+	agentDF, modelDF = run!(model, dummystep, model_step!, nSteps; 
+		adata=[
+			:genome,
+			:mepiCache,
+			(a -> min(genomeLength - sum(Int.(a.genome)),
+					  sum(Int.(a.genome))))
+		],
+		# mdata=[
+		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
+		# ]
+	)
+	DataFrames.rename!(agentDF, 4 => :mepi, 5 => :genomeDistance)
+	# plotlyjs() # for prettier (and interactive) plots
+	aDF2 = unstack(agentDF, :step, :id, :mepi)
+	plt = Plots.plot(Matrix(aDF2[!,2:N + 1]), legend=false, title=repr(seed))
+	return (agentDF, modelDF, plt)
 end
 
 """
@@ -293,18 +308,19 @@ function plasticityFitness(genpool::Matrix{ExploratoryGAAlleles}, plasticityTria
 
 	# fitness and evaluations at plasticity trial 0
 	best_fitness_vals = zeros(nIndividuals)
-	best_evaluations = zeros(nIndividuals)
+	best_evaluations = ones(nIndividuals)
 
 	# calculates the fitness at each plasticity trial and keeps the best for each individual
 	for i in 1:plasticityTrials
 		fitness_i, evaluations_i = fitness(evolvePhenotype(genpool, casino)) 
 		# rewarding finding good fitness quickly
-		fitness_i = fitness_i .* (10 - 10 * i / plasticityTrials) 
+		fitness_i = fitness_i .* (10 - 10 * i / (plasticityTrials + 1)) 
 
 		# keep the best fitness values and underlying evaluations 
 		index = best_fitness_vals .< fitness_i
 		best_fitness_vals[index] = fitness_i[index]
 		best_evaluations[index] = evaluations_i[index]
+		
 	end
 
 	(best_fitness_vals, best_evaluations)

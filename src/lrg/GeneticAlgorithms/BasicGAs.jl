@@ -37,6 +37,7 @@ The basic agent in the simulation
 """
 @agent BasicGAAgent{BasicGAAlleles} GridAgent{2} begin
 	genome::Vector{BasicGAAlleles}
+	mepiCache::Number
 end
 
 # -----------------------------------------------------------------------------------------
@@ -61,7 +62,7 @@ function initialize(; N=100, M=1, seed=42, genomeLength=128)
 		properties
 	)
 	for n in 1:N
-        agent = BasicGAAgent(n, (1, 1), BasicGAAlleles.(rand([0,1], genomeLength)))
+        agent = BasicGAAgent(n, (1, 1), BasicGAAlleles.(rand([0,1], genomeLength)), 0)
         # agent = BasicGAAgent(n, (1, 1), rand(Bool, genomeLenght))
 		add_agent!(agent, model)
     end
@@ -81,7 +82,7 @@ function model_step!(model)
 	population = reduce(vcat, transpose.(population))
 	pop = BasicGAAlleles.(population)
 	# get fitness matrix:
-	popFitness, _ = fitness(Bool.(pop))
+	popFitness, evaluations = fitness(Bool.(pop))
 	# Selection:
 	selectionWinners = encounter(popFitness)
 	# Recombination:
@@ -92,7 +93,7 @@ function model_step!(model)
 	# delete old agents and "import" new genome into ABM
 	genocide!(model)
 	for i ∈ 1:nAgents
-		agent = BasicGAAgent(i, (1, 1), popₙ[i,:])
+		agent = BasicGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
 		add_agent!(agent, model)
 	end
 	return 
@@ -268,8 +269,7 @@ function simulate(nSteps=100; N=100, M=1, seed=42, genomeLength=128)
 	agentDF, modelDF = run!(model, dummystep, model_step!, nSteps; 
 		adata=[
 			:genome,
-			a -> mepi(Bool.(Int.(a.genome))),
-			# (a -> mepi(Bool.(Int.(a.genome))), max),
+			:mepiCache,
 			(a -> min(genomeLength - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
