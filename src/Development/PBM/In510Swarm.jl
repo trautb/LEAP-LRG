@@ -14,7 +14,7 @@ export demo
         griddims = (worldsize, worldsize),
         patches = zeros(griddims),
         ticks=1,
-        deJong7= true,
+        deJong7= false,
         pPop = 0.0,
         u = 0.0,
         )
