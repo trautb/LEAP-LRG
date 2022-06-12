@@ -16,7 +16,7 @@ using DataFrames
 # Include core structures
 include("core/algorithms.jl")
 include("core/alleles.jl")				
-include("core/agents.jl")				# Depends on core/agents.jl
+include("core/agents.jl")				# Depends on core/alleles.jl
 
 # Include util functions and modules
 include("utils/Casinos.jl")
