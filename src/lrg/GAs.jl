@@ -15,17 +15,19 @@ using DataFrames
 
 # Include core structures
 include("core/algorithms.jl")
-include("core/agents.jl")
+include("core/alleles.jl")				
+include("core/agents.jl")				# Depends on core/agents.jl
 
 # Include util functions and modules
 include("utils/Casinos.jl")
 include("utils/transpose.jl")
 
-# Include evolutionary mechanics
-include("mechanics/encounter.jl")
-include("mechanics/fitness.jl")
-include("mechanics/mutate.jl")
-include("mechanics/recombine.jl")
+# Include evolutionary mechanisms
+include("mechanisms/plasticity.jl")		# Depends on core/alleles.jl
+include("mechanisms/fitness.jl")		# Depends on mechanisms/plasticity.jl
+include("mechanisms/encounter.jl")
+include("mechanisms/mutate.jl")
+include("mechanisms/recombine.jl")
 
 # Import submodules
 using .Casinos
