@@ -57,6 +57,9 @@ function basic_step!(model)
 		agent = BasicGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
 		add_agent!(agent, model)
 	end
+
+	model.evaluatedZeros = sum(evaluations .== 0)
+
 	return 
 end
 
@@ -72,17 +75,22 @@ function exploratory_step!(model)
 
 	# Selection:
 	selectionWinners = encounter(popFitness)
+
 	# Recombination:
 	popₙ = recombine(pop, selectionWinners)
+	
 	# Mutation:
 	mutate!(popₙ, model.mu, model.casino)
-	# TODO: remove mock code that just makes all Alleles to ones and replace with actual mutation
+	
+	# Delete old agents and "import" new genome into ABM
 	genocide!(model)
-
 	for i ∈ 1:nAgents
 		agent = ExploratoryGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
 		add_agent!(agent, model)
 	end
+
+	model.evaluatedZeros = sum(evaluations .== 0)
+
 	return 
 end
 
@@ -99,7 +107,8 @@ function initialize(basicGA::BasicGA; seed=42)
 	
 	properties = Dict([
 		:mu => 0.0001,
-		:casino => Casino(basicGA.nIndividuals + 1, basicGA.genomeLength + 1)
+		:casino => Casino(basicGA.nIndividuals + 1, basicGA.genomeLength + 1),
+		:evaluatedZeros => 0
 	])
 
 	model = ABM(
@@ -107,7 +116,9 @@ function initialize(basicGA::BasicGA; seed=42)
 		properties
 	)
 	for n in 1:basicGA.nIndividuals
-        agent = BasicGAAgent(n, (1, 1), BasicGAAlleles.(rand([0,1], basicGA.genomeLength)), 0)
+        agent = BasicGAAgent(
+			n, (1, 1), rand(instances(BasicGAAlleles), basicGA.genomeLength), 0
+		)
 		add_agent!(agent, model)
     end
 
@@ -120,7 +131,8 @@ function initialize(exploratoryGA::ExploratoryGA; seed=42)
 
 	properties = Dict([
 		:mu => 0.0001,
-		:casino => Casino(exploratoryGA.nIndividuals+1, exploratoryGA.genomeLength+1)
+		:casino => Casino(exploratoryGA.nIndividuals+1, exploratoryGA.genomeLength+1),
+		:evaluatedZeros => 0
 	])
 
 	model = ABM(
@@ -128,7 +140,9 @@ function initialize(exploratoryGA::ExploratoryGA; seed=42)
 		properties
 	)
 	for n in 1:exploratoryGA.nIndividuals
-        agent = ExploratoryGAAgent(n, (1, 1), ExploratoryGAAlleles.(rand([0,1], exploratoryGA.genomeLength)), 0)
+        agent = ExploratoryGAAgent(
+			n, (1, 1), rand(instances(ExploratoryGAAlleles), exploratoryGA.genomeLength), 0
+		)
 		add_agent!(agent, model)
     end
 
@@ -146,44 +160,48 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 	model = initialize(basicGA; seed)
 	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
-			:genome,
+			#:genome,
 			:mepiCache,
 			(a -> min(basicGA.genomeLength - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
-		# mdata=[
-		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
-		# ]
+		mdata=[
+			:evaluatedZeros
+		]
 	)
-	DataFrames.rename!(agentDF, 4 => :mepi, 5 => :genomeDistance)
+	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
 	# plotlyjs() # for prettier (and interactive) plots
-	aDF2 = unstack(agentDF, :step, :id, :mepi)
-	plt = Plots.plot(Matrix(aDF2[!,2:basicGA.nIndividuals + 1]), legend=false, title=repr(seed))
-	return (agentDF, modelDF, plt)
+	pltDF = unstack(agentDF, :step, :id, :mepi)
+	plt = Plots.plot(
+		Matrix(pltDF[2:end, 2:basicGA.nIndividuals + 1]), # Exclude initialization-row
+		legend = false, 
+		title = repr(seed)
+	)
+	return (agentDF, modelDF, pltDF, plt)
 end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	model = initialize(exploratoryGA; seed)
 	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
-			:genome,
+			#:genome,
 			:mepiCache,
 			(a -> min(exploratoryGA.genomeLength - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
-		# mdata=[
-		#	m -> reduce(vcat, transpose.(map(agent -> agent.genome, allagents(model))))
-		# ]
+		mdata=[
+			:evaluatedZeros
+		]
 	)
-	DataFrames.rename!(agentDF, 4 => :mepi, 5 => :genomeDistance)
+	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
 	# plotlyjs() # for prettier (and interactive) plots
-	aDF2 = unstack(agentDF, :step, :id, :mepi)
+	pltDF = unstack(agentDF, :step, :id, :mepi)
 	plt = Plots.plot(
-		Matrix(aDF2[!,2:exploratoryGA.nIndividuals + 1]), 
-		legend=false, 
-		title=repr(seed)
+		Matrix(pltDF[2:end, 2:exploratoryGA.nIndividuals + 1]),  # Exclude initialization-row
+		legend = false, 
+		title = repr(seed)
 	)
-	return (agentDF, modelDF, plt)
+	return (agentDF, modelDF, pltDF, plt)
 end
 
 end # module GAs
