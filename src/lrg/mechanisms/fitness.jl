@@ -32,7 +32,8 @@ function fitness(genpool::BitMatrix)
 	npop = size(genpool)[1]
 
 	# Calculate the current objective evaluations of the population:
-	evaluations = mepi.([genpool[i,:] for i = 1:npop]) # = mepi.(genpool) when genpool::Vector{BitVector}
+	evaluations = mepi.([genpool[i,:] for i = 1:npop]) 
+
 	# Normalise the evaluations into frequencies:
 	sigma = std(evaluations)				# Standard deviation
 	if sigma == 0
@@ -66,7 +67,7 @@ function fitness(genpool::Matrix{ExploratoryGAAlleles}, plasticityTrials::Int64,
 	nIndividuals, _ = size(genpool)
 
 	# fitness and evaluations at plasticity trial 0
-	best_fitness_vals = zeros(nIndividuals)
+	best_fitness_vals = zeros(nIndividuals) .- 1	# Ensure, evaluations are included at least once
 	best_evaluations = zeros(nIndividuals)
 
 	# calculates the fitness at each plasticity trial and keeps the best for each individual
