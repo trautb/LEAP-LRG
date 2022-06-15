@@ -42,7 +42,8 @@ function basic_step!(model)
 	population = map(agent -> Int8.(agent.genome), allagents(model))
 	population = reduce(vcat, transpose.(population))
 	pop = BasicGAAlleles.(population)
-	# get fitness matrix:
+
+	# Evaluate objective function and fitness:
 	popFitness, evaluations = fitness(Bool.(pop))
 	# Selection:
 	selectionWinners = encounter(popFitness)
@@ -51,7 +52,7 @@ function basic_step!(model)
 	# Mutation:
 	mutate!(popₙ, model.mu, model.casino)
 
-	# delete old agents and "import" new genome into ABM
+	# Delete old agents and "import" new genome into ABM:
 	genocide!(model)
 	for i ∈ 1:nAgents
 		agent = BasicGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
@@ -69,9 +70,8 @@ function exploratory_step!(model)
 	population = reduce(vcat, transpose.(population))
 	pop = ExploratoryGAAlleles.(population)
 
-	# get fitness matrix:
-	# ToDo add n plasticityTrials to properties
-	popFitness, evaluations = fitness(pop, 10, model.casino) 
+	# Evaluate objective function and fitness:
+	popFitness, evaluations = fitness(pop, model.nTrials, model.casino) 
 
 	# Selection:
 	selectionWinners = encounter(popFitness)
@@ -82,7 +82,7 @@ function exploratory_step!(model)
 	# Mutation:
 	mutate!(popₙ, model.mu, model.casino)
 	
-	# Delete old agents and "import" new genome into ABM
+	# Delete old agents and "import" new genome into ABM:
 	genocide!(model)
 	for i ∈ 1:nAgents
 		agent = ExploratoryGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
@@ -132,6 +132,7 @@ function initialize(exploratoryGA::ExploratoryGA; seed=42)
 	properties = Dict([
 		:mu => 0.0001,
 		:casino => Casino(exploratoryGA.nIndividuals+1, exploratoryGA.genomeLength+1),
+		:nTrials => 100,
 		:evaluatedZeros => 0
 	])
 
