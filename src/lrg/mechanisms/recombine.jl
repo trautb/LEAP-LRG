@@ -15,6 +15,6 @@ function recombine(genpool::Matrix{T}, parents::AbstractVector) where {T <: Enum
 	p = parents .- 1
 	indices = ((moms .* p[1:nAgents] .+ .!moms .* p[nAgents + 1:end]) .* nAlleles) .+ collect(1:nAlleles)'
 	
-	popₙ = transpose(genpool)[indices]
-	return popₙ
+	newGenpool = transpose(genpool)[indices]
+	return newGenpool
 end

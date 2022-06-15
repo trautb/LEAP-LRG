@@ -38,24 +38,26 @@ using .Casinos
 Different model_step! implementations for every genetic-algorithm
 """
 function basic_step!(model)
-	nAgents = nagents(model)
-	population = map(agent -> Int8.(agent.genome), allagents(model))
-	population = reduce(vcat, transpose.(population))
-	pop = BasicGAAlleles.(population)
+	# Get the populations' genpool:
+	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(Bool.(pop))
-	# Selection:
+	popFitness, evaluations = fitness(Bool.(genpool))
+
+	# Perform selection:
 	selectionWinners = encounter(popFitness)
-	# Recombination:
-	popₙ = recombine(pop, selectionWinners)
-	# Mutation:
-	mutate!(popₙ, model.mu, model.casino)
+
+	# Perform recombination:
+	nextGenpool = recombine(genpool, selectionWinners)
+
+	# Perform mutation:
+	mutate!(nextGenpool, model.mu, model.casino)
 
 	# Delete old agents and "import" new genome into ABM:
+	nAgents = nagents(model)
 	genocide!(model)
 	for i ∈ 1:nAgents
-		agent = BasicGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
+		agent = BasicGAAgent(i, (1, 1), nextGenpool[i,:], evaluations[i])
 		add_agent!(agent, model)
 	end
 
@@ -65,27 +67,26 @@ function basic_step!(model)
 end
 
 function exploratory_step!(model)
-	nAgents = nagents(model)
-	population = map(agent -> Int8.(agent.genome), allagents(model))
-	population = reduce(vcat, transpose.(population))
-	pop = ExploratoryGAAlleles.(population)
+	# Get the populations' genpool:
+	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(pop, model.nTrials, model.casino) 
+	popFitness, evaluations = fitness(genpool, model.nTrials, model.casino) 
 
-	# Selection:
+	# Perform selection:
 	selectionWinners = encounter(popFitness)
 
-	# Recombination:
-	popₙ = recombine(pop, selectionWinners)
+	# Perform recombination:
+	nextGenpool = recombine(genpool, selectionWinners)
 	
-	# Mutation:
-	mutate!(popₙ, model.mu, model.casino)
+	# Perform mutation:
+	mutate!(nextGenpool, model.mu, model.casino)
 	
 	# Delete old agents and "import" new genome into ABM:
+	nAgents = nagents(model)
 	genocide!(model)
 	for i ∈ 1:nAgents
-		agent = ExploratoryGAAgent(i, (1, 1), popₙ[i,:], evaluations[i])
+		agent = ExploratoryGAAgent(i, (1, 1), nextGenpool[i,:], evaluations[i])
 		add_agent!(agent, model)
 	end
 
