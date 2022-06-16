@@ -6,14 +6,19 @@ It recombines the genomes corresponding to the first 1:N indices (where N is the
 with the genomes corresponding to the second half of the parents Array.
 """
 function recombine(genpool::Matrix{T}, parents::AbstractVector) where {T <: Enum}
-	nAgents, nAlleles = (div(length(parents), 2), size(genpool, 2))
+	# TODO: naming? nAlleles or nGenes ?
+	nIndividuals, nAlleles = size(genpool)
 
 	# random implementation:
-	crossOverPnts = rand(1:nAlleles, nAgents)
+	crossOverPnts = rand(1:nAlleles, nIndividuals)
 
-	moms = BitArray(y ≤ crossOverPnts[x] for x = 1:nAgents, y = 1:nAlleles)
-	p = parents .- 1
-	indices = ((moms .* p[1:nAgents] .+ .!moms .* p[nAgents + 1:end]) .* nAlleles) .+ collect(1:nAlleles)'
+	parentsLogicalMatrix = BitArray(y ≤ crossOverPnts[x] for x = 1:nIndividuals, y = 1:nAlleles)
+	
+	moms = parents[1:nIndividuals] .- 1
+	dads = parents[nIndividuals + 1:end] .- 1
+
+	# calculate indices of the (parental) genes
+	indices = ((parentsLogicalMatrix .* moms .+ .!parentsLogicalMatrix .* dads) .* nAlleles) .+ collect(1:nAlleles)'
 	
 	newGenpool = transpose(genpool)[indices]
 	return newGenpool
