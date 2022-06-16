@@ -171,6 +171,7 @@ Simulation methods for every genetic algorithm.
 """
 function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 	model = initialize(basicGA; seed)
+
 	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			#:genome,
@@ -183,19 +184,22 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 			:incorrectEvaluations
 		]
 	)
+
 	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
-	# plotlyjs() # for prettier (and interactive) plots
+
 	pltDF = unstack(agentDF, :step, :id, :mepi)
 	plt = Plots.plot(
 		Matrix(pltDF[2:end, 2:basicGA.nIndividuals + 1]), # Exclude initialization-row
 		legend = false, 
 		title = repr(seed)
 	)
+
 	return (agentDF, modelDF, pltDF, plt)
 end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	model = initialize(exploratoryGA; seed)
+
 	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			#:genome,
@@ -208,19 +212,29 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 			:incorrectEvaluations
 		]
 	)
+
 	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
-	# plotlyjs() # for prettier (and interactive) plots
+
 	pltDF = unstack(agentDF, :step, :id, :mepi)
 	plt = Plots.plot(
 		Matrix(pltDF[2:end, 2:exploratoryGA.nIndividuals + 1]),  # Exclude initialization-row
 		legend = false, 
 		title = repr(seed)
 	)
+	
 	return (agentDF, modelDF, pltDF, plt)
 end
 
-function compareGAs(geneticAlgorithms::Vector{GeneticAlgorithm}, nSteps=100; seed=42)
-	
+function compareGAs(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
+	nGAs = length(geneticAlgorithms)
+	simulationResults = Matrix{Any}(nothing, nGAs, 4)
+
+	for i in 1:nGAs
+		agentDF, modelDF, pltDF, plt = simulate(geneticAlgorithms[i]; seed=seed)
+		simulationResults[i, :] = [agentDF, modelDF, pltDF, plt]
+	end
+
+	return simulationResults
 end
 
 end # module GAs
