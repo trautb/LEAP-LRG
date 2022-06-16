@@ -53,12 +53,11 @@ function basic_step!(model)
 	# Perform mutation:
 	mutate!(nextGenpool, model.mu, model.casino)
 
-	# Delete old agents and "import" new genome into ABM:
-	nAgents = nagents(model)
-	genocide!(model)
-	for i ∈ 1:nAgents
-		agent = BasicGAAgent(i, (1, 1), nextGenpool[i,:], evaluations[i])
-		add_agent!(agent, model)
+	# "import" new genome into ABM:
+	agentIDs = collect(allids(model))
+	for i ∈ 1:nagents(model)
+		model[agentIDs[i]].genome = nextGenpool[i,:]
+		model[agentIDs[i]].currentScore = evaluations[i]
 	end
 
 	# Save best and worst evaluation for later analysis:
@@ -86,12 +85,11 @@ function exploratory_step!(model)
 	# Perform mutation:
 	mutate!(nextGenpool, model.mu, model.casino)
 	
-	# Delete old agents and "import" new genome into ABM:
-	nAgents = nagents(model)
-	genocide!(model)
-	for i ∈ 1:nAgents
-		agent = ExploratoryGAAgent(i, (1, 1), nextGenpool[i,:], evaluations[i])
-		add_agent!(agent, model)
+	# "import" new genome into ABM:
+	agentIDs = collect(allids(model))
+	for i ∈ 1:nagents(model)
+		model[agentIDs[i]].genome = nextGenpool[i,:]
+		model[agentIDs[i]].currentScore = evaluations[i]
 	end
 
 	# Save best and worst evaluation for later analysis:
@@ -142,7 +140,7 @@ function initialize(exploratoryGA::ExploratoryGA; seed=42)
 	properties = Dict([
 		# Properties for algorithm execution:
 		:mu => exploratoryGA.mu,
-		:casino => Casino(exploratoryGA.nIndividuals+1, exploratoryGA.nGenes+1),
+		:casino => Casino(exploratoryGA.nIndividuals + 1, exploratoryGA.nGenes + 1),
 		:nTrials => exploratoryGA.nTrials,
 		:speedAdvantage => exploratoryGA.speedAdvantage,
 		# Properties for later analysis:
@@ -174,7 +172,7 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 
 	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
-			#:genome,
+			# :genome,
 			:currentScore,
 			(a -> min(basicGA.nGenes - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
@@ -190,8 +188,8 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 	pltDF = unstack(agentDF, :step, :id, :mepi)
 	plt = Plots.plot(
 		Matrix(pltDF[2:end, 2:basicGA.nIndividuals + 1]), # Exclude initialization-row
-		legend = false, 
-		title = repr(seed)
+		legend=false, 
+		title=repr(seed)
 	)
 
 	return (agentDF, modelDF, pltDF, plt)
@@ -202,7 +200,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 
 	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
-			#:genome,
+			# :genome,
 			:currentScore,
 			(a -> min(exploratoryGA.nGenes - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
@@ -218,8 +216,8 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	pltDF = unstack(agentDF, :step, :id, :mepi)
 	plt = Plots.plot(
 		Matrix(pltDF[2:end, 2:exploratoryGA.nIndividuals + 1]),  # Exclude initialization-row
-		legend = false, 
-		title = repr(seed)
+		legend=false, 
+		title=repr(seed)
 	)
 	
 	return (agentDF, modelDF, pltDF, plt)
