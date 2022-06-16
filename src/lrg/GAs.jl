@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export function to start a genetic algorithm simulation
-export simulate
+export simulate, compareGAs
 
 # Import external modules
 using Statistics
@@ -61,7 +61,11 @@ function basic_step!(model)
 		add_agent!(agent, model)
 	end
 
-	model.evaluatedZeros = sum(evaluations .== 0)
+	# Save best and worst evaluation for later analysis:
+	model.objectiveInterval = [minimum(evaluations), maximum(evaluations)]
+
+	# Check for possile calculation errors:
+	model.incorrectEvaluations = sum(evaluations .< size(genpool, 2))
 
 	return 
 end
@@ -90,7 +94,11 @@ function exploratory_step!(model)
 		add_agent!(agent, model)
 	end
 
-	model.evaluatedZeros = sum(evaluations .== 0)
+	# Save best and worst evaluation for later analysis:
+	model.objectiveInterval = [minimum(evaluations), maximum(evaluations)]
+
+	# Check for possile calculation errors:
+	model.incorrectEvaluations = sum(evaluations .< size(genpool, 2))
 
 	return 
 end
@@ -107,9 +115,12 @@ function initialize(basicGA::BasicGA; seed=42)
 	space = GridSpace((basicGA.M, basicGA.M); periodic=false)
 	
 	properties = Dict([
+		# Properties for algorithm execution:
 		:mu => basicGA.mu,
 		:casino => Casino(basicGA.nIndividuals + 1, basicGA.nGenes + 1),
-		:evaluatedZeros => 0
+		# Properties for later analysis:
+		:objectiveInterval => [0, 0],
+		:incorrectEvaluations => 0
 	])
 
 	model = ABM(BasicGAAgent{BasicGAAlleles}, space; properties)
@@ -129,11 +140,14 @@ function initialize(exploratoryGA::ExploratoryGA; seed=42)
 	space = GridSpace((exploratoryGA.M, exploratoryGA.M); periodic=false)
 
 	properties = Dict([
+		# Properties for algorithm execution:
 		:mu => exploratoryGA.mu,
 		:casino => Casino(exploratoryGA.nIndividuals+1, exploratoryGA.nGenes+1),
 		:nTrials => exploratoryGA.nTrials,
 		:speedAdvantage => exploratoryGA.speedAdvantage,
-		:evaluatedZeros => 0
+		# Properties for later analysis:
+		:objectiveInterval => [0, 0],
+		:incorrectEvaluations => 0
 	])
 
 	model = ABM(ExploratoryGAAgent{ExploratoryGAAlleles}, space; properties)
@@ -165,7 +179,8 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 					  sum(Int.(a.genome))))
 		],
 		mdata=[
-			:evaluatedZeros
+			:objectiveInterval,
+			:incorrectEvaluations
 		]
 	)
 	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
@@ -189,7 +204,8 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 					  sum(Int.(a.genome))))
 		],
 		mdata=[
-			:evaluatedZeros
+			:objectiveInterval,
+			:incorrectEvaluations
 		]
 	)
 	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
@@ -201,6 +217,10 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 		title = repr(seed)
 	)
 	return (agentDF, modelDF, pltDF, plt)
+end
+
+function compareGAs(geneticAlgorithms::Vector{GeneticAlgorithm}, nSteps=100; seed=42)
+	
 end
 
 end # module GAs
