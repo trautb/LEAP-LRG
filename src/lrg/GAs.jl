@@ -71,7 +71,7 @@ function exploratory_step!(model)
 	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(genpool, model.nTrials, model.casino) 
+	popFitness, evaluations = fitness(genpool, model.nTrials, model.speedAdvantage, model.casino) 
 
 	# Perform selection:
 	selectionWinners = encounter(popFitness)
@@ -107,18 +107,16 @@ function initialize(basicGA::BasicGA; seed=42)
 	space = GridSpace((basicGA.M, basicGA.M); periodic=false)
 	
 	properties = Dict([
-		:mu => 0.0001,
-		:casino => Casino(basicGA.nIndividuals + 1, basicGA.genomeLength + 1),
+		:mu => basicGA.mu,
+		:casino => Casino(basicGA.nIndividuals + 1, basicGA.nGenes + 1),
 		:evaluatedZeros => 0
 	])
 
-	model = ABM(
-		BasicGAAgent, space;
-		properties
-	)
+	model = ABM(BasicGAAgent{BasicGAAlleles}, space; properties)
+
 	for n in 1:basicGA.nIndividuals
         agent = BasicGAAgent(
-			n, (1, 1), rand(instances(BasicGAAlleles), basicGA.genomeLength), 0
+			n, (1, 1), rand(instances(BasicGAAlleles), basicGA.nGenes), 0
 		)
 		add_agent!(agent, model)
     end
@@ -131,19 +129,18 @@ function initialize(exploratoryGA::ExploratoryGA; seed=42)
 	space = GridSpace((exploratoryGA.M, exploratoryGA.M); periodic=false)
 
 	properties = Dict([
-		:mu => 0.0001,
-		:casino => Casino(exploratoryGA.nIndividuals+1, exploratoryGA.genomeLength+1),
-		:nTrials => 100,
+		:mu => exploratoryGA.mu,
+		:casino => Casino(exploratoryGA.nIndividuals+1, exploratoryGA.nGenes+1),
+		:nTrials => exploratoryGA.nTrials,
+		:speedAdvantage => exploratoryGA.speedAdvantage,
 		:evaluatedZeros => 0
 	])
 
-	model = ABM(
-		ExploratoryGAAgent, space;
-		properties
-	)
+	model = ABM(ExploratoryGAAgent{ExploratoryGAAlleles}, space; properties)
+
 	for n in 1:exploratoryGA.nIndividuals
         agent = ExploratoryGAAgent(
-			n, (1, 1), rand(instances(ExploratoryGAAlleles), exploratoryGA.genomeLength), 0
+			n, (1, 1), rand(instances(ExploratoryGAAlleles), exploratoryGA.nGenes), 0
 		)
 		add_agent!(agent, model)
     end
@@ -163,8 +160,8 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			#:genome,
-			:mepiCache,
-			(a -> min(basicGA.genomeLength - sum(Int.(a.genome)),
+			:currentScore,
+			(a -> min(basicGA.nGenes - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
 		mdata=[
@@ -187,8 +184,8 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			#:genome,
-			:mepiCache,
-			(a -> min(exploratoryGA.genomeLength - sum(Int.(a.genome)),
+			:currentScore,
+			(a -> min(exploratoryGA.nGenes - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
 		mdata=[

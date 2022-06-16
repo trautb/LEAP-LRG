@@ -63,7 +63,12 @@ pressure.
 
 best_evaluations is a colum vector of evaluations of the population. 
 """
-function fitness(genpool::Matrix{ExploratoryGAAlleles}, plasticityTrials::Int64, casino) 
+function fitness(
+		genpool::Matrix{ExploratoryGAAlleles}, 
+		nTrials::Integer, 
+		speedAdvantage::Number,
+		casino
+	) 
 	nIndividuals, _ = size(genpool)
 
 	# fitness and evaluations at plasticity trial 0
@@ -71,10 +76,10 @@ function fitness(genpool::Matrix{ExploratoryGAAlleles}, plasticityTrials::Int64,
 	best_evaluations = zeros(nIndividuals)
 
 	# calculates the fitness at each plasticity trial and keeps the best for each individual
-	for i in 1:plasticityTrials
+	for i in 1:nTrials
 		fitness_i, evaluations_i = fitness(plasticity(genpool, casino)) 
 		# rewarding finding good fitness quickly
-		fitness_i = fitness_i .* (10 - 10 * i / (plasticityTrials + 1)) 
+		fitness_i = fitness_i .* (speedAdvantage - speedAdvantage * i / (nTrials + 1)) 
 
 		# keep the best fitness values and underlying evaluations 
 		index = best_fitness_vals .< fitness_i
