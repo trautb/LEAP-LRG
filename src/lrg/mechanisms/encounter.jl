@@ -1,5 +1,3 @@
-
-
 """
 encounter
 
@@ -8,25 +6,25 @@ The fitness of every individual gets compared to 4 different individuals. That w
 """
 function encounter(fitness::AbstractVector)
 
-individualsFitness = fitness
-nIndividuals = length(individualsFitness)
-individuals = collect(1:nIndividuals)
-parents = Vector{Int64}(undef,0)
+	individualsFitness = fitness
+	nIndividuals = length(individualsFitness)
+	individuals = collect(1:nIndividuals)
+	parents = Vector{Int64}(undef,0)
 
-for i in 1:2
-    Random.shuffle!(individuals)
+	for i in 1:2
+		Random.shuffle!(individuals)
 
-    encounters = circshift(individuals,1)
-    individualWinners = individualsFitness[individuals] .> individualsFitness[encounters]
-    encounterWinners = individualWinners .== 0
+		encounters = circshift(individuals,1)
+		individualWinners = individualsFitness[individuals] .> individualsFitness[encounters]
+		encounterWinners = individualWinners .== 0
 
-    # Append individuals and encounters who had a higher fitness than their opponent 
-    append!(parents, individuals[individualWinners]) 
-    append!(parents, encounters[encounterWinners])
+		# Append individuals and encounters who had a higher fitness than their opponent 
+		append!(parents, individuals[individualWinners]) 
+		append!(parents, encounters[encounterWinners])
 
-end
+	end
 
-return parents
+	return parents
 end
 
 
