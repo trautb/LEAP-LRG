@@ -1,4 +1,5 @@
 struct GASimulation
+	timestamp::DateTime
 	algorithm::GeneticAlgorithm
 	agentDF::DataFrame
 	modelDF::DataFrame
@@ -10,11 +11,24 @@ struct GASimulation
 		modelDF::DataFrame,
 		gaSpecificPlots::AbstractVector
 	)
-		return new(algorithm, agentDF, modelDF, gaSpecificPlots)
+		return new(Dates.now(), algorithm, agentDF, modelDF, gaSpecificPlots)
+	end
+
+	function GASimulation(
+		algorithm::GeneticAlgorithm, 
+		agentDF::DataFrame, 
+		modelDF::DataFrame;
+		seed = nothing
+	)
+		# Create ga-specific plots:
+		gaSpecificPlots = [scoreOverTime(agentDF; seed=seed), scoreSpanOverTime(modelDF; seed=seed)]
+
+		return GASimulation(algorithm, agentDF, modelDF, gaSpecificPlots)
 	end
 end
 
 struct GAComparison
+	timestamp::DateTime
 	simulations::Vector{GASimulation}
 	minimumPlot::Plots.Plot
 
@@ -22,7 +36,7 @@ struct GAComparison
 		simulations::Vector{GASimulation},
 		minimumPlot::Plots.Plot
 	)
-		return new(simulations, minimumPlot)
+		return new(Dates.now(), simulations, minimumPlot)
 	end
 
 	function GAComparison(

@@ -12,7 +12,7 @@ using Agents
 using Random
 using Plots
 using DataFrames
-import Dates
+using Dates
 
 # Include core structures
 include("core/algorithms.jl")
@@ -24,6 +24,7 @@ include("utils/Casinos.jl")
 include("utils/transpose.jl")
 include("utils/results.jl")				# Depends on core/algorithms.jl
 include("utils/plotting.jl")			# Depends on utils/results.jl
+include("utils/save.jl")				# Depends on utils/results.jl
 
 # Include evolutionary mechanisms
 include("mechanisms/plasticity.jl")		# Depends on core/alleles.jl
@@ -62,7 +63,7 @@ function basic_step!(model)
 	agentIDs = collect(allids(model))
 	for i ∈ 1:nagents(model)
 		model[agentIDs[i]].genome = nextGenpool[i,:]
-		model[agentIDs[i]].currentScore = evaluations[i]
+		model[agentIDs[i]].score = evaluations[i]
 	end
 
 	# Save best, worst and mean of evaluations for later analysis:
@@ -96,7 +97,7 @@ function exploratory_step!(model)
 	agentIDs = collect(allids(model))
 	for i ∈ 1:nagents(model)
 		model[agentIDs[i]].genome = nextGenpool[i,:]
-		model[agentIDs[i]].currentScore = evaluations[i]
+		model[agentIDs[i]].score = evaluations[i]
 	end
 
 	# Save best, worst and mean of evaluations for later analysis:
@@ -172,6 +173,16 @@ function initialize(exploratoryGA::ExploratoryGA)
 end
 
 # -----------------------------------------------------------------------------------------
+"""
+	excludeStepZero!(dataframe::DataFrame)
+
+Excludes all rows from the given dataframe that match the condition :step == 0.
+"""
+function excludeStepZero!(dataframe::DataFrame)
+	filter!(:step => step -> step != 0, dataframe)
+end
+
+# -----------------------------------------------------------------------------------------
 
 """
 	simulate
@@ -179,13 +190,15 @@ end
 Simulation methods for every genetic algorithm.
 """
 function simulate(basicGA::BasicGA, nSteps=100; seed=42)
-	Random.seed!(seed);
+	if seed != nothing
+		Random.seed!(seed);
+	end
+	
 	model = initialize(basicGA)
 
 	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
-			# :genome,
-			:currentScore,
+			:score,
 			(a -> min(basicGA.nGenes - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
@@ -196,23 +209,24 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 			:incorrectEvaluations
 		]
 	)
-	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
 
-	pScoreOverTime = scoreOverTime(agentDF, basicGA.nIndividuals + 1; seed=seed)
-	pScoreSpanOverTime = scoreSpanOverTime(modelDF; seed=seed)
-	plots = [pScoreOverTime, pScoreSpanOverTime]
+	excludeStepZero!(agentDF)
+	excludeStepZero!(modelDF)
 
-	return GASimulation(basicGA, agentDF, modelDF, plots)
+	return GASimulation(basicGA, agentDF, modelDF; seed=seed)
 end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
-	Random.seed!(seed);
+	if seed != nothing
+		Random.seed!(seed);
+	end
+
 	model = initialize(exploratoryGA)
 
 	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
-			# :genome,
-			:currentScore,
+			:score,
 			(a -> min(exploratoryGA.nGenes - sum(Int.(a.genome)),
 					  sum(Int.(a.genome))))
 		],
@@ -223,13 +237,12 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 			:incorrectEvaluations
 		]
 	)
-	DataFrames.rename!(agentDF, 3 => :mepi, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
 
-	pScoreOverTime = scoreOverTime(agentDF, exploratoryGA.nIndividuals + 1; seed=seed)
-	pScoreSpanOverTime = scoreSpanOverTime(modelDF; seed=seed)
-	plots = [pScoreOverTime, pScoreSpanOverTime]
+	excludeStepZero!(agentDF)
+	excludeStepZero!(modelDF)
 
-	return GASimulation(exploratoryGA, agentDF, modelDF, plots)
+	return GASimulation(exploratoryGA, agentDF, modelDF; seed=seed)
 end
 
 """
@@ -269,31 +282,21 @@ function compare(
 	saveSpecificPlots=true,
 	seed=42
 ) where {T <: GeneticAlgorithm}
+	isDirnameValid = isdir(dirname)
+
+	if isDirnameValid
+		subdir = Dates.format(Dates.now(), dateformat"yyyy_mm_dd__HH_MM")
+	end
+
 	comparison = compare(geneticAlgorithms, nSteps; seed=seed)
 
-	if isdir(dirname)
+	if isDirnameValid
 		pwdBackup = pwd()
 		cd(dirname)
+		mkpath(subdir)
+		cd(subdir)
 
-		format = Dates.DateFormat("yyyy_mm_dd__HH_MM_SS")
-		timestamp = Dates.format(Dates.now(), format)
-		mkpath(timestamp)
-		cd(timestamp)
-
-		timestamp = string("_", timestamp, "_")
-		Plots.png(comparison.minimumPlot, string("comparison", timestamp, "minimumPlot"))
-		Plots.pdf(comparison.minimumPlot, string("comparison", timestamp, "minimumPlot"))
-		
-		if saveSpecificPlots
-			for i in 1:length(comparison.simulations)
-				simulation = comparison.simulations[i]
-				for j in 1:length(simulation.gaSpecificPlots)
-					plt = simulation.gaSpecificPlots[j]
-					Plots.png(plt, string("simulation", timestamp, "ga_", i, "_plot_", j))
-					Plots.pdf(plt, string("simulation", timestamp, "ga_", i, "_plot_", j))
-				end
-			end
-		end
+		savePlots(comparison)
 
 		cd(pwdBackup)
 	else

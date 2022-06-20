@@ -13,8 +13,8 @@ function compareMinimumScores(simulations::Vector{GASimulation}; seed=nothing)
 		modelDF = simulation.modelDF
 		plot!(
 			minimumComparison,
-			modelDF[2:end, :step],
-			modelDF[2:end, :minimum], 
+			modelDF[:, :step],
+			modelDF[:, :minimum], 
 			label = repr(simulation.algorithm),
 			legend = true, 
 		)
@@ -34,11 +34,11 @@ end
 
 This function takes an agent dataframe and plots the score per step for every agent.
 """
-function scoreOverTime(agentDF::DataFrame, range::Integer; seed=nothing)
-	pltDF = unstack(agentDF, :step, :id, :mepi)
+function scoreOverTime(agentDF::DataFrame; seed=nothing)
+	pltDF = unstack(agentDF, :step, :organism, :score)
 
 	plt = Plots.plot(
-		Matrix(pltDF[2:end, 2:range]),  # Exclude initialization-row
+		Matrix(pltDF[:, Symbol.(unique!(sort!(agentDF[:, :organism])))]),  # Select organisms only
 		legend = false, 
 		title = string("Seed: ", repr(seed))
 	)
@@ -55,8 +55,8 @@ step.
 """
 function scoreSpanOverTime(modelDF::DataFrame; seed=nothing)
 	plt = Plots.plot(
-		modelDF[2:end, :step],
-		[modelDF[2:end, :mean] modelDF[2:end, :minimum] modelDF[2:end, :maximum]], 
+		modelDF[:, :step],
+		[modelDF[:, :mean] modelDF[:, :minimum] modelDF[:, :maximum]], 
 		legend = true,
 		labels = ["Mean" "Minimum" "Maximum"], 
 		xlabel = "Step",
