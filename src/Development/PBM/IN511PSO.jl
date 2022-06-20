@@ -120,7 +120,7 @@ function spawn_particles!(model)
                 Particle(
                     nextid(model),          # id
                     (p) .- 0.5,              # pos (in center of patch)
-                    Tuple(rand(2)),         # vel
+                    Tuple(2 .* rand(2) .- 1),         # vel
                     1e301                   # Ridiculously high initial value
                 ),
                 model
@@ -156,20 +156,20 @@ function agent_step!(particle, model)
     uPrevious = particle.uLowest                  # Note previous value of u
 
     # Take a step forward, depending on speed:
-    if rand() < particle.v
+    if rand() < sum(particle.vel) / 2
         move_agent!(particle, model)
     end
 
     # Remember the lowest value of u that I have yet found:
-    u = model.patches[floor.(particle.pos)...]
+    u = model.patches[ceil.(Integer, particle.pos)...]
     if u < particle.uLowest
         # u has dropped - note the fact:
         particle.uLowest = u
     elseif u > particle.uLowest + model.tolerance
         # u is significantly higher than my lowest so far. Spread dissatisfaction:
-        particle.vel = 0.5 * (1 + particle.vel)
+        particle.vel = 0.5 .* (1 .+ particle.vel)
         for p in nearby_agents(particle, model)
-            p.vel = 0.5 * (1 + p.vel)
+            p.vel = 0.5 .* (1 .+ p.vel)
         end
     end
 
@@ -177,22 +177,22 @@ function agent_step!(particle, model)
     if u > uPrevious
         # Things are getting worse - somersault:
         rotation = rand(-π:0.01:π)
-        particle.vel = rotate_2dvector(rotation, vector)
+        particle.vel = rotate_2dvector(rotation, particle.vel)
     end
 
     # Stabilise speed if others are loitering here:
-    if length(nearby_agents(particle, model)) > 0
+    if length(collect(nearby_agents(particle, model))) > 0
         # There are Particles here - slow down:
-        particle.vel *= 0.5
+        particle.vel = 0.5 .* particle.vel
     else
         # Speed up:
-        particle.vel = 0.5 * (1 + particle.vel)
+        particle.vel = 0.5 .* (1 .+ particle.vel)
     end
 
     # Thermal motion:
     if rand() < model.temperature
         # Randomly speed up:
-        particle.vel = 0.5 * (1 + particle.vel)
+        particle.vel = 0.5 .* (1 .+ particle.vel)
     end
 
 end
@@ -238,7 +238,7 @@ function demo()
     )
 
     model = create_model()
-    fig, p = abmexploration(model; (agent_step!)=dummystep, model_step!, params, plotkwargs...)
+    fig, p = abmexploration(model; (agent_step!)=agent_step!, model_step!, params, plotkwargs...)
     fig
 end
 
