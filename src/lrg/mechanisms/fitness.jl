@@ -29,16 +29,16 @@ evaluations is a colum vector of evaluations of the population.
 """
 function fitness(genpool::BitMatrix) 
 
-	npop = size(genpool)[1]
+	nIndividuals = size(genpool)[1]
 
 	# Calculate the current objective evaluations of the population:
-	evaluations = mepi.([genpool[i,:] for i = 1:npop]) 
+	evaluations = mepi.([genpool[i,:] for i = 1:nIndividuals]) 
 
 	# Normalise the evaluations into frequencies:
 	sigma = std(evaluations)				# Standard deviation
 	if sigma == 0
 		# Singular case: all evaluations were equal to the mean:
-		fitness = ones(npop)
+		fitness = ones(nIndividuals)
 	else
 		# Exorcise all evaluations worse than one standard
 		# deviations above mean value:
