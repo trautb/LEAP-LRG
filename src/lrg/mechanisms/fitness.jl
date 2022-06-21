@@ -79,7 +79,7 @@ function fitness(
 	for i in 1:nTrials
 		fitness_i, evaluations_i = fitness(plasticity(genpool, casino)) 
 		# rewarding finding good fitness quickly
-		fitness_i = fitness_i .* (speedAdvantage - speedAdvantage * i / (nTrials + 1)) 
+		fitness_i = fitness_i .* (1 + speedAdvantage - speedAdvantage * i / (nTrials + 1)) 
 
 		# keep the best fitness values and underlying evaluations 
 		index = best_fitness_vals .< fitness_i
