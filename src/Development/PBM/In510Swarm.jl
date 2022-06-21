@@ -10,18 +10,6 @@ export demo
         patchvalue:: Float64 
     end
 
-    mutable struct MyScheduler
-        n::Int # step number
-    end
-
-    function (ms::MyScheduler)(model::ABM)
-        ms.n += 1
-        ids = collect(allids(model))
-        # filter all ids whose agents have `w` less than some amount
-        filter!(id -> model[id].id < rand(5:1:length(ids)), ids)
-        return ids
-    end
-
     function initialize_model(  
         ;n_sources = 800,
         worldsize,
@@ -38,16 +26,10 @@ export demo
             :pPop => pPop,
             :ticks => ticks
             :deJong7 => deJong7
-
         )
 
         ms = MyScheduler(1)
         model = ABM(Agent, space2d, scheduler = Schedulers.fastest,properties = properties)
-        
-        #Id = 1* Matrix(I,worldsize,worldsize)
-        #Idfill = Id.*collect(0:1/(worldsize-1):1)
-        #world.patches = (world.patches * Idfill)'
-        
         if deJong7 == true
             xy = ((collect(-(worldsize/2):1:(worldsize/2))).*10)./worldsize
             for i = 1:worldsize
@@ -94,14 +76,9 @@ export demo
     end
 
     function agent_step!(sources,model)
-        #var = nearby_ids(sources.pos,world,r = [(1, -2:2),(2, -2:2)],exact=false;)
-        #r = [(1, -1:1), (3, 1:2)]
-
         ids = collect(nearby_ids(sources.pos, model, 8,exact=false))
         min_patchvalue = sources.patchvalue
         best_pos = sources.pos
-
-
         for id in ids
             if model[id].patchvalue < min_patchvalue
                 min_patchvalue = model[id].patchvalue
@@ -109,25 +86,36 @@ export demo
             end
         end
         sources.vel = Tuple([-sources.pos[1], -sources.pos[2]]) .+ best_pos
-        sources.vel = sources.vel ./ 2
-        if sources.vel[1]<0 && sources.vel[2] < 0
-            sources.vel = sources.vel .+ Tuple([-1 -1])
-        elseif sources.vel[1]>0 && sources.vel[2] > 0
-            sources.vel = sources.vel .+ Tuple([1 1])
-        elseif sources.vel[1]<0 && sources.vel[2] > 0
-            sources.vel = sources.vel .+ Tuple([-1 1])
-        elseif sources.vel[1]>0 && sources.vel[2] < 0
-            sources.vel = sources.vel .+ Tuple([1 -1])
+        if sources.vel[1] == 0.0 && sources.vel[2] == 0.0
+
+        else
+            vel1 = sources.vel[1]/sqrt((sources.vel[1])^2+(sources.vel[2])^2)
+            vel2 = sources.vel[2]/sqrt((sources.vel[1])^2+(sources.vel[2])^2)
+            sources.vel = Tuple([vel1 vel2])
         end
         
-        #euclid = Tuple([abs(sources.pos[1]-best_pos[1]),abs(sources.pos[2]-best_pos[2])])
-        #sources.pos = sources.pos .+ sources.vel
+        
+        
+        if sources.vel[1]<0 && sources.vel[2] < 0
+            sources.vel = sources.vel .+ (Tuple([-1 -1]).-sources.vel)
+        elseif sources.vel[1]>0 && sources.vel[2] > 0
+            sources.vel = sources.vel .+ (Tuple([1 1]).-sources.vel)
+        elseif sources.vel[1]<0 && sources.vel[2] > 0
+            sources.vel = sources.vel .+ Tuple([(-1-sources.vel[1]) (1-sources.vel[2])])
+        elseif sources.vel[1]>0 && sources.vel[2] < 0
+            sources.vel = sources.vel .+ Tuple([(1-sources.vel[1]) (-1-sources.vel[2])])
+        end
         sources.patchvalue = model.patches[round(Int,sources.pos[1]),round(Int,sources.pos[2])]
         move_agent!(sources,model,1);
     end
 
-    function model_step!()
+    
+    function particle_marker(b::Agent;)
+        particle_polygon = Polygon(Point2f[(-0.25, -0.25), (0.5, 0), (-0.25, 0.25)])
+        φ = atan(b.vel[2], b.vel[1])
+        scale(rotate2D(particle_polygon, φ), 2)
     end
+
     function demo()
         model = initialize_model(worldsize = 160);
         heatarray = :patches
@@ -142,7 +130,7 @@ export demo
         
         #https://makie.juliaplots.org/stable/documentation/figure/
         #https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
-        figure,p= abmexploration(model;agent_step!,params = Dict(),ac = :red,plotkwargs...)
+        figure,p= abmexploration(model;agent_step!,params = Dict(),am = particle_marker,ac = :red,plotkwargs...)
         Colorbar(figure[:,end+1],colormap = cgrad(:ice),limits = (-8,0))
         figure 
     end
