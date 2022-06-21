@@ -124,7 +124,7 @@ function demo(world_size,particle_size,particle_speed)
     #agent_df, model_df =run!(model, agent_step!, model_step!, 1000; mdata = mdata)
     #agent_df, model_df =run!(model, agent_step!, model_step!, model.tick; mdata = mdata)
     figure,p= abmexploration(model;model_step!,agent_step!,params = Dict(),am = particle_marker,mdata)#,plotkwargs...);
-    plot_layout = figure[:,end+1] = GridLayout()
+    plot_layout = figure[:,end+1]
     count_layout = plot_layout[1,1] = GridLayout()
     ax_counts = Axis(count_layout[1,1];
     backgroundcolor = :white, ylabel = "Meandist")
@@ -135,7 +135,7 @@ function demo(world_size,particle_size,particle_speed)
     agent_step = @lift($(p.mdf).step)
     agent_steps = to_value(agent_step)
     println(agent_steps[1])
-
+    #https://makie.juliaplots.org/stable/examples/plotting_functions/scatterlines/
     scatterlines!(ax_counts,mea)
     
     on(p.model) do m
