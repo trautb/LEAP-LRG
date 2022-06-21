@@ -12,7 +12,8 @@ Author: , 31/05/22
 module PSO
 
 export demo                # Externally available names
-using Agents, GLMakie, InteractiveDynamics   # Required packages
+using Agents, GLMakie, InteractiveDynamics      # Required packages
+import LinearAlgebra: norm                      # magnitude of vector
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -46,15 +47,11 @@ function create_model(;
     extent=(worldsize, worldsize)
 )
 
-    # pPop = 0.05
-    # temperature = 0.001
-    # tolerance = 0.4
-    # worldsize = 80
-    # deJong7 = false
-    # extent = (worldsize, worldsize)
+    # Initialise u with a multimodal function
+    patches = deJong7 ? buildDeJong7(worldsize) : buildValleys(worldsize)
 
     properties = Dict(
-        :patches => deJong7 ? buildDeJong7(worldsize) : buildValleys(worldsize),
+        :patches => patches,
         :pPop => pPop,
         :temperature => temperature,
         :tolerance => tolerance,
@@ -111,17 +108,17 @@ end
 """
     spawn_particles!(model, n_particles = model.n_particles)
 
-Populates the model with the specified nr of particles.
+Distribute Particles across the world (depedending on `pPop`).
 """
 function spawn_particles!(model)
     @inbounds for p in positions(model)
         if rand() < model.pPop
             add_agent_pos!(
                 Particle(
-                    nextid(model),          # id
-                    (p) .- 0.5,              # pos (in center of patch)
-                    Tuple(2 .* rand(2) .- 1),         # vel
-                    1e301                   # Ridiculously high initial value
+                    nextid(model),              # id
+                    (p) .- 0.5,                 # pos (in center of patch)
+                    rVel(),                 # vel: magnitude ∈ [0,1]
+                    1e301                       # Ridiculously high initial value
                 ),
                 model
             )
@@ -129,6 +126,20 @@ function spawn_particles!(model)
     end
     return model
 end
+
+# function randColVel() 
+#     ϕ = rand(0:0.1:2π)
+#     r = rand()
+#     (r * cos(ϕ), r * sin(ϕ))
+# end
+
+function rVel() 
+    r = (rand(), rand())
+    vel = (2 .* r .- 1) 
+    rand() .* vel ./ norm(vel)
+end
+
+
 
 #-----------------------------------------------------------------------------------------
 
@@ -156,7 +167,7 @@ function agent_step!(particle, model)
     uPrevious = particle.uLowest                  # Note previous value of u
 
     # Take a step forward, depending on speed:
-    if rand() < sum(particle.vel) / 2
+    if rand() < norm(particle.vel)
         move_agent!(particle, model)
     end
 
@@ -167,9 +178,9 @@ function agent_step!(particle, model)
         particle.uLowest = u
     elseif u > particle.uLowest + model.tolerance
         # u is significantly higher than my lowest so far. Spread dissatisfaction:
-        particle.vel = 0.5 .* (1 .+ particle.vel)
+        particle.vel = speed_up(particle.vel)
         for p in nearby_agents(particle, model)
-            p.vel = 0.5 .* (1 .+ p.vel)
+            p.vel = speed_up(p.vel)
         end
     end
 
@@ -181,22 +192,34 @@ function agent_step!(particle, model)
     end
 
     # Stabilise speed if others are loitering here:
-    if length(collect(nearby_agents(particle, model))) > 0
+    if length(collect(nearby_agents(particle, model, 3.0))) > 0
         # There are Particles here - slow down:
         particle.vel = 0.5 .* particle.vel
     else
         # Speed up:
-        particle.vel = 0.5 .* (1 .+ particle.vel)
+        particle.vel = speed_up(particle.vel)
     end
 
     # Thermal motion:
     if rand() < model.temperature
         # Randomly speed up:
-        particle.vel = 0.5 .* (1 .+ particle.vel)
+        particle.vel = speed_up(particle.vel)
     end
 
 end
 
+# speed_up(vel) = vel ./ (0.5 * (1 + norm(vel)))
+function speed_up(vel)
+
+    # if any(x -> (x==0.0 || abs(x)==Inf || isnan(x) || abs(x) < 1e-302),vel)
+    if any(x -> (abs(x) < 1e-302),vel)
+        return rVel() .* 0.01
+    end
+    oldM = norm(vel)
+    newM = 0.5 * (1.0 + oldM)
+    newVel = (newM / oldM) .* vel
+    return newVel
+end
 #-----------------------------------------------------------------------------------------
 
 """
@@ -209,6 +232,17 @@ function initialize_model!(model)
     setPatches!(model)
     model.initialized = true
     return model
+end
+
+# TODO: outsource function
+function rotate_2dvector(φ, vector)
+    Tuple(
+        [
+            cos(φ) -sin(φ)
+            sin(φ) cos(φ)
+        ] *
+        [vector...]
+    )
 end
 
 #-----------------------------------------------------------------------------------------
@@ -239,19 +273,21 @@ function demo()
 
     model = create_model()
     fig, p = abmexploration(model; (agent_step!)=agent_step!, model_step!, params, plotkwargs...)
+    
+    function plotAgentMean(model)
+        m = (.0,.0)
+        particles = model.agents
+        for (_,p) in particles
+            m = m .+ p.pos
+        end
+        m ./ length(particles)
+    end
+
+    m = @lift(plotAgentMean($(p.model)))
+    scatter!(m,color=:red, markersize=20)
+    
     fig
 end
 
-# TODO: outsource function (taken from Stefans 2nd chapter)
-function rotate_2dvector(rotation, vector)
-
-    if rotation >= 0.0
-        vector = Tuple([cos(rotation) -sin(rotation); sin(rotation) cos(rotation)] * [vector[1] vector[2]]')
-    else
-        vector = Tuple([cos(rotation) sin(rotation); -sin(rotation) cos(rotation)] * [vector[1] vector[2]]')
-    end
-end
-
-# model = create_model()
 
 end # ... of module PSO
