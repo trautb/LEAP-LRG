@@ -3,15 +3,15 @@ struct GASimulation
 	algorithm::GeneticAlgorithm
 	agentDF::DataFrame
 	modelDF::DataFrame
-	gaSpecificPlots::AbstractVector
+	plots::Dict{String, Plots.Plot}
 
 	function GASimulation(
 		algorithm::GeneticAlgorithm, 
 		agentDF::DataFrame, 
 		modelDF::DataFrame,
-		gaSpecificPlots::AbstractVector
+		plots::Dict{String, Plots.Plot}
 	)
-		return new(Dates.now(), algorithm, agentDF, modelDF, gaSpecificPlots)
+		return new(Dates.now(), algorithm, agentDF, modelDF, plots)
 	end
 
 	function GASimulation(
@@ -21,32 +21,41 @@ struct GASimulation
 		seed = nothing
 	)
 		# Create ga-specific plots:
-		gaSpecificPlots = [scoreOverTime(agentDF; seed=seed), scoreSpanOverTime(modelDF; seed=seed)]
+		plots = Dict{String, Plots.Plot}(
+			"scoresOT" => scoreOverTime(agentDF; seed=seed), 
+			"scoreSpanOT" => scoreSpanOverTime(modelDF; seed=seed),
+			"topTierOT_5P" => topTierOverTime(agentDF, modelDF, 5; seed=seed),
+			"topTierOT_1P" => topTierOverTime(agentDF, modelDF, 1; seed=seed),
+			"topTierOT_5e-1P" => topTierOverTime(agentDF, modelDF, 0.5; seed=seed)
+		)
 
-		return GASimulation(algorithm, agentDF, modelDF, gaSpecificPlots)
+		return GASimulation(algorithm, agentDF, modelDF, plots)
 	end
 end
 
 struct GAComparison
 	timestamp::DateTime
 	simulations::Vector{GASimulation}
-	minimumPlot::Plots.Plot
+	plots::Dict{String, Plots.Plot}
 
 	function GAComparison(
 		simulations::Vector{GASimulation},
-		minimumPlot::Plots.Plot
+		plots::Dict{String, Plots.Plot}
 	)
-		return new(Dates.now(), simulations, minimumPlot)
+		return new(Dates.now(), simulations, plots)
 	end
 
 	function GAComparison(
 		simulations::Vector{GASimulation};
 		seed = nothing
 	)
-		# Create a plot, that compares the minimum scores per step:
-		minimumPlot = compareMinimumScores(simulations; seed=seed)
+		# Create plots to compare the submitted algorithms:	
+		plots = Dict{String, Plots.Plot}(
+			# Create a plot, that compares the minimum scores per step:
+			"minimumOT" => compareMinimumScores(simulations; seed=seed)
+		)
 
-		return GAComparison(simulations, minimumPlot)
+		return GAComparison(simulations, plots)
 	end
 end
 	

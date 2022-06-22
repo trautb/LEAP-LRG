@@ -3,7 +3,7 @@ module GAs
 ### Define different simulations using the agent based model from Agents.jl
 # =========================================================================================
 
-# Export function to start a genetic algorithm simulation
+# Export functions to start a genetic algorithm simulation
 export simulate, compare
 
 # Import external modules
@@ -32,8 +32,6 @@ include("mechanisms/fitness.jl")		# Depends on mechanisms/plasticity.jl
 include("mechanisms/encounter.jl")
 include("mechanisms/mutate.jl")
 include("mechanisms/recombine.jl")
-
-# Include 
 
 # Import submodules
 using .Casinos
@@ -189,7 +187,7 @@ end
 
 Simulation methods for every genetic algorithm.
 """
-function simulate(basicGA::BasicGA, nSteps=100; seed=42)
+function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 	if seed != nothing
 		Random.seed!(seed);
 	end
@@ -207,12 +205,16 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 			:maximum,
 			:mean,
 			:incorrectEvaluations
-		]
+		],
+		when=(model, step) -> rem(step, stepRem) == 0
 	)
 	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
-
+	
+	# Postprocessing of data:
 	excludeStepZero!(agentDF)
+	insertcols!(agentDF, (:modifications => agentDF[:, :step]))
 	excludeStepZero!(modelDF)
+	insertcols!(modelDF, (:modifications => modelDF[:, :step]))
 
 	return GASimulation(basicGA, agentDF, modelDF; seed=seed)
 end
@@ -239,8 +241,11 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	)
 	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
 
+	# Postprocessing of data:
 	excludeStepZero!(agentDF)
+	insertcols!(agentDF, (:modifications => agentDF[:, :step] .* (exploratoryGA.nTrials + 1)))
 	excludeStepZero!(modelDF)
+	insertcols!(modelDF, (:modifications => modelDF[:, :step] .* (exploratoryGA.nTrials + 1)))
 
 	return GASimulation(exploratoryGA, agentDF, modelDF; seed=seed)
 end
@@ -250,45 +255,77 @@ end
 
 Compare the simulations for a given array of genetic algorithms.
 """
-function compare(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
+function compare(
+	basicGAs::Vector{BasicGA},
+	exploratoryGA::ExploratoryGA;
+	nModifications=101_000, 								# Total genome modifications
+	seed=42
+)
 	# Initialize necessary variables:
-	nGAs = length(geneticAlgorithms)
+	nBasicGAs = length(basicGAs)
+	nGAs = nBasicGAs + 1
 	simulationData = Vector{GASimulation}(undef, nGAs)
+	modsPerStep = exploratoryGA.nTrials + 1
 
-	# Perform similar simulations for every given genetic algorithm:
-	for i in 1:nGAs
-		simulationData[i] = simulate(geneticAlgorithms[i], nSteps; seed=seed)
+	# Adjust nModifications if necessary: 
+	if rem(nModifications, modsPerStep) != 0
+		modIncrease = modsPerStep * (div(nModifications, modsPerStep) + 1) - nModifications
+		print(string("WARNING: nModifications/exploratoryGA.nTrials did not result in an integer! Increasing nModifications by ", modIncrease, " ..."))
+		nModifications = nModifications + modIncrease
 	end
+	# Calculate necessary steps for ExploratoryGA
+	exploratorySteps = div(nModifications, modsPerStep)
+
+	# Run the simulations:
+	simulationData[1:nBasicGAs]=simulate.(basicGAs, nModifications; stepRem=modsPerStep, seed=seed)
+	simulationData[nGAs] = simulate(exploratoryGA, exploratorySteps; seed=seed)
 
 	# Return a comparison of the given genetic algorithms:
 	return GAComparison(simulationData; seed=seed)
 end
 
+function compare(
+	basicGAs::Vector{BasicGA},
+	exploratoryGAs::Vector{ExploratoryGA};
+	nModifications=100_000, 								# Total genome modifications
+	seed=42
+)
+	return [compare(
+		basicGAs, 
+		exploratoryGA; 
+		nModifications=nModifications, 
+		seed=seed
+	) for exploratoryGA in exploratoryGAs]
+end
+
 """
 	compare(
 		dirname::String,
-		geneticAlgorithms::Vector{T}, 
-		nSteps=100;
+		basicGAs::Vector{BasicGA},
+		exploratoryGAs::Vector{ExploratoryGA},
+		nModifications=100_000;
+		saveSpecificPlots=true,
 		seed=42
-	) where {T <: GeneticAlgorithm}
+	)	
 
 Compare the simulations for a given array of genetic algorithms and saves the plots to directory 
 dirname.
 """
 function compare(
 	dirname::String,
-	geneticAlgorithms::Vector{T}, 
-	nSteps=100;
+	basicGAs::Vector{BasicGA},
+	exploratoryGAs::Vector{ExploratoryGA};
+	nModifications=100_000,
 	saveSpecificPlots=true,
 	seed=42
-) where {T <: GeneticAlgorithm}
+)
 	isDirnameValid = isdir(dirname)
 
 	if isDirnameValid
 		subdir = Dates.format(Dates.now(), dateformat"yyyy_mm_dd__HH_MM")
 	end
 
-	comparison = compare(geneticAlgorithms, nSteps; seed=seed)
+	comparison = compare(basicGAs, exploratoryGAs; nModifications=nModifications, seed=seed)
 
 	if isDirnameValid
 		pwdBackup = pwd()
@@ -296,7 +333,7 @@ function compare(
 		mkpath(subdir)
 		cd(subdir)
 
-		savePlots(comparison)
+		savePlots.(comparison; withSimulationPlots=saveSpecificPlots)
 
 		cd(pwdBackup)
 	else

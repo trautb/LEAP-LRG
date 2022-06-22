@@ -13,7 +13,7 @@ function compareMinimumScores(simulations::Vector{GASimulation}; seed=nothing)
 		modelDF = simulation.modelDF
 		plot!(
 			minimumComparison,
-			modelDF[:, :step],
+			modelDF[:, :modifications],
 			modelDF[:, :minimum], 
 			label = repr(simulation.algorithm),
 			legend = true, 
@@ -21,8 +21,8 @@ function compareMinimumScores(simulations::Vector{GASimulation}; seed=nothing)
 	end
 
 	# Annotate the plot:
-	xlabel!("Step")
-	ylabel!("Maximally Epistatic Function")
+	xlabel!("Number of Genome Modifications")
+	ylabel!("Minimum MePi Value of the Population")
 	title!(string("Seed: ", repr(seed)))
 
 	return minimumComparison
@@ -62,6 +62,32 @@ function scoreSpanOverTime(modelDF::DataFrame; seed=nothing)
 		xlabel = "Step",
 		ylabel = "Maximally Epistatic Function",
 		title = string("Seed: ", repr(seed))
+	)
+
+	return plt
+end
+
+# -----------------------------------------------------------------------------------------
+"""
+	topTierOverTime(agentDF::DataFrame, range::Integer; seed=nothing)
+
+This function takes an agent dataframe and plots number of agents in range percentage around the 
+max score at that point of time.
+"""
+function topTierOverTime(agentDF::DataFrame, modelDF::DataFrame, percentage::Number; seed=nothing)
+	pltDF = unstack(agentDF, :modifications, :organism, :score)
+	minima = modelDF[!, :minimum]
+	scaledMinima = minima .+ minima .* (percentage/100)
+	topTierIdx = pltDF[!, Symbol.(unique!(sort!(agentDF[:, :organism])))] .< scaledMinima
+	topTierOrganisms = sum.(eachrow(topTierIdx))
+
+	plt = Plots.bar(
+		pltDF[:, :modifications],
+		topTierOrganisms,
+		legend = false, 
+		title = string("Seed: ", repr(seed)),
+		xlabel = "Number of Genome Modifications",
+		ylabel = string("Number of Organisms ", percentage, "% away from Minimum Score")
 	)
 
 	return plt
