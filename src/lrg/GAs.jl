@@ -42,7 +42,7 @@ function basic_step!(model)
 	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(Bool.(genpool))
+	popFitness, evaluations = fitness(Bool.(genpool), model.useHintonNowlan)
 
 	# Perform selection:
 	selectionWinners = encounter(popFitness)
@@ -74,7 +74,7 @@ function exploratory_step!(model)
 	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(genpool, model.nTrials, model.speedAdvantage, model.casino) 
+	popFitness, evaluations = fitness(genpool, model.nTrials, model.speedAdvantage, model.casino, model.useHintonNowlan) 
 
 	# Perform selection:
 	selectionWinners = encounter(popFitness)
@@ -116,6 +116,7 @@ function initialize(basicGA::BasicGA; seed=42)
 		# Properties for algorithm execution:
 		:mu => basicGA.mu,
 		:casino => Casino(basicGA.nIndividuals + 1, basicGA.nGenes + 1),
+		:useHintonNowlan => basicGA.useHintonNowlan,
 		# Properties for later analysis:
 		:objectiveInterval => [0, 0],
 		:incorrectEvaluations => 0
@@ -141,6 +142,7 @@ function initialize(exploratoryGA::ExploratoryGA; seed=42)
 		# Properties for algorithm execution:
 		:mu => exploratoryGA.mu,
 		:casino => Casino(exploratoryGA.nIndividuals + 1, exploratoryGA.nGenes + 1),
+		:useHintonNowlan => exploratoryGA.useHintonNowlan,
 		:nTrials => exploratoryGA.nTrials,
 		:speedAdvantage => exploratoryGA.speedAdvantage,
 		# Properties for later analysis:
