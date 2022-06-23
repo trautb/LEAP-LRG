@@ -366,15 +366,9 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 	for i in 1:nGAs
 		factor, remainder = divrem(maxEvals, evalsPerStep[i])
 		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
-		if factor == 1
-			# algorithm with maximum gene evaluations per step
-			@info string("Running ", geneticAlgorithms[i], " with ", nSteps, " steps")
-			simulationData[i] = simulate(geneticAlgorithms[i], nSteps; seed=seed)
-		else
-			# other algorithms
-			@info string("Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps, just showing every ", factor, "th step.")
-			simulationData[i] = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed, excludedSteps=factor)
-		end
+
+		@info string("Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps.")
+		simulationData[i] = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
 	end
 
 	# Return a comparison of the given genetic algorithms:
