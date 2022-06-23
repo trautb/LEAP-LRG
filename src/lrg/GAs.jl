@@ -343,4 +343,73 @@ function compare(
 	return comparison
 end
 
+function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
+	# Initialize necessary variables:
+	nGAs = length(geneticAlgorithms)
+	simulationData = Vector{GASimulation}(undef, nGAs)
+
+	evalsPerStep = 
+		map(function(algo) 
+			if typeof(algo) == BasicGA
+				return 1
+			elseif typeof(algo) == ExploratoryGA
+				return algo.nTrials
+			else
+				throw(TypeError())
+			end
+		end
+	, geneticAlgorithms)
+
+	maxEvals, _ = findmax(evalsPerStep)
+
+	# Perform similar simulations for every given genetic algorithm:
+	for i in 1:nGAs
+		factor, remainder = divrem(maxEvals, evalsPerStep[i])
+		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
+		if factor == 1
+			# algorithm with maximum gene evaluations per step
+			@info string("Running ", geneticAlgorithms[i], " with ", nSteps, " steps")
+			simulationData[i] = simulate(geneticAlgorithms[i], nSteps; seed=seed)
+		else
+			# other algorithms
+			@info string("Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps, just showing every ", factor, "th step.")
+			simulationData[i] = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed, excludedSteps=factor)
+		end
+	end
+
+	# Return a comparison of the given genetic algorithms:
+	return GAComparison(simulationData; seed=seed)
+end
+
+function compareLevelplain(
+	dirname::String,
+	geneticAlgorithms::Vector{T}, 
+	nSteps=100;
+	saveSpecificPlots=true,
+	seed=42
+) where {T <: GeneticAlgorithm}
+	isDirnameValid = isdir(dirname)
+
+	if isDirnameValid
+		subdir = Dates.format(Dates.now(), dateformat"yyyy_mm_dd__HH_MM")
+	end
+
+	comparison = compareLevelplain(geneticAlgorithms, nSteps; seed=seed)
+
+	if isDirnameValid
+		pwdBackup = pwd()
+		cd(dirname)
+		mkpath(subdir)
+		cd(subdir)
+
+		savePlots(comparison)
+
+		cd(pwdBackup)
+	else
+		print("Given dirname is no valid directory! Skipped saving figures ...")
+	end
+
+	return comparison
+end
+
 end # module GAs
