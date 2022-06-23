@@ -22,15 +22,17 @@ struct BasicGA <: GeneticAlgorithm
 	nIndividuals::Integer
 	nGenes::Integer
 	mu::Number
+	useHintonNowlan::Bool
 	M::Integer
 
 	function BasicGA(
 		nIndividuals::Integer = 100, 
 		nGenes::Integer = 128,
-		mu::Number = 0.0001;
+		mu::Number = 0.0001,
+		useHintonNowlan::Bool = false;
 		M::Integer = 1
 	) 
-		return new(nIndividuals, nGenes, mu, M)
+		return new(nIndividuals, nGenes, mu, useHintonNowlan, M)
 	end 
 end
 
@@ -44,6 +46,7 @@ struct ExploratoryGA <: GeneticAlgorithm
 	nIndividuals::Integer
 	nGenes::Integer
 	mu::Number
+	useHintonNowlan::Bool
 	nTrials::Integer
 	speedAdvantage::Number
 	M::Integer
@@ -52,10 +55,11 @@ struct ExploratoryGA <: GeneticAlgorithm
 		nIndividuals::Integer = 100, 
 		nGenes::Integer = 128,
 		mu::Number = 0.0001,
+		useHintonNowlan::Bool = false,
 		nTrials::Integer = 100;
 		speedAdvantage::Number = 10,
 		M::Integer = 1
 	) 
-		return new(nIndividuals, nGenes, mu, nTrials, speedAdvantage, M)
+		return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, speedAdvantage, M)
 	end 
 end	

@@ -1,5 +1,5 @@
 """
-	mepi(x)
+	mepi(genome::BitVector)
 
 Watson's maximally epistatic objective function.
 """
@@ -19,26 +19,41 @@ end
 
 # -----------------------------------------------------------------------------------------
 """
-	fitness(genpool::BitMatrix)
+hintonNowlan(genome::BitVector)
 
-Calculate normalised fitness of the population. fitness is a column vector of normalised 
+Hinton and Nowlans's simple example objective function.
+"""
+function hintonNowlan(genome::BitVector)
+	all(genome) ? 0 : 1
+end
+
+# -----------------------------------------------------------------------------------------
+"""
+	fitness(genpool::BitMatrix, useHintonNowlan::Bool)
+
+Calculate normalised fitness of the population based on the Objective function. 
+fitness is a column vector of normalised. 
 fitnesses of sga population, minus all sub-sigma-scaled individuals (see Mitchell p.168).
 Negative sigma-scaling maximises the objective function; higher magnitudes raise the fitness 
 pressure. 
 evaluations is a colum vector of evaluations of the population. 
 """
-function fitness(genpool::BitMatrix) 
+function fitness(genpool::BitMatrix, useHintonNowlan::Bool) 
 
-	npop = size(genpool)[1]
+	nIndividuals = size(genpool)[1]
 
 	# Calculate the current objective evaluations of the population:
-	evaluations = mepi.([genpool[i,:] for i = 1:npop]) 
+	if useHintonNowlan
+		evaluations = hintonNowlan.([genpool[i,:] for i = 1:nIndividuals]) 
+	else
+		evaluations = mepi.([genpool[i,:] for i = 1:nIndividuals]) 
+	end
 
 	# Normalise the evaluations into frequencies:
 	sigma = std(evaluations)				# Standard deviation
 	if sigma == 0
 		# Singular case: all evaluations were equal to the mean:
-		fitness = ones(npop)
+		fitness = ones(nIndividuals)
 	else
 		# Exorcise all evaluations worse than one standard
 		# deviations above mean value:
@@ -51,7 +66,7 @@ end
 
 #---------------------------------------------------------------------------------------------------
 """
-	fitness(genpool::BitMatrix, plasticityTrials::Int64, casino) 
+	fitness(genpool::BitMatrix, plasticityTrials::Int64, casino, useHintonNowlan::Bool) 
 
 Calculates normalised fitness based on the Objective function at each plasticity trial. 
 and keeps the best fitness and underlying evaluation for each individual. 
@@ -67,7 +82,8 @@ function fitness(
 		genpool::Matrix{ExploratoryGAAlleles}, 
 		nTrials::Integer, 
 		speedAdvantage::Number,
-		casino
+		casino,
+		useHintonNowlan::Bool
 	) 
 	nIndividuals, _ = size(genpool)
 
@@ -77,9 +93,9 @@ function fitness(
 
 	# calculates the fitness at each plasticity trial and keeps the best for each individual
 	for i in 1:nTrials
-		fitness_i, evaluations_i = fitness(plasticity(genpool, casino)) 
+		fitness_i, evaluations_i = fitness(plasticity(genpool, casino), useHintonNowlan) 
 		# rewarding finding good fitness quickly
-		fitness_i = fitness_i .* (1 + speedAdvantage - speedAdvantage * i / (nTrials + 1)) 
+		fitness_i = fitness_i .* ((1 + 19 * (nTrials - i)) / nTrials) 
 
 		# keep the best fitness values and underlying evaluations 
 		index = best_fitness_vals .< fitness_i
