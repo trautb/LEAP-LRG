@@ -24,20 +24,7 @@ hintonNowlan(genome::BitVector)
 Hinton and Nowlans's simple example objective function.
 """
 function hintonNowlan(genome::BitVector)
-	dim = length(genome) 
-	# # if arrangement does not matter
-	# 2*dim - count(genome)
-
-	# if arrangement does matter
-	if dim == 1
-		1
-	else
-		# hintonNowlan is minimized if allels are 1
-		penality = all(genome) ? 0 : 1
-		# Form product of the first and second halves of genome separately:
-		halflen = div(dim, 2)
-		dim * penality + hintonNowlan(genome[1:halflen]) + hintonNowlan(genome[halflen + 1:end])
-	end
+	all(genome) ? 1 : 0
 end
 
 """
