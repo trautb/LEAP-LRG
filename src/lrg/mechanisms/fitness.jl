@@ -24,9 +24,10 @@ hintonNowlan(genome::BitVector)
 Hinton and Nowlans's simple example objective function.
 """
 function hintonNowlan(genome::BitVector)
-	all(genome) ? 1 : 0
+	all(genome) ? 0 : 1
 end
 
+# -----------------------------------------------------------------------------------------
 """
 	fitness(genpool::BitMatrix, useHintonNowlan::Bool)
 
@@ -94,7 +95,7 @@ function fitness(
 	for i in 1:nTrials
 		fitness_i, evaluations_i = fitness(plasticity(genpool, casino), useHintonNowlan) 
 		# rewarding finding good fitness quickly
-		fitness_i = fitness_i .* (speedAdvantage - speedAdvantage * i / (nTrials + 1)) 
+		fitness_i = fitness_i .* ((1 + 19 * (nTrials - i)) / nTrials) 
 
 		# keep the best fitness values and underlying evaluations 
 		index = best_fitness_vals .< fitness_i
