@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export functions to start a genetic algorithm simulation
-export simulate, compare
+export simulate, compare, compareLevelplain
 
 # Import external modules
 using Statistics
@@ -13,6 +13,7 @@ using Random
 using Plots
 using DataFrames
 using Dates
+using TimerOutputs
 
 # Include core structures
 include("core/algorithms.jl")
@@ -348,6 +349,8 @@ function compare(
 end
 
 function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
+	
+	to = TimerOutput()
 	# Initialize necessary variables:
 	nGAs = length(geneticAlgorithms)
 	simulationData = Vector{GASimulation}(undef, nGAs)
@@ -368,15 +371,16 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 
 	# Perform similar simulations for every given genetic algorithm:
 	for i in 1:nGAs
+		currentAlgorithm = geneticAlgorithms[i]
 		factor, remainder = divrem(maxEvals, evalsPerStep[i])
 		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
 
-		@info string("Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps.")
-		simulationData[i] = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
+		@info string("Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
+		@timeit to string(i, ": ",currentAlgorithm) simulationData[i] = simulate(currentAlgorithm, nSteps*factor; seed=seed)
 	end
 
 	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData; seed=seed)
+	return GAComparison(simulationData,to; seed=seed)
 end
 
 function compareLevelplain(
@@ -401,7 +405,7 @@ function compareLevelplain(
 		cd(subdir)
 
 		savePlots(comparison)
-
+		
 		cd(pwdBackup)
 	else
 		print("Given dirname is no valid directory! Skipped saving figures ...")

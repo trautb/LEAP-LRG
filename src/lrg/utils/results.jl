@@ -36,17 +36,20 @@ end
 struct GAComparison
 	timestamp::DateTime
 	simulations::Vector{GASimulation}
+	runtimes::TimerOutput
 	plots::Dict{String, Plots.Plot}
 
 	function GAComparison(
 		simulations::Vector{GASimulation},
+		runtimes::TimerOutput,
 		plots::Dict{String, Plots.Plot}
 	)
-		return new(Dates.now(), simulations, plots)
+		return new(Dates.now(), simulations, runtimes, plots)
 	end
 
 	function GAComparison(
-		simulations::Vector{GASimulation};
+		simulations::Vector{GASimulation},
+		runtimes::TimerOutput;
 		seed = nothing
 	)
 		# Create plots to compare the submitted algorithms:	
@@ -55,7 +58,7 @@ struct GAComparison
 			"minimumOT" => compareMinimumScores(simulations; seed=seed)
 		)
 
-		return GAComparison(simulations, plots)
+		return GAComparison(simulations, runtimes, plots)
 	end
 end
 	
