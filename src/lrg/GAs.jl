@@ -189,6 +189,7 @@ Simulation methods for every genetic algorithm.
 """
 function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 	if seed != nothing
+		@info string("setting seed to ", seed)
 		Random.seed!(seed);
 	end
 	
@@ -221,6 +222,7 @@ end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	if seed != nothing
+		@info string("setting seed to ", seed)
 		Random.seed!(seed);
 	end
 
