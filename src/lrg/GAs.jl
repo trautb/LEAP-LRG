@@ -13,7 +13,7 @@ using Random
 using Plots
 using DataFrames
 using Dates
-using TimerOutputs
+using TrackingTimers
 
 # Include core structures
 include("core/algorithms.jl")
@@ -220,7 +220,7 @@ function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 	excludeStepZero!(modelDF)
 	insertcols!(modelDF, (:modifications => modelDF[:, :step]))
 
-	return GASimulation(basicGA, agentDF, modelDF; seed=seed)
+	return GASimulation(basicGA, agentDF)
 end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
@@ -252,7 +252,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	excludeStepZero!(modelDF)
 	insertcols!(modelDF, (:modifications => modelDF[:, :step] .* (exploratoryGA.nTrials + 1)))
 
-	return GASimulation(exploratoryGA, agentDF, modelDF; seed=seed)
+	return GASimulation(exploratoryGA, agentDF)
 end
 
 """
@@ -350,7 +350,7 @@ end
 
 function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
 	
-	to = TimerOutput()
+	runtimes = TrackingTimer()
 	# Initialize necessary variables:
 	nGAs = length(geneticAlgorithms)
 	simulationData = Vector{GASimulation}(undef, nGAs)
@@ -376,11 +376,11 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
 
 		@info string("Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
-		@timeit to string(i, ": ",currentAlgorithm) simulationData[i] = simulate(currentAlgorithm, nSteps*factor; seed=seed)
+		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) simulationData[i] = simulate(currentAlgorithm, nSteps*factor; seed=seed)
 	end
-
+	
 	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData,to; seed=seed)
+	return GAComparison(simulationData,DataFrame(runtimes))
 end
 
 function compareLevelplain(
