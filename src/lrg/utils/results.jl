@@ -1,61 +1,25 @@
 struct GASimulation
-	timestamp::DateTime
-	algorithm::GeneticAlgorithm
-	agentDF::DataFrame
-	modelDF::DataFrame
-	plots::Dict{String, Plots.Plot}
+    timestamp::DateTime
+    algorithm::GeneticAlgorithm
+    agentDF::DataFrame
 
-	function GASimulation(
-		algorithm::GeneticAlgorithm, 
-		agentDF::DataFrame, 
-		modelDF::DataFrame,
-		plots::Dict{String, Plots.Plot}
-	)
-		return new(Dates.now(), algorithm, agentDF, modelDF, plots)
-	end
-
-	function GASimulation(
-		algorithm::GeneticAlgorithm, 
-		agentDF::DataFrame, 
-		modelDF::DataFrame;
-		seed = nothing
-	)
-		# Create ga-specific plots:
-		plots = Dict{String, Plots.Plot}(
-			"scoresOT" => scoreOverTime(agentDF; seed=seed), 
-			"scoreSpanOT" => scoreSpanOverTime(modelDF; seed=seed),
-			"topTierOT_5P" => topTierOverTime(agentDF, modelDF, 5; seed=seed),
-			"topTierOT_1P" => topTierOverTime(agentDF, modelDF, 1; seed=seed),
-			"topTierOT_5e-1P" => topTierOverTime(agentDF, modelDF, 0.5; seed=seed)
-		)
-
-		return GASimulation(algorithm, agentDF, modelDF, plots)
-	end
+    function GASimulation(
+        algorithm::GeneticAlgorithm, 
+        agentDF::DataFrame, 
+    )
+        return new(Dates.now(), algorithm, agentDF)
+    end
 end
 
 struct GAComparison
-	timestamp::DateTime
-	simulations::Vector{GASimulation}
-	plots::Dict{String, Plots.Plot}
+    timestamp::DateTime
+    simulations::Vector{GASimulation}
+    runtimes::DataFrame
 
-	function GAComparison(
-		simulations::Vector{GASimulation},
-		plots::Dict{String, Plots.Plot}
-	)
-		return new(Dates.now(), simulations, plots)
-	end
-
-	function GAComparison(
-		simulations::Vector{GASimulation};
-		seed = nothing
-	)
-		# Create plots to compare the submitted algorithms:	
-		plots = Dict{String, Plots.Plot}(
-			# Create a plot, that compares the minimum scores per step:
-			"minimumOT" => compareMinimumScores(simulations; seed=seed)
-		)
-
-		return GAComparison(simulations, plots)
-	end
+    function GAComparison(
+        simulations::Vector{GASimulation},
+        runtimes::DataFrame
+    )
+        return new(Dates.now(), simulations, runtimes)
+    end
 end
-	
