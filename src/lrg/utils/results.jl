@@ -9,14 +9,6 @@ struct GASimulation
     )
         return new(Dates.now(), algorithm, agentDF)
     end
-
-    function GASimulation(
-        algorithm::GeneticAlgorithm, 
-        agentDF::DataFrame;
-    )
-
-        return GASimulation(algorithm, agentDF)
-    end
 end
 
 struct GAComparison

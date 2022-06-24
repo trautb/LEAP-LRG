@@ -169,7 +169,7 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 	
 	model = initialize(basicGA)
 
-	agentDF = run!(model, dummystep, basic_step!, nSteps; 
+	agentDF, _ = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			:score,
 		],
@@ -191,7 +191,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 
 	model = initialize(exploratoryGA)
 
-	agentDF = run!(model, dummystep, exploratory_step!, nSteps; 
+	agentDF, _ = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			:score,
 		]
