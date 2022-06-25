@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export functions to start a genetic algorithm simulation
-export simulate, compare
+export simulate, compare, compareLevelplain
 
 # Import external modules
 using Statistics
@@ -22,9 +22,9 @@ include("core/agents.jl")				# Depends on core/alleles.jl
 # Include util functions and modules
 include("utils/Casinos.jl")
 include("utils/transpose.jl")
-include("utils/results.jl")				# Depends on core/algorithms.jl
+include("utils/results.jl")				# Depends on core/algorithms.jl		
 include("utils/plotting.jl")			# Depends on utils/results.jl
-include("utils/save.jl")				# Depends on utils/results.jl
+include("utils/save.jl")				# Depends on utils/plotting.jl
 
 # Include evolutionary mechanisms
 include("mechanisms/plasticity.jl")		# Depends on core/alleles.jl
@@ -288,7 +288,7 @@ function compare(
 		mkpath(subdir)
 		cd(subdir)
 
-		#savePlots.(comparison; withSimulationPlots=saveSpecificPlots)
+		savePlots.(comparison; withSimulationPlots=saveSpecificPlots)
 
 		cd(pwdBackup)
 	else
@@ -351,7 +351,7 @@ function compareLevelplain(
 		mkpath(subdir)
 		cd(subdir)
 
-		#savePlots(comparison)
+		savePlots(comparison, withSimulationPlots=saveSpecificPlots)
 
 		cd(pwdBackup)
 	else

@@ -1,20 +1,19 @@
 """
-	compareMinimumScores(simulationData::Vector{SimulationResults})
+	compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 
 This function takes the results of various simulations and returns a plot, that compares the 
 minimal scores per step for each simulation result. 
 """
-function compareMinimumScores(simulations::Vector{GASimulation}; seed=nothing)
+function compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 	# Initialize plot:
 	minimumComparison = Plots.plot()
 
 	# Plot the graph of minimal scores for each simulation:
-	for simulation in simulations
-		modelDF = simulation.modelDF
+	for (simulation, processedDF) in pairs(simulationData)
 		plot!(
 			minimumComparison,
-			modelDF[:, :modifications],
-			modelDF[:, :minimum], 
+			processedDF[:, :modifications],
+			processedDF[:, :minimum], 
 			label = repr(simulation.algorithm),
 			legend = true, 
 		)
@@ -22,25 +21,25 @@ function compareMinimumScores(simulations::Vector{GASimulation}; seed=nothing)
 
 	# Annotate the plot:
 	xlabel!("Number of Genome Modifications")
-	ylabel!("Minimum MePi Value of the Population")
-	title!(string("Seed: ", repr(seed)))
+	ylabel!("Maximally Epistatic Function (Mepi)")
+	title!("Minimum mepi-values for different algorithms over time")
 
 	return minimumComparison
 end
 
 # -----------------------------------------------------------------------------------------
 """
-	scoreOverTime(agentDF::DataFrame, range::Integer; seed=nothing)
+	scoreOverTime(agentDF::DataFrame, algorithm::GeneticAlgorithm)
 
 This function takes an agent dataframe and plots the score per step for every agent.
 """
-function scoreOverTime(agentDF::DataFrame; seed=nothing)
+function scoreOverTime(agentDF::DataFrame, algorithm::GeneticAlgorithm)
 	pltDF = unstack(agentDF, :step, :organism, :score)
 
 	plt = Plots.plot(
 		Matrix(pltDF[:, Symbol.(unique!(sort!(agentDF[:, :organism])))]),  # Select organisms only
 		legend = false, 
-		title = string("Seed: ", repr(seed))
+		title = repr(algorithm)
 	)
 
 	return plt
@@ -48,20 +47,20 @@ end
 
 # -----------------------------------------------------------------------------------------
 """
-	scoreSpanOverTime(modelDF::DataFrame; seed=nothing)
+	scoreSpanOverTime(modelDF::DataFrame, algorithm::GeneticAlgorithm)
 
 This function takes an model dataframe and the maximum, minimum and mean score for every simulation 
 step.
 """
-function scoreSpanOverTime(modelDF::DataFrame; seed=nothing)
+function scoreSpanOverTime(processedDF::DataFrame, algorithm::GeneticAlgorithm)
 	plt = Plots.plot(
-		modelDF[:, :step],
-		[modelDF[:, :mean] modelDF[:, :minimum] modelDF[:, :maximum]], 
+		processedDF[:, :step],
+		[processedDF[:, :mean] processedDF[:, :minimum] processedDF[:, :maximum]], 
 		legend = true,
 		labels = ["Mean" "Minimum" "Maximum"], 
 		xlabel = "Step",
 		ylabel = "Maximally Epistatic Function",
-		title = string("Seed: ", repr(seed))
+		title = repr(algorithm)
 	)
 
 	return plt
@@ -69,14 +68,24 @@ end
 
 # -----------------------------------------------------------------------------------------
 """
-	topTierOverTime(agentDF::DataFrame, range::Integer; seed=nothing)
+	topTierOverTime(
+		agentDF::DataFrame, 
+		modelDF::DataFrame, 
+		percentage::Number, 
+		algorithm::GeneticAlgorithm
+	)
 
 This function takes an agent dataframe and plots number of agents in range percentage around the 
 max score at that point of time.
 """
-function topTierOverTime(agentDF::DataFrame, modelDF::DataFrame, percentage::Number; seed=nothing)
+function topTierOverTime(
+	agentDF::DataFrame, 
+	processedDF::DataFrame, 
+	percentage::Number, 
+	algorithm::GeneticAlgorithm
+)
 	pltDF = unstack(agentDF, :modifications, :organism, :score)
-	minima = modelDF[!, :minimum]
+	minima = processedDF[!, :minimum]
 	scaledMinima = minima .+ minima .* (percentage/100)
 	topTierIdx = pltDF[!, Symbol.(unique!(sort!(agentDF[:, :organism])))] .< scaledMinima
 	topTierOrganisms = sum.(eachrow(topTierIdx))
@@ -85,9 +94,9 @@ function topTierOverTime(agentDF::DataFrame, modelDF::DataFrame, percentage::Num
 		pltDF[:, :modifications],
 		topTierOrganisms,
 		legend = false, 
-		title = string("Seed: ", repr(seed)),
+		title = repr(algorithm),
 		xlabel = "Number of Genome Modifications",
-		ylabel = string("Number of Organisms ", percentage, "% away from Minimum Score")
+		ylabel = string("Organisms in Top ", percentage, "% ")
 	)
 
 	return plt
