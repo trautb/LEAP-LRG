@@ -292,7 +292,7 @@ function compare(
 
 		cd(pwdBackup)
 	else
-		print("Given dirname is no valid directory! Skipped saving figures ...")
+		@warn "Given dirname is no valid directory! Skipped saving figures ..."
 	end
 
 	return comparison
@@ -355,7 +355,7 @@ function compareLevelplain(
 
 		cd(pwdBackup)
 	else
-		print("Given dirname is no valid directory! Skipped saving figures ...")
+		@warn "Given dirname is no valid directory! Skipped saving figures ..."
 	end
 
 	return comparison
