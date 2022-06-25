@@ -14,7 +14,6 @@ export demo
         ;n_sources = 800,
         worldsize,
         griddims = (worldsize, worldsize),
-        patches = zeros(griddims),
         ticks=1,
         deJong7= false,
         pPop = 0.0,
@@ -69,12 +68,22 @@ export demo
         ids = collect(nearby_ids(sources.pos, model, 12,exact=false))
         min_patchvalue = sources.patchvalue
         best_pos = sources.pos
+        #=
+        patchvalues = map(ids -> model[ids].patchvalues, ids)
+        min_patchvalue = map(patchvalues -> patchvalues < min_patchvalue ? patchvalues : min_patchvalue, patchvalues)
+        postion = map(ids -> model[ids].pos, ids)
+        min_patchvalue = map(patchvalues -> patchvalues < min_patchvalue ? patchvalues : min_patchvalue, patchvalues)
+        =#
+        #position = map(ids -> model[ids], ids)
+        #best_pos = map(model[ids] -> best_pos < model[ids].pos ? model[ids].pos : best_pos, model[ids])
+       
         for id in ids
             if model[id].patchvalue < min_patchvalue
                 min_patchvalue = model[id].patchvalue
                 best_pos = model[id].pos
             end
         end
+
         sources.vel = Tuple([-sources.pos[1], -sources.pos[2]]) .+ best_pos
         if sources.vel[1] == 0.0 && sources.vel[2] == 0.0
 
@@ -83,19 +92,7 @@ export demo
             vel2 = sources.vel[2]/sqrt((sources.vel[1])^2+(sources.vel[2])^2)
             sources.vel = Tuple([vel1 vel2])
         end
-        
-        
-        #=
-        if sources.vel[1]<0 && sources.vel[2] < 0
-            sources.vel = sources.vel .+ (Tuple([-1 -1]).-sources.vel)
-        elseif sources.vel[1]>0 && sources.vel[2] > 0
-            sources.vel = sources.vel .+ (Tuple([1 1]).-sources.vel)
-        elseif sources.vel[1]<0 && sources.vel[2] > 0
-            sources.vel = sources.vel .+ Tuple([(-1-sources.vel[1]) (1-sources.vel[2])])
-        elseif sources.vel[1]>0 && sources.vel[2] < 0
-            sources.vel = sources.vel .+ Tuple([(1-sources.vel[1]) (-1-sources.vel[2])])
-        end
-        =#
+
         sources.patchvalue = model.patches[round(Int,sources.pos[1]),round(Int,sources.pos[2])]
         move_agent!(sources,model,1);
     end

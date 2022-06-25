@@ -6,31 +6,34 @@ mutable struct LightSource <: AbstractAgent
     id::Int                    # Boid identity
     pos::NTuple{2,Float64}              # Position of boid
     phase:: Float64
-    EB:: Float64
+    EBSource:: Float64
 end   
 
     function initialize_model(  
         ;n_sources = 2,
-        worldsize,psize,
+        worldsize,
         griddims = (worldsize, worldsize),
-        patches = zeros(griddims),
+        EB = zeros(griddims),
+        dEB_dt= zeros(griddims),
         ticks=1,
-        EB=0.0,
-        dEB_dt=0.0,
-        dxy=0.1,
         c=1.0,
-        dt = 0.1)
+        freq=1.0,
+        dt = 0.1,
+        dxy=0.1
+        )
         space2d = ContinuousSpace(griddims, 1.0)
 
         properties = Dict(
-            :patches => patches,
+            :EB => EB,        #patches
             :dEB_dt => dEB_dt,
+            :ticks => ticks,
+            :c => c,
+            :freq => freq,
+            :dt => dt,
             :dxy => dxy,
-            :ticks => ticks
-            :EB => EB
-            :c => c
-            :dt => dt
+            :worldsize => worldsize,
         )
+
         #=
         properties[:patches] = zeros(Int, griddims);
         properties[:growth_rate] = 1.0;
@@ -44,21 +47,18 @@ end
         i = 1
         for _ in 1:n_sources
             if (i == 1)
-                pos = Tuple([1 worldsize/4]')
-                #index_1 = round(Int,pos[1]);
-                #index_2 = round(Int,pos[2]);
-                #world.patches[index_1:index_1+1, index_2-1:index_2+1] .= 0.5
+                pos = Tuple([2 round(((1/4)*worldsize))])
             else
-                pos = Tuple([1 (3/4)*worldsize]')
+                pos = Tuple([2 round(((3/4)*worldsize))])
 
             end
-            phase = 90.0
-            EB = 0.0
+            phase = 0
+            EBSource = 0.0
             add_agent!(
             pos,
             world,
             phase,
-            EB,
+            EBSource,
             )
             i += 1;
         end
@@ -66,28 +66,53 @@ end
     end
     
     function agent_step!(source,world)
-        freq = 1/50;
-        source.EB = sin(source.phase + 360 * freq * world.ticks * world.dt)
+        
+        #println("\n")
+        #println(source.id)
+        #println("\n")
+        source.EBSource = sin(source.phase + 2π * world.freq * world.ticks * world.dt)
+
+        world.EB[Int(source.pos[1]), Int(source.pos[2])] = source.EBSource
+        #println("\n")
+        #show(stdout, "text/plain", world.EB)
+        #println("\n")
+        mw_EB = zeros(world.worldsize,world.worldsize)
+        h = 4
+        for i in range(2,stop=99)
+            for j in range(2,stop=99)
+                mw_EB[i,j] = (4/(h^2))*(world.EB[i,j-1]+world.EB[i,j+1] + world.EB[i-1,j] + world.EB[i+1,j]-world.EB[i,j])
+            end
+        end
+        world.dEB_dt = world.dEB_dt.+world.dt .*world.c .*world.c .* (mw_EB.-world.EB)./(world.dxy*world.dxy)
+        attu = 0.03
+        world.dEB_dt = (1 - attu).*world.dEB_dt
+        #println("\n")
+        #show(stdout, "text/plain", world.dEB_dt)
+        #println("\n")
+        world.EB =  world.EB .+  world.dt .*  world.dEB_dt
+        world.ticks += 1
+
+        #println("\n")
+        #show(stdout, "text/plain", world.EB)
+        #println("\n")
     end
 
-    function model_step!()
-    
+   
     function demo()
-        world = initialize_model(worldsize = 100,psize=2);
-        
+        world = initialize_model(worldsize=100);
+        #https://docs.juliaplots.org/latest/generated/colorschemes/
         plotkwargs = (
-        heatarray = :patches,
-
+        heatarray = :EB,
+        add_colorbar=false,
         heatkwargs = (
-            colorrange = (0, 1),
-            #colormap = [:blue, :yellow]
-            colormap = cgrad(:blues)
+            colorrange=(-1, 1),
+            colormap = cgrad(:bluesreds), #Set1_3
         ),
     
         )
         
 
-        figure,p= abmexploration(world;params = Dict(),ac = :red,plotkwargs...)
+        figure,p= abmexploration(world;agent_step!,params = Dict(),ac = :red,plotkwargs...)
         figure
     end
 
