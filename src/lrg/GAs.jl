@@ -13,6 +13,7 @@ using Random
 using Plots
 using DataFrames
 using Dates
+using CSV
 
 # Include core structures
 include("core/algorithms.jl")

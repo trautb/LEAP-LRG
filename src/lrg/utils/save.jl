@@ -30,3 +30,33 @@ function savePlots(comparison::GAComparison; withSimulationPlots=true)
 		end
 	end
 end
+
+function saveData(dataFrames::Vector{DataFrames.DataFrame}, prefix::String, timestamp::DateTime, GAParameters) #df type (Vektor); timestamp?; rename parameters
+	for	i in 1:length(dataFrames)
+		collector = i == 1 ? "agent" : "model"
+		# Construct a filename:
+		filename = string(prefix, "_", formatTimestamp(timestamp), "_", GAParameters, collector, ".csv") # equalized vs normal
+
+		# Save dataframe as .csv:
+		CSV.write(filename, dataFrames[i])
+	end
+end
+
+function saveData(simulation::GASimulation)
+	# Save agent and model dataframe of the given simulation:
+	saveData([simulation.agentDF, simulation.modelDF], "simulation", simulation.timestamp, simulation.algorithm)
+
+end
+
+function saveData(comparison::GAComparison)
+	for i in 1:length(comparison)
+		saveData(
+			[comparsion.simulations[i].agentDF, comparsion.simulations[i].modelDF], 
+			"simulation", 
+			comparsion.simulations[i].timestamp, 
+			comparsion.simulations[i].algorithm
+		)
+	end
+end
+
+#DataFrame(CSV.File(filename))
