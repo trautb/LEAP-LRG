@@ -30,8 +30,8 @@ function generateSimulationPlots(simulation::GASimulation, processedDF::DataFram
 	return Dict{String, Plots.Plot}(
 		"scoreOT" => scoreOverTime(simulationData, algorithm),
 		"scoreSpanOT" => scoreSpanOverTime(processedDF, algorithm),
-		"topTierOT_5P" => topTierOverTime(simulationData, processedDF, 5, algorithm),
-		"topTierOT_1P" => topTierOverTime(simulationData, processedDF, 1, algorithm)
+		"topTierOT_5P" => topTierOverTime(simulationData, 5, algorithm),
+		"topTierOT_1P" => topTierOverTime(simulationData, 1, algorithm)
 	)
 end
 

@@ -1,4 +1,9 @@
 """
+Globally used plot size
+"""
+global gPlotSize = () -> (1920, 1080) # Full-HD
+
+"""
 	compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 
 This function takes the results of various simulations and returns a plot, that compares the 
@@ -16,6 +21,7 @@ function compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 			processedDF[:, :minimum], 
 			label = repr(simulation.algorithm),
 			legend = true, 
+			size = gPlotSize()
 		)
 	end
 
@@ -39,7 +45,8 @@ function scoreOverTime(agentDF::DataFrame, algorithm::GeneticAlgorithm)
 	plt = Plots.plot(
 		Matrix(pltDF[:, Symbol.(unique!(sort!(agentDF[:, :organism])))]),  # Select organisms only
 		legend = false, 
-		title = repr(algorithm)
+		title = repr(algorithm), 
+		size = gPlotSize()
 	)
 
 	return plt
@@ -60,7 +67,8 @@ function scoreSpanOverTime(processedDF::DataFrame, algorithm::GeneticAlgorithm)
 		labels = ["Mean" "Minimum" "Maximum"], 
 		xlabel = "Step",
 		ylabel = "Maximally Epistatic Function",
-		title = repr(algorithm)
+		title = repr(algorithm), 
+		size = gPlotSize()
 	)
 
 	return plt
@@ -79,24 +87,35 @@ This function takes an agent dataframe and plots number of agents in range perce
 max score at that point of time.
 """
 function topTierOverTime(
-	agentDF::DataFrame, 
-	processedDF::DataFrame, 
+	agentDF::DataFrame,
 	percentage::Number, 
-	algorithm::GeneticAlgorithm
+	algorithm::GeneticAlgorithm;
+	maxBins::Integer = 100
 )
-	pltDF = unstack(agentDF, :modifications, :organism, :score)
-	minima = processedDF[!, :minimum]
-	scaledMinima = minima .+ minima .* (percentage/100)
-	topTierIdx = pltDF[!, Symbol.(unique!(sort!(agentDF[:, :organism])))] .< scaledMinima
-	topTierOrganisms = sum.(eachrow(topTierIdx))
+	steps = maximum(agentDF[!, :step])
+	mods = maximum(agentDF[!, :modifications])
+	bins = steps < maxBins ? steps : maxBins
+	topTiers = scores -> sum(scores .< (minimum(scores) + minimum(scores) * (percentage/100))) 
+	
+	topTierDF = groupby(agentDF, :modifications)
+	topTierDF = combine(topTierDF, :score => topTiers => :topTiers)
+	topTierDF = transform(topTierDF, :modifications => ByRow(m -> div(m - 1, bins)) => :class)
+	topTierDF = groupby(topTierDF, :class)
+	topTierDF = combine(
+		topTierDF, 
+		:topTiers => mean => :meanTopTiers, 
+		:modifications => mean => :meanMods
+	)
 
 	plt = Plots.bar(
-		pltDF[:, :modifications],
-		topTierOrganisms,
+		topTierDF[:, :meanMods],
+		topTierDF[:, :meanTopTiers],
 		legend = false, 
 		title = repr(algorithm),
 		xlabel = "Number of Genome Modifications",
-		ylabel = string("Organisms in Top ", percentage, "% ")
+		ylabel = string("Organisms in Top ", percentage, "% "),
+		bar_width = mods/(2*bins), 
+		size = gPlotSize()
 	)
 
 	return plt
