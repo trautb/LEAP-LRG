@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export functions to start a genetic algorithm simulation
-export simulate, compare
+export simulate, compare, compareLevelplain
 
 # Import external modules
 using Statistics
@@ -13,6 +13,7 @@ using Random
 using Plots
 using DataFrames
 using Dates
+using TrackingTimers
 
 # Include core structures
 include("core/algorithms.jl")
@@ -199,8 +200,8 @@ function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			:score,
-			(a -> min(basicGA.nGenes - sum(Int.(a.genome)),
-					  sum(Int.(a.genome))))
+			(a -> sum(a.genome .== bZero)),
+			(a -> sum(a.genome .== bOne))
 		],
 		mdata=[
 			:minimum,
@@ -210,7 +211,7 @@ function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 		],
 		when=(model, step) -> rem(step, stepRem) == 0
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones)
 	
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
@@ -231,8 +232,9 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			:score,
-			(a -> min(exploratoryGA.nGenes - sum(Int.(a.genome)),
-					  sum(Int.(a.genome))))
+			(a -> sum(a.genome .== eZero)),
+			(a -> sum(a.genome .== eOne)),
+			(a -> sum(a.genome .== qMark))
 		],
 		mdata=[
 			:minimum,
@@ -241,7 +243,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 			:incorrectEvaluations
 		]
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones, 6 => :qMarks)
 
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
@@ -356,6 +358,8 @@ Compare the simulations for a given array of genetic algorithms and returns the 
 GAComparison struct. Runs each simulation in an own Thread (if there are enough).
 """
 function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
+	
+	runtimes = TrackingTimer()
 	# Initialize necessary variables:
 	nGAs = length(geneticAlgorithms)
 	simulationData = Vector{GASimulation}(undef, nGAs)
@@ -380,7 +384,7 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 		factor, remainder = divrem(maxEvals, evalsPerStep[i])
 		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
 		@info string("[Thread ", Threads.threadid(), "] Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps.")
-		result = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
+		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
 		lock(simDataLock) 
 		try
 			simulationData[i] = result
@@ -389,9 +393,9 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 		end
 		@info string("[Thread ", Threads.threadid(), "] Finished running ", geneticAlgorithms[i], ".")
 	end
-
+	
 	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData, DataFrame())
+	return GAComparison(simulationData,DataFrame(runtimes))
 end
 
 function compareLevelplain(
@@ -416,7 +420,7 @@ function compareLevelplain(
 		cd(subdir)
 
 		savePlots(comparison)
-
+		
 		cd(pwdBackup)
 	else
 		print("Given dirname is no valid directory! Skipped saving figures ...")
