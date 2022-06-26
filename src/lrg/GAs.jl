@@ -377,6 +377,7 @@ function compareLevelplain(
 		cd(subdir)
 
 		savePlots(comparison, withSimulationPlots=saveSpecificPlots)
+		saveData(comparison)
 
 		cd(pwdBackup)
 	else
