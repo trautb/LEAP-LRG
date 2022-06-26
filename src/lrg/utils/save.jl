@@ -54,11 +54,12 @@ function saveData(comparison::GAComparison)
 			[comparsion.simulations[i].agentDF], 
 			"comparsion", 
 			comparsion.simulations[i].timestamp, 
-			comparsion.simulations[i].algorithm
+			comparsion.simulations[i].algorithm,
+			"algorithm"
 		)
 	end
 	# Save runtimes
-	saveData([comparsion.runtimes], "comparsion", Dates.now(), "", "agent")
+	saveData([comparsion.runtimes], "comparsion", Dates.now(), "", "runtimes")
 end
 
 #DataFrame(CSV.File(filename))
