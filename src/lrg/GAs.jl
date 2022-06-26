@@ -381,17 +381,18 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 
 	# Perform similar simulations for every given genetic algorithm:
 	Threads.@threads for i in 1:nGAs
+		currentAlgorithm = geneticAlgorithms[i]
 		factor, remainder = divrem(maxEvals, evalsPerStep[i])
 		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
-		@info string("[Thread ", Threads.threadid(), "] Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps.")
-		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
+		@info string("[Thread ", Threads.threadid(), "] Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
+		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(currentAlgorithm, nSteps*factor; seed=seed)
 		lock(simDataLock) 
 		try
 			simulationData[i] = result
 		finally
 			unlock(simDataLock)
 		end
-		@info string("[Thread ", Threads.threadid(), "] Finished running ", geneticAlgorithms[i], ".")
+		@info string("[Thread ", Threads.threadid(), "] Finished running ", currentAlgorithm, ".")
 	end
 	
 	# Return a comparison of the given genetic algorithms:
