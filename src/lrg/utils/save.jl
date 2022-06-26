@@ -50,10 +50,10 @@ end
 function saveData(comparison::GAComparison)
 	# Save agent and model dataframe of the given simulation
 	for i in 1:length(comparison.simulations)
-		saveData(comparsion.simulations[i])
+		saveData(comparison.simulations[i])
 	end
 	# Save runtimes
-	saveData([comparsion.runtimes], "comparsion", Dates.now(), "")
+	saveData([comparison.runtimes], "comparison", Dates.now(), "")
 end
 
 #DataFrame(CSV.File(filename))
