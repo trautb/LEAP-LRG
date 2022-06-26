@@ -104,7 +104,9 @@ function topTierOverTime(
 	
 	topTierDF = groupby(agentDF, :modifications)
 	topTierDF = combine(topTierDF, :score => topTiers => :topTiers)
-	topTierDF = transform(topTierDF, :modifications => ByRow(m -> div(m - 1, bins)) => :class)
+	topTierDF = transform(
+		topTierDF, :modifications => ByRow(m -> div(m - 1, div(mods, bins))) => :class
+	)
 	topTierDF = groupby(topTierDF, :class)
 	topTierDF = combine(
 		topTierDF, 
