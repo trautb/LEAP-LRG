@@ -23,9 +23,9 @@ include("core/agents.jl")				# Depends on core/alleles.jl
 # Include util functions and modules
 include("utils/Casinos.jl")
 include("utils/transpose.jl")
-include("utils/results.jl")				# Depends on core/algorithms.jl
+include("utils/results.jl")				# Depends on core/algorithms.jl		
 include("utils/plotting.jl")			# Depends on utils/results.jl
-include("utils/save.jl")				# Depends on utils/results.jl
+include("utils/save.jl")				# Depends on utils/plotting.jl
 
 # Include evolutionary mechanisms
 include("mechanisms/plasticity.jl")		# Depends on core/alleles.jl
@@ -64,15 +64,6 @@ function basic_step!(model)
 		model[agentIDs[i]].genome = nextGenpool[i,:]
 		model[agentIDs[i]].score = evaluations[i]
 	end
-
-	# Save best, worst and mean of evaluations for later analysis:
-	model.minimum = minimum(evaluations)
-	model.maximum = maximum(evaluations)
-	model.mean = mean(evaluations)
-
-	# Check for possile calculation errors:
-	model.incorrectEvaluations = sum(evaluations .< size(genpool, 2))
-
 	return 
 end
 
@@ -98,15 +89,6 @@ function exploratory_step!(model)
 		model[agentIDs[i]].genome = nextGenpool[i,:]
 		model[agentIDs[i]].score = evaluations[i]
 	end
-
-	# Save best, worst and mean of evaluations for later analysis:
-	model.minimum = minimum(evaluations)
-	model.maximum = maximum(evaluations)
-	model.mean = mean(evaluations)
-
-	# Check for possile calculation errors:
-	model.incorrectEvaluations = sum(evaluations .< size(genpool, 2))
-
 	return 
 end
 
@@ -125,11 +107,6 @@ function initialize(basicGA::BasicGA)
 		:mu => basicGA.mu,
 		:casino => Casino(basicGA.nIndividuals + 1, basicGA.nGenes + 1),
 		:useHintonNowlan => basicGA.useHintonNowlan,
-		# Properties for later analysis:
-		:minimum => 0,
-		:maximum => 0,
-		:mean => 0.0,
-		:incorrectEvaluations => 0
 	])
 
 	model = ABM(BasicGAAgent{BasicGAAlleles}, space; properties)
@@ -154,11 +131,6 @@ function initialize(exploratoryGA::ExploratoryGA)
 		:useHintonNowlan => exploratoryGA.useHintonNowlan,
 		:nTrials => exploratoryGA.nTrials,
 		:speedAdvantage => exploratoryGA.speedAdvantage,
-		# Properties for later analysis:
-		:minimum => 0,
-		:maximum => 0,
-		:mean => 0.0, 
-		:incorrectEvaluations => 0
 	])
 
 	model = ABM(ExploratoryGAAgent{ExploratoryGAAlleles}, space; properties)
@@ -190,34 +162,25 @@ end
 
 Simulation methods for every genetic algorithm.
 """
-function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
+function simulate(basicGA::BasicGA, nSteps=100; seed=42)
 	if seed !== nothing
 		Random.seed!(seed);
 	end
 	
 	model = initialize(basicGA)
 
-	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
+	agentDF, _ = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			:score,
 			(a -> sum(a.genome .== bZero)),
 			(a -> sum(a.genome .== bOne))
 		],
-		mdata=[
-			:minimum,
-			:maximum,
-			:mean,
-			:incorrectEvaluations
-		],
-		when=(model, step) -> rem(step, stepRem) == 0
 	)
 	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones)
 	
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
 	insertcols!(agentDF, (:modifications => agentDF[:, :step]))
-	excludeStepZero!(modelDF)
-	insertcols!(modelDF, (:modifications => modelDF[:, :step]))
 
 	return GASimulation(basicGA, agentDF)
 end
@@ -229,18 +192,12 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 
 	model = initialize(exploratoryGA)
 
-	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
+	agentDF, _ = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			:score,
 			(a -> sum(a.genome .== eZero)),
 			(a -> sum(a.genome .== eOne)),
 			(a -> sum(a.genome .== qMark))
-		],
-		mdata=[
-			:minimum,
-			:maximum,
-			:mean,
-			:incorrectEvaluations
 		]
 	)
 	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones, 6 => :qMarks)
@@ -248,9 +205,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
 	insertcols!(agentDF, (:modifications => agentDF[:, :step] .* (exploratoryGA.nTrials + 1)))
-	excludeStepZero!(modelDF)
-	insertcols!(modelDF, (:modifications => modelDF[:, :step] .* (exploratoryGA.nTrials + 1)))
-
+  
 	return GASimulation(exploratoryGA, agentDF)
 end
 
@@ -285,7 +240,7 @@ function compare(
 	simulationData[nGAs] = simulate(exploratoryGA, exploratorySteps; seed=seed)
 
 	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData; seed=seed)
+	return GAComparison(simulationData, DataFrame())
 end
 
 function compare(
@@ -341,7 +296,7 @@ function compare(
 
 		cd(pwdBackup)
 	else
-		print("Given dirname is no valid directory! Skipped saving figures ...")
+		@warn "Given dirname is no valid directory! Skipped saving figures ..."
 	end
 
 	return comparison
@@ -419,11 +374,11 @@ function compareLevelplain(
 		mkpath(subdir)
 		cd(subdir)
 
-		savePlots(comparison)
-		
+		savePlots(comparison, withSimulationPlots=saveSpecificPlots)
+
 		cd(pwdBackup)
 	else
-		print("Given dirname is no valid directory! Skipped saving figures ...")
+		@warn "Given dirname is no valid directory! Skipped saving figures ..."
 	end
 
 	return comparison
