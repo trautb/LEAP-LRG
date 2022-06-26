@@ -23,4 +23,3 @@ struct GAComparison
         return new(Dates.now(), simulations, runtimes)
     end
 end
-	
