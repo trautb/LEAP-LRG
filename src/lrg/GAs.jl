@@ -191,7 +191,7 @@ end
 Simulation methods for every genetic algorithm.
 """
 function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
-	if seed != nothing
+	if seed !== nothing
 		@info string("setting seed to ", seed)
 		Random.seed!(seed);
 	end
@@ -201,8 +201,8 @@ function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			:score,
-			(a -> min(basicGA.nGenes - sum(Int.(a.genome)),
-					  sum(Int.(a.genome))))
+			(a -> sum(a.genome .== bZero)),
+			(a -> sum(a.genome .== bOne))
 		],
 		mdata=[
 			:minimum,
@@ -212,7 +212,7 @@ function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 		],
 		when=(model, step) -> rem(step, stepRem) == 0
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones)
 	
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
@@ -224,7 +224,7 @@ function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
-	if seed != nothing
+	if seed !== nothing
 		@info string("setting seed to ", seed)
 		Random.seed!(seed);
 	end
@@ -234,8 +234,9 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			:score,
-			(a -> min(exploratoryGA.nGenes - sum(Int.(a.genome)),
-					  sum(Int.(a.genome))))
+			(a -> sum(a.genome .== eZero)),
+			(a -> sum(a.genome .== eOne)),
+			(a -> sum(a.genome .== qMark))
 		],
 		mdata=[
 			:minimum,
@@ -244,7 +245,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 			:incorrectEvaluations
 		]
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones, 6 => :qMarks)
 
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
