@@ -2,14 +2,12 @@ struct GASimulation
     timestamp::DateTime
     algorithm::GeneticAlgorithm
     agentDF::DataFrame
-    modelDF::DataFrame
 
     function GASimulation(
         algorithm::GeneticAlgorithm, 
-        agentDF::DataFrame, 
-        modelDF::DataFrame
+        agentDF::DataFrame
     )
-        return new(Dates.now(), algorithm, agentDF, modelDF)
+        return new(Dates.now(), algorithm, agentDF)
     end
 end
 
