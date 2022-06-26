@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export functions to start a genetic algorithm simulation
-export simulate, compare
+export simulate, compare, compareLevelplain
 
 # Import external modules
 using Statistics
@@ -14,6 +14,7 @@ using Plots
 using DataFrames
 using Dates
 using CSV
+using TrackingTimers
 
 # Include core structures
 include("core/algorithms.jl")
@@ -23,9 +24,9 @@ include("core/agents.jl")				# Depends on core/alleles.jl
 # Include util functions and modules
 include("utils/Casinos.jl")
 include("utils/transpose.jl")
-include("utils/results.jl")				# Depends on core/algorithms.jl
+include("utils/results.jl")				# Depends on core/algorithms.jl		
 include("utils/plotting.jl")			# Depends on utils/results.jl
-include("utils/save.jl")				# Depends on utils/results.jl
+include("utils/save.jl")				# Depends on utils/plotting.jl
 
 # Include evolutionary mechanisms
 include("mechanisms/plasticity.jl")		# Depends on core/alleles.jl
@@ -64,15 +65,6 @@ function basic_step!(model)
 		model[agentIDs[i]].genome = nextGenpool[i,:]
 		model[agentIDs[i]].score = evaluations[i]
 	end
-
-	# Save best, worst and mean of evaluations for later analysis:
-	model.minimum = minimum(evaluations)
-	model.maximum = maximum(evaluations)
-	model.mean = mean(evaluations)
-
-	# Check for possile calculation errors:
-	model.incorrectEvaluations = sum(evaluations .< size(genpool, 2))
-
 	return 
 end
 
@@ -98,15 +90,6 @@ function exploratory_step!(model)
 		model[agentIDs[i]].genome = nextGenpool[i,:]
 		model[agentIDs[i]].score = evaluations[i]
 	end
-
-	# Save best, worst and mean of evaluations for later analysis:
-	model.minimum = minimum(evaluations)
-	model.maximum = maximum(evaluations)
-	model.mean = mean(evaluations)
-
-	# Check for possile calculation errors:
-	model.incorrectEvaluations = sum(evaluations .< size(genpool, 2))
-
 	return 
 end
 
@@ -125,11 +108,6 @@ function initialize(basicGA::BasicGA)
 		:mu => basicGA.mu,
 		:casino => Casino(basicGA.nIndividuals + 1, basicGA.nGenes + 1),
 		:useHintonNowlan => basicGA.useHintonNowlan,
-		# Properties for later analysis:
-		:minimum => 0,
-		:maximum => 0,
-		:mean => 0.0,
-		:incorrectEvaluations => 0
 	])
 
 	model = ABM(BasicGAAgent{BasicGAAlleles}, space; properties)
@@ -154,11 +132,6 @@ function initialize(exploratoryGA::ExploratoryGA)
 		:useHintonNowlan => exploratoryGA.useHintonNowlan,
 		:nTrials => exploratoryGA.nTrials,
 		:speedAdvantage => exploratoryGA.speedAdvantage,
-		# Properties for later analysis:
-		:minimum => 0,
-		:maximum => 0,
-		:mean => 0.0, 
-		:incorrectEvaluations => 0
 	])
 
 	model = ABM(ExploratoryGAAgent{ExploratoryGAAlleles}, space; properties)
@@ -190,69 +163,51 @@ end
 
 Simulation methods for every genetic algorithm.
 """
-function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
-	if seed != nothing
-		@info string("setting seed to ", seed)
+function simulate(basicGA::BasicGA, nSteps=100; seed=42)
+	if seed !== nothing
 		Random.seed!(seed);
 	end
 	
 	model = initialize(basicGA)
 
-	agentDF, modelDF = run!(model, dummystep, basic_step!, nSteps; 
+	agentDF, _ = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			:score,
-			(a -> min(basicGA.nGenes - sum(Int.(a.genome)),
-					  sum(Int.(a.genome))))
+			(a -> sum(a.genome .== bZero)),
+			(a -> sum(a.genome .== bOne))
 		],
-		mdata=[
-			:minimum,
-			:maximum,
-			:mean,
-			:incorrectEvaluations
-		],
-		when=(model, step) -> rem(step, stepRem) == 0
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones)
 	
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
 	insertcols!(agentDF, (:modifications => agentDF[:, :step]))
-	excludeStepZero!(modelDF)
-	insertcols!(modelDF, (:modifications => modelDF[:, :step]))
 
-	return GASimulation(basicGA, agentDF, modelDF; seed=seed)
+	return GASimulation(basicGA, agentDF)
 end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
-	if seed != nothing
-		@info string("setting seed to ", seed)
+	if seed !== nothing
 		Random.seed!(seed);
 	end
 
 	model = initialize(exploratoryGA)
 
-	agentDF, modelDF = run!(model, dummystep, exploratory_step!, nSteps; 
+	agentDF, _ = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			:score,
-			(a -> min(exploratoryGA.nGenes - sum(Int.(a.genome)),
-					  sum(Int.(a.genome))))
-		],
-		mdata=[
-			:minimum,
-			:maximum,
-			:mean,
-			:incorrectEvaluations
+			(a -> sum(a.genome .== eZero)),
+			(a -> sum(a.genome .== eOne)),
+			(a -> sum(a.genome .== qMark))
 		]
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :genomeDistance)
+	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones, 6 => :qMarks)
 
 	# Postprocessing of data:
 	excludeStepZero!(agentDF)
 	insertcols!(agentDF, (:modifications => agentDF[:, :step] .* (exploratoryGA.nTrials + 1)))
-	excludeStepZero!(modelDF)
-	insertcols!(modelDF, (:modifications => modelDF[:, :step] .* (exploratoryGA.nTrials + 1)))
-
-	return GASimulation(exploratoryGA, agentDF, modelDF; seed=seed)
+  
+	return GASimulation(exploratoryGA, agentDF)
 end
 
 """
@@ -286,7 +241,7 @@ function compare(
 	simulationData[nGAs] = simulate(exploratoryGA, exploratorySteps; seed=seed)
 
 	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData; seed=seed)
+	return GAComparison(simulationData, DataFrame())
 end
 
 function compare(
@@ -342,13 +297,25 @@ function compare(
 
 		cd(pwdBackup)
 	else
-		print("Given dirname is no valid directory! Skipped saving figures ...")
+		@warn "Given dirname is no valid directory! Skipped saving figures ..."
 	end
 
 	return comparison
 end
 
+"""
+compareLevelplain(
+	geneticAlgorithms::Vector{T}, 
+	nSteps=100; 
+	seed=42
+	) where {T <: GeneticAlgorithm}	
+
+Compare the simulations for a given array of genetic algorithms and returns the data in a
+GAComparison struct. Runs each simulation in an own Thread (if there are enough).
+"""
 function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
+	
+	runtimes = TrackingTimer()
 	# Initialize necessary variables:
 	nGAs = length(geneticAlgorithms)
 	simulationData = Vector{GASimulation}(undef, nGAs)
@@ -366,18 +333,25 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 	, geneticAlgorithms)
 
 	maxEvals, _ = findmax(evalsPerStep)
+	simDataLock = ReentrantLock()
 
 	# Perform similar simulations for every given genetic algorithm:
-	for i in 1:nGAs
+	Threads.@threads for i in 1:nGAs
 		factor, remainder = divrem(maxEvals, evalsPerStep[i])
 		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
-
-		@info string("Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps.")
-		simulationData[i] = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
+		@info string("[Thread ", Threads.threadid(), "] Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps.")
+		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
+		lock(simDataLock) 
+		try
+			simulationData[i] = result
+		finally
+			unlock(simDataLock)
+		end
+		@info string("[Thread ", Threads.threadid(), "] Finished running ", geneticAlgorithms[i], ".")
 	end
-
+	
 	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData; seed=seed)
+	return GAComparison(simulationData,DataFrame(runtimes))
 end
 
 function compareLevelplain(
@@ -401,14 +375,14 @@ function compareLevelplain(
 		mkpath(subdir)
 		cd(subdir)
 
-		savePlots(comparison)
+		savePlots(comparison, withSimulationPlots=saveSpecificPlots)
 
 		cd(pwdBackup)
 	else
-		print("Given dirname is no valid directory! Skipped saving figures ...")
+		@warn "Given dirname is no valid directory! Skipped saving figures ..."
 	end
 
 	return comparison
 end
 
-end # module GAs
+end # of module GAs
