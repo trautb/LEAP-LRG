@@ -192,7 +192,6 @@ Simulation methods for every genetic algorithm.
 """
 function simulate(basicGA::BasicGA, nSteps=100; stepRem=1, seed=42)
 	if seed !== nothing
-		@info string("setting seed to ", seed)
 		Random.seed!(seed);
 	end
 	
@@ -225,7 +224,6 @@ end
 
 function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 	if seed !== nothing
-		@info string("setting seed to ", seed)
 		Random.seed!(seed);
 	end
 
@@ -349,6 +347,16 @@ function compare(
 	return comparison
 end
 
+"""
+compareLevelplain(
+	geneticAlgorithms::Vector{T}, 
+	nSteps=100; 
+	seed=42
+	) where {T <: GeneticAlgorithm}	
+
+Compare the simulations for a given array of genetic algorithms and returns the data in a
+GAComparison struct. Runs each simulation in an own Thread (if there are enough).
+"""
 function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
 	
 	runtimes = TrackingTimer()
@@ -369,15 +377,21 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 	, geneticAlgorithms)
 
 	maxEvals, _ = findmax(evalsPerStep)
+	simDataLock = ReentrantLock()
 
 	# Perform similar simulations for every given genetic algorithm:
-	for i in 1:nGAs
-		currentAlgorithm = geneticAlgorithms[i]
+	Threads.@threads for i in 1:nGAs
 		factor, remainder = divrem(maxEvals, evalsPerStep[i])
 		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
-
-		@info string("Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
-		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) simulationData[i] = simulate(currentAlgorithm, nSteps*factor; seed=seed)
+		@info string("[Thread ", Threads.threadid(), "] Running ", geneticAlgorithms[i], " with ", nSteps*factor, " steps.")
+		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(geneticAlgorithms[i], nSteps*factor; seed=seed)
+		lock(simDataLock) 
+		try
+			simulationData[i] = result
+		finally
+			unlock(simDataLock)
+		end
+		@info string("[Thread ", Threads.threadid(), "] Finished running ", geneticAlgorithms[i], ".")
 	end
 	
 	# Return a comparison of the given genetic algorithms:
@@ -415,4 +429,4 @@ function compareLevelplain(
 	return comparison
 end
 
-end # module GAs
+end # of module GAs
