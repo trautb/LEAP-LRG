@@ -5,7 +5,7 @@ struct GASimulation
 
     function GASimulation(
         algorithm::GeneticAlgorithm, 
-        agentDF::DataFrame, 
+        agentDF::DataFrame
     )
         return new(Dates.now(), algorithm, agentDF)
     end

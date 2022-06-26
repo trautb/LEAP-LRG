@@ -13,6 +13,7 @@ using Random
 using Plots
 using DataFrames
 using Dates
+using CSV
 using TrackingTimers
 
 # Include core structures
