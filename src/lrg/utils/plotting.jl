@@ -1,7 +1,15 @@
 """
-Globally used plot size
+Set specific parameters for the given plot.
 """
-global gPlotSize = () -> (1920, 1080) # Full-HD
+function finalizePlot!(p::Plots.Plot)
+	plot!(p,
+		size = (1920, 1080), # Full-HD
+		bottom_margin = 10Plots.mm,
+		left_margin = 15Plots.mm,
+	)
+
+	return p
+end
 
 """
 	compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
@@ -20,8 +28,7 @@ function compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 			processedDF[:, :modifications],
 			processedDF[:, :minimum], 
 			label = repr(simulation.algorithm),
-			legend = true, 
-			size = gPlotSize()
+			legend = true
 		)
 	end
 
@@ -30,7 +37,7 @@ function compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 	ylabel!("Maximally Epistatic Function (Mepi)")
 	title!("Minimum mepi-values for different algorithms over time")
 
-	return minimumComparison
+	return finalizePlot!(minimumComparison)
 end
 
 # -----------------------------------------------------------------------------------------
@@ -45,11 +52,10 @@ function scoreOverTime(agentDF::DataFrame, algorithm::GeneticAlgorithm)
 	plt = Plots.plot(
 		Matrix(pltDF[:, Symbol.(unique!(sort!(agentDF[:, :organism])))]),  # Select organisms only
 		legend = false, 
-		title = repr(algorithm), 
-		size = gPlotSize()
+		title = repr(algorithm)
 	)
 
-	return plt
+	return finalizePlot!(plt)
 end
 
 # -----------------------------------------------------------------------------------------
@@ -62,16 +68,15 @@ step.
 function scoreSpanOverTime(processedDF::DataFrame, algorithm::GeneticAlgorithm)
 	plt = Plots.plot(
 		processedDF[:, :step],
-		[processedDF[:, :mean] processedDF[:, :minimum] processedDF[:, :maximum]], 
+		[processedDF[:, :maximum] processedDF[:, :mean] processedDF[:, :minimum]], 
 		legend = true,
-		labels = ["Mean" "Minimum" "Maximum"], 
+		labels = ["Maximum" "Mean" "Minimum"], 
 		xlabel = "Step",
 		ylabel = "Maximally Epistatic Function",
-		title = repr(algorithm), 
-		size = gPlotSize()
+		title = repr(algorithm)
 	)
 
-	return plt
+	return finalizePlot!(plt)
 end
 
 # -----------------------------------------------------------------------------------------
@@ -114,9 +119,8 @@ function topTierOverTime(
 		title = repr(algorithm),
 		xlabel = "Number of Genome Modifications",
 		ylabel = string("Organisms in Top ", percentage, "% "),
-		bar_width = mods/(2*bins), 
-		size = gPlotSize()
+		bar_width = mods/(2*bins)
 	)
 
-	return plt
+	return finalizePlot!(plt)
 end
