@@ -22,17 +22,23 @@ function rotate_2dvector(rotation,vector)
     end
 end
 
-function initialize_model(;n_particles = 20,globaldist = zeros(n_particles,2),tick=0,meadist=0,worldsize,psize,griddims = (worldsize, worldsize),particle_speed)
+function initialize_model(  ;n_particles = 20,
+                            globaldist = zeros(n_particles,2),
+                            tick=0,
+                            meadist=0,
+                            worldsize,
+                            psize,griddims = (worldsize, worldsize),
+                            particle_speed,
+                            movmentstate = zeros(n_particles,1))
 space2d = ContinuousSpace(griddims, 1.0)
 
 properties = Dict(
-    globaldist => globaldist,
-    tick => tick,
-    meadist => meadist
+    :globaldist => globaldist,
+    :tick => tick,
+    :meadist => meadist,
+    :movmentstate => movmentstate
 )
-properties[:globaldist] = zeros(n_particles,2)
-properties[:tick] = 0
-properties[:meadist] = 0.0
+
 
 model = ABM(Particle,space2d, scheduler = Schedulers.randomly,properties = properties)
 dist = zeros(n_particles,2)
