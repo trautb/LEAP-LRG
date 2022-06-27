@@ -28,7 +28,7 @@ function generateSimulationPlots(simulation::GASimulation, processedDF::DataFram
 	
 	# Return a dictionary with "plot_name" => "plot" pairs:
 	return Dict{String, Plots.Plot}(
-		"scoreOT" => scoreOverTime(simulationData, algorithm),
+		#"scoreOT" => scoreOverTime(simulationData, algorithm),
 		"scoreSpanOT" => scoreSpanOverTime(processedDF, algorithm),
 		"topTierOT_5P" => topTierOverTime(simulationData, 5, algorithm),
 		"topTierOT_1P" => topTierOverTime(simulationData, 1, algorithm)
@@ -84,19 +84,17 @@ function savePlots(comparison::GAComparison; withSimulationPlots=true)
 	end
 end
 
-function saveData(dataFrames::Vector{DataFrames.DataFrame}, prefix::String, timestamp::DateTime, GAParameters)
-	for	i in 1:length(dataFrames)
+function saveData(dataFrame::DataFrames.DataFrame, prefix::String, timestamp::DateTime, content)
 		# Construct a filename:
-		filename = string(prefix, "_", formatTimestamp(timestamp), "_", GAParameters, ".csv") # equalized vs normal
+		filename = string(prefix, "_", formatTimestamp(timestamp), "_", content, ".csv") 
 
 		# Save dataframe as .csv:
-		CSV.write(filename, dataFrames[i])
-	end
+		CSV.write(filename, dataFrame)
 end
 
 function saveData(simulation::GASimulation)
 	# Save agent and model dataframe of the given simulation:
-	saveData([simulation.agentDF], "simulation", simulation.timestamp, simulation.algorithm)
+	saveData(simulation.agentDF, "simulation", simulation.timestamp, simulation.algorithm)
 
 end
 
@@ -106,7 +104,7 @@ function saveData(comparison::GAComparison)
 		saveData(comparison.simulations[i])
 	end
 	# Save runtimes
-	saveData([comparison.runtimes], "comparison", Dates.now(), "")
+	saveData(comparison.runtimes, "comparison", Dates.now(), "runtimes")
 end
 
 #DataFrame(CSV.File(filename))
