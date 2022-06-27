@@ -10,7 +10,7 @@ mutable struct LightSource <: AbstractAgent
 end   
 
     function initialize_model(  
-        ;n_sources = 2,
+        ;n_sources = 1,
         worldsize,
         griddims = (worldsize, worldsize),
         EB = zeros(griddims),
@@ -73,33 +73,33 @@ end
         source.EBSource = sin(source.phase + 2π * world.freq * world.ticks * world.dt)
 
         world.EB[Int(source.pos[1]), Int(source.pos[2])] = source.EBSource
-        #println("\n")
-        #show(stdout, "text/plain", world.EB)
-        #println("\n")
+        println("\n")
+        show(stdout, "text/plain", world.EB)
+        println("\n")
         mw_EB = zeros(world.worldsize,world.worldsize)
         h = 4
-        for i in range(2,stop=99)
-            for j in range(2,stop=99)
-                mw_EB[i,j] = (4/(h^2))*(world.EB[i,j-1]+world.EB[i,j+1] + world.EB[i-1,j] + world.EB[i+1,j]-world.EB[i,j])
-            end
+        map(CartesianIndices((2:13,2:13))) do x
+            mw_EB[x[1],x[2]] = (4/(h^2))*(world.EB[x[1],x[2]-1]+world.EB[x[1],x[2]+1] + world.EB[x[1]-1,x[2]] + world.EB[x[1]+1,x[2]]-world.EB[x[1],x[2]])
         end
+       
         world.dEB_dt = world.dEB_dt.+world.dt .*world.c .*world.c .* (mw_EB.-world.EB)./(world.dxy*world.dxy)
         attu = 0.03
         world.dEB_dt = (1 - attu).*world.dEB_dt
-        #println("\n")
-        #show(stdout, "text/plain", world.dEB_dt)
-        #println("\n")
+        println("\n")
+        show(stdout, "text/plain", world.dEB_dt)
+        println("\n")
         world.EB =  world.EB .+  world.dt .*  world.dEB_dt
         world.ticks += 1
 
-        #println("\n")
-        #show(stdout, "text/plain", world.EB)
-        #println("\n")
+        println("\n")
+        show(stdout, "text/plain", world.EB)
+        println("\n")
+        println("-------------------")
     end
 
    
     function demo()
-        world = initialize_model(worldsize=100);
+        world = initialize_model(worldsize=14);
         #https://docs.juliaplots.org/latest/generated/colorschemes/
         plotkwargs = (
         heatarray = :EB,
