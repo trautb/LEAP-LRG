@@ -15,6 +15,10 @@ export demo                # Externally available names
 using Agents, GLMakie, InteractiveDynamics      # Required packages
 import LinearAlgebra: norm                      # magnitude of vector
 
+include("./AgentToolBox.jl")
+import .AgentToolBox: rotate_2dvector
+
+
 #-----------------------------------------------------------------------------------------
 # Module definitions:
 
@@ -39,7 +43,7 @@ end
 Create the world model.
 """
 function create_model(;
-    pPop=0.05,                 # proportion of patches to be populated by one particle
+    pPop=0.01,                 # proportion of patches to be populated by one particle
     temperature=0.001,
     tolerance=0.4,
     worldsize=80,
@@ -56,21 +60,11 @@ function create_model(;
         :temperature => temperature,
         :tolerance => tolerance,
         :deJong7 => deJong7,
-        :initialized => false
+        # :deJong7 => Observable(deJong7), # TODO: maybe lift deJong7 directly at init
+        :meanPosition => extent ./ 2
     )
 
     model = ABM(Particle, ContinuousSpace(extent, 1); properties=properties)
-    # # add_agent!(model) # Add one dummy agent so that abm_video will allow us to plot.
-    # add_agent_pos!( # Add one dummy agent so that abm_video will allow us to plot.
-    #     Particle(
-    #         nextid(model),          # id
-    #         (0.0, 0.0),             # pos
-    #         (0.0, 0.0),             # vel
-    #         2.0                     # uLowest
-    #     ),
-    #     model
-    # )
-
     spawn_particles!(model)
     return model
 end
@@ -87,6 +81,12 @@ function setPatches!(model)
     model.patches = model.deJong7 ? buildDeJong7(model) : buildValleys(model)
 end
 
+"""
+    buildValleys(worldsize)
+
+creates a height map (u values) corresponding of a multimodal landscape.
+The returned matrix has dimensions of (worldsize, worldsize)
+"""
 function buildValleys(worldsize)
     maxCoordinate = worldsize / 2
     xy = 4 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
@@ -97,6 +97,13 @@ function buildValleys(worldsize)
     f.(xy, xy')
 end
 
+"""
+    buildValleys(worldsize)
+
+creates a height map (u values) corresponding to De Jong's complicated multi-
+modal landscape.
+The returned matrix has dimensions of (worldsize, worldsize)
+"""
 function buildDeJong7(worldsize)
     maxCoordinate = worldsize / 2
     xy = 20 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
@@ -104,6 +111,7 @@ function buildDeJong7(worldsize)
     f(x, y) = sin(180 * 2 * x / pi) / (1 + abs(x)) + sin(180 * 2 * y / pi) / (1 + abs(y))
     f.(xy, xy')
 end
+
 
 """
     spawn_particles!(model, n_particles = model.n_particles)
@@ -117,7 +125,7 @@ function spawn_particles!(model)
                 Particle(
                     nextid(model),              # id
                     (p) .- 0.5,                 # pos (in center of patch)
-                    rVel(),                 # vel: magnitude ∈ [0,1]
+                    rVel(),                     # vel: magnitude ∈ [0,1]
                     1e301                       # Ridiculously high initial value
                 ),
                 model
@@ -127,15 +135,15 @@ function spawn_particles!(model)
     return model
 end
 
-# function randColVel() 
-#     ϕ = rand(0:0.1:2π)
-#     r = rand()
-#     (r * cos(ϕ), r * sin(ϕ))
-# end
 
-function rVel() 
+"""
+    rVel()
+
+creates a random velocity vector with a magnitude ∈ ]0,1[
+"""
+function rVel()
     r = (rand(), rand())
-    vel = (2 .* r .- 1) 
+    vel = (2 .* r .- 1)
     rand() .* vel ./ norm(vel)
 end
 
@@ -144,21 +152,24 @@ end
 #-----------------------------------------------------------------------------------------
 
 """
-    model_step!(world)
+    model_step!(model)
 
-Simulate a Moran process, in which a random individual dies, and is replaced by a
-child from a random neighbour, except that blues may have an evolutionary advantage AB.
+calculates the mean position of all particles
 """
 function model_step!(model)
-    # if !model.initialized
-    #     initialize_model!(model)
-    # end
-
+    m = (0.0, 0.0)
+    particles = model.agents
+    @inbounds for (_, p) in particles
+        m = m .+ p.pos
+    end
+    model.meanPosition = m ./ length(particles)
 
     return model
 end
 
 """
+    agent_step!(particle, model)
+
 This is the main stabilising procedure: somersault away if u is rising, but stay on track if
 u is decreasing. Also, slow down if other agents are around. Finally, throw in some
 random thermal motion - especially if you know there is somewhere better than this.
@@ -179,7 +190,7 @@ function agent_step!(particle, model)
     elseif u > particle.uLowest + model.tolerance
         # u is significantly higher than my lowest so far. Spread dissatisfaction:
         particle.vel = speed_up(particle.vel)
-        for p in nearby_agents(particle, model)
+        @inbounds for p in nearby_agents(particle, model)
             p.vel = speed_up(p.vel)
         end
     end
@@ -187,14 +198,14 @@ function agent_step!(particle, model)
     # Now somersault if things are going badly:
     if u > uPrevious
         # Things are getting worse - somersault:
-        rotation = rand(-π:0.01:π)
-        particle.vel = rotate_2dvector(rotation, particle.vel)
+        φ = rand(π/2:.01:3/2*π)
+        particle.vel = rotate_2dvector(φ, particle.vel)
     end
 
     # Stabilise speed if others are loitering here:
-    if length(collect(nearby_agents(particle, model, 3.0))) > 0
+    if length(collect(nearby_agents(particle, model, 1.2))) > 0
         # There are Particles here - slow down:
-        particle.vel = 0.5 .* particle.vel
+        particle.vel = 0.3 .* particle.vel
     else
         # Speed up:
         particle.vel = speed_up(particle.vel)
@@ -208,41 +219,21 @@ function agent_step!(particle, model)
 
 end
 
+"""
+speed_up(vel)
+
+increases the velocity `vel` by 
+"""
 # speed_up(vel) = vel ./ (0.5 * (1 + norm(vel)))
 function speed_up(vel)
-
-    # if any(x -> (x==0.0 || abs(x)==Inf || isnan(x) || abs(x) < 1e-302),vel)
-    if any(x -> (abs(x) < 1e-302),vel)
-        return rVel() .* 0.01
+    if any(x -> (abs(x) < 1e-302), vel)
+        # avoiding Inf values (that would result if normal speed up is applied)
+        return rVel()
     end
     oldM = norm(vel)
     newM = 0.5 * (1.0 + oldM)
     newVel = (newM / oldM) .* vel
     return newVel
-end
-#-----------------------------------------------------------------------------------------
-
-"""
-    initialize_model!(model)
-
-This method is needed to initialize the system. This is specially important to
-reflect the adjustements made with the parameters on the abmplot.
-"""
-function initialize_model!(model)
-    setPatches!(model)
-    model.initialized = true
-    return model
-end
-
-# TODO: outsource function
-function rotate_2dvector(φ, vector)
-    Tuple(
-        [
-            cos(φ) -sin(φ)
-            sin(φ) cos(φ)
-        ] *
-        [vector...]
-    )
 end
 
 #-----------------------------------------------------------------------------------------
@@ -262,10 +253,9 @@ function demo()
         add_colorbar=false,
         heatarray=:patches,
         heatkwargs=(
-            # colorrange=(-8, 0),
             colormap=cgrad(:ice),
         ),
-        as=10,
+        as=8,
         ac=:yellow,
         am=:circle,
         title="PSO:",
@@ -273,19 +263,17 @@ function demo()
 
     model = create_model()
     fig, p = abmexploration(model; (agent_step!)=agent_step!, model_step!, params, plotkwargs...)
-    
-    function plotAgentMean(model)
-        m = (.0,.0)
-        particles = model.agents
-        for (_,p) in particles
-            m = m .+ p.pos
-        end
-        m ./ length(particles)
-    end
 
-    m = @lift(plotAgentMean($(p.model)))
-    scatter!(m,color=:red, markersize=20)
-    
+    # as soon as meanPosition gets an update (after each step), the scatter will be updated
+    m = lift(m -> m.meanPosition, p.model)
+    scatter!(m, color=:red, markersize=20)
+
+    # TODO: add deJong7 
+    # dJ = lift(m -> println(m.deJong7), p.model)
+    # println(dJ)
+
+    # @lift(println($(p.model.val.deJong7)))
+
     fig
 end
 
