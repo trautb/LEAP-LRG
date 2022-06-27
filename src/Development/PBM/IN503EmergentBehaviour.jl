@@ -171,7 +171,7 @@ function demo()
     # slider values
     params = Dict(:n_particles => 1:10,
         :r => 0:0.1:1,
-        :n_vertices => 3:4)
+        :n_vertices => 3:7)
 
     model = initialize_model()
     fig, p = abmexploration(
