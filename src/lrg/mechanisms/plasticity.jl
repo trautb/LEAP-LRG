@@ -25,7 +25,7 @@ function plasticity(genpool::Matrix{ExploratoryGAAlleles}, casino)
 	# Fill the phenotype-matrix with bit-values where qMarks were located in the original genpool:
 	phenotypes[undefAlleles] = alleleDefinitions[undefAlleles]
 
-	# All other alleles are copied unchanged:
+	# Copy all other alleles into the phenotypes-matrix without changes:
 	phenotypes[.!(undefAlleles)] = Int.(genpool[.!(undefAlleles)])
 
 	# Return the penotype-matrix:
