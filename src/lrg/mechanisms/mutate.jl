@@ -1,12 +1,17 @@
-"""
-	mutate!(genpool::Matrix{T}, alleles::Vector{T}, mutation::BitFlip) where {T <: Integer}
+# =========================================================================================
+### mutate.jl: Defines functions to mutate the genpool of a population
+# =========================================================================================
 
-Mutates the given genpool with Integer elements (alleles) according to the BitFlip mutation (see above), 
-but with the subsequent changes:
-	1. For each locus, a corresponding allele probability is fetched
-	2. Each allele probability is converted into a allele index
-	3. For mutation, each orginal allele at a selected locus is replaced by the allele 
-	   at the corresponding index
+"""
+	mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
+
+Mutates the given genpool of alleles (represented by integers).
+
+Each element in `genpool` has probability `mu` to be replaced by a random allele of `alleles`, which
+should be a vector of possible allele choices. To dermine the loci, where a mutation should happen,
+the function uses the Casino `casino`.
+
+ATTENTION: The mutation modifies the original array, but the new genpool is returned anyways.
 """
 function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
 	# Only expend effort on mutating if it is really wanted:
@@ -29,18 +34,22 @@ function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <:
 		end
 	end
 
+	# Return the mutated genpool:
 	return genpool
 end
 
 # -----------------------------------------------------------------------------------------
 """
-	mutate!(genpool::Matrix{T}, mutation::BitFlip) where {T <: Enum}
+	mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 
-Mutates the given genpool of alleles (represented by enums) by modifying the underlying integers 
-(see above: mutate!(genpool::Matrix{T}, alleles::Vector{T}, mutation::BitFlip) where {T <: Integer})
+Mutates the given genpool of alleles (represented by enums) by mutating its integer representation.
+
+See above: `mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}`
+
+ATTENTION: The mutation modifies the original array, but the new genpool is returned anyways.
 """
 function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
-	# Determine possible alleles
+	# Determine possible alleles:
 	alleles = eltype(genpool);
 
 	# Get alleles and convert them to integers:
