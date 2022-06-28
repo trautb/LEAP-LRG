@@ -1,5 +1,12 @@
+# =========================================================================================
+### transpose.jl: Adds additional dispatches for function transpose() on arrays of enums
+# =========================================================================================
+
 """
-Adds dispatch for (Base.)transpose() on a Matrix of Enums
+	Base.transpose(A::Matrix{T}) where T <: Enum
+
+This function implements the transposition of a matrix `A` of enums and adds the corresponding
+dispatch to module Base.
 """
 function Base.transpose(A::Matrix{T}) where T <: Enum
 	return T.(transpose(Int.(A)))
@@ -7,7 +14,10 @@ end
 
 # -----------------------------------------------------------------------------------------
 """
-Adds dispatch for (Base.)transpose() on a Vector of Enums
+	Base.transpose(a::Vector{T}) where T <: Enum
+
+This function implements the transposition of a vector `a` of enums and adds the corresponding
+dispatch to module Base.
 """
 function Base.transpose(a::Vector{T}) where T <: Enum
 	return T.(transpose(Int.(a)))
