@@ -11,7 +11,7 @@ Each element in `genpool` has probability `mu` to be replaced by a random allele
 should be a vector of possible allele choices. To dermine the loci, where a mutation should happen,
 the function uses the Casino `casino`.
 
-ATTENTION: The mutation modifies the original array, but the new genpool is returned anyways.
+ATTENTION: The mutation modifies the original array, but the new genpool is returned anyway.
 """
 function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
 	# Only expend effort on mutating if it is really wanted:
@@ -27,14 +27,14 @@ function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <:
 			draw(casino, nIndividuals, nGenes) .* length(alleles)
 		))
 
-		# Now mutate the population:
+		# Now mutate the genpool of the population:
 		for i ∈ 1:nIndividuals
 			# Modifiy the selected loci:
 			genpool[i, loci[i, :]] = alleles[alleleIdx[i, loci[i, :]]];
 		end
 	end
 
-	# Return the mutated genpool:
+	# Return the mutated (original) genpool:
 	return genpool
 end
 
@@ -46,7 +46,7 @@ Mutates the given genpool of alleles (represented by enums) by mutating its inte
 
 See above: `mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}`
 
-ATTENTION: The mutation modifies the original array, but the new genpool is returned anyways.
+ATTENTION: The mutation modifies the original array, but the new genpool is returned anyway.
 """
 function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 	# Determine possible alleles:
@@ -58,6 +58,6 @@ function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 	# Perform mutation on the genpool of the population:
 	mutatedGenpool = mutate!(Int.(genpool), intAlleles; mu, casino)
 
-	# Convert integers back to alleles and modfiy original matrix:
+	# Convert integers back to alleles and modfiy original genpool:
 	return genpool .= alleles.(mutatedGenpool)
 end
