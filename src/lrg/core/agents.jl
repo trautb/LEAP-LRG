@@ -4,19 +4,21 @@
 """
 	BasicGAAgent
 
-The basic agent in the simulation
+The agent for a basic genetic algorithm (BasicGA) simulation. It represents an organism, which tries
+to minimize an objective function via pure genetic search.
 """
 @agent BasicGAAgent{BasicGAAlleles} GridAgent{2} begin
-	genome::Vector{BasicGAAlleles}
-	score::Number
+	genome::Vector{BasicGAAlleles}			# Genome of the organism
+	score::Number							# Current objective value
 end
 
 """
 	ExploratoryGAAgent
 
-The exploratory agent in the simulation
+The agent for a exploratory algorithm (ExploratoryGA) simulation. It represents an organism, which 
+tries to minimize an objective function via genetic search in combination with exploration.
 """
 @agent ExploratoryGAAgent{ExploratoryGAAlleles} GridAgent{2} begin
-	genome::Vector{ExploratoryGAAlleles}
-	score::Number
+	genome::Vector{ExploratoryGAAlleles} 	# Genome of the organism
+	score::Number							# Current objective value
 end
