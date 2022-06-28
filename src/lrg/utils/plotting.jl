@@ -126,3 +126,37 @@ function topTierOverTime(
 
 	return finalizePlot!(plt)
 end
+# -----------------------------------------------------------------------------------------
+"""
+	allelicExpressionNumber(
+		agentDF::DataFrame, 
+		algorithm::GeneticAlgorithm) 
+		allelDistrDF = groupby(agentDF,:step
+	)
+
+This function takes an agent dataframe and plots the number of the diffrent allelic expressions for
+every simulation steps
+"""
+function allelicExpressionNumber(
+	agentDF::DataFrame, 
+	algorithm::GeneticAlgorithm) 
+	allelDistrDF = groupby(agentDF,:step
+)
+	if any(names(allelDistrDF) .== "qMarks")
+		allelDistrDF= combine(allelDistrDF, :ones => mean, :zeros => mean, :qMarks => mean)
+		labels = ["1" "0" "?"]
+	else
+		allelDistrDF= combine(allelDistrDF, :ones => mean, :zeros => mean)
+		labels = ["1" "0"]
+	end
+	plt = plot(
+		allelDistrDF[:,1],
+		Matrix(allelDistrDF[:,2:end]), 
+		title = repr(algorithm), 
+		legend = true, 
+		labels = labels,
+		xlabel = "Number of steps",
+		ylabel = "Number in the genome",
+	)
+	return finalizePlot!(plt)
+end
