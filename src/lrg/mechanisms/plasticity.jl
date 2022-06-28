@@ -1,3 +1,8 @@
+# ================================================================================================
+### plasticity.jl: 
+#	Defines functions which implement the concept of phenotypic plasticity within this simulation
+# ================================================================================================
+
 """
 	plasticity(genpool::Matrix{ExploratoryGAAlleles}, casino)
 
