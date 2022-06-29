@@ -1,8 +1,13 @@
 """
-encounter
+encounter(fitness::AbstractVector)
 
-This implementation of tournamentSelection expects a vector of fitness values and returns a vector double the size with the selected individuals.
-The fitness of every individual gets compared to 4 different individuals. That way the parents vector is two times as big as the individuals vector.
+This function takes all individuals and lets each one compete against another individual. 
+The individual with the higher fitness will be a parent for the next generation. 
+This will be done 2 times, so that the parent vector is twice the size as the individuals. 
+That is because during recombination the amount of individuals will be cut in half again.
+
+fitness: A vector containing the current fitness values of all individuals.
+parents: A vector containing the indices of the individuals that won the tournament selection. 
 """
 function encounter(fitness::AbstractVector)
 
@@ -18,7 +23,7 @@ function encounter(fitness::AbstractVector)
         individualWinners = individualsFitness[individuals] .> individualsFitness[encounters]
         encounterWinners = individualWinners .== 0
 
-        # Add individuals and encounters who had a higher fitness than their opponent to the parents array
+        # Add the individuals and encounters who had a higher fitness than their opponent to the parents array
         parents[1 + (i-1)nIndividuals : nIndividuals*i] = vcat(individuals[individualWinners], encounters[encounterWinners])
 
     end
