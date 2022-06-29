@@ -21,7 +21,7 @@ A struct containing all constants to run the basic genetic algorithm.
 struct BasicGA <: GeneticAlgorithm
     nIndividuals::Integer
     nGenes::Integer
-    mu::Number# mutation rate
+    mu::Number # mutation rate
     useHintonNowlan::Bool
     M::Integer # the size of the ABM space
 

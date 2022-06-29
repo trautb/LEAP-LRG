@@ -1,9 +1,25 @@
-export savePlots
+# =========================================================================================
+### save.jl: 
+# Provides functions to save plots and dataframes of the simulation results
+# =========================================================================================
 
+export savePlots, saveData
+
+"""
+	formatTimestamp(timestamp::DateTime)
+
+Format the timestamp format to yyyy_mm_dd__HH_MM_SS.
+"""
 function formatTimestamp(timestamp::DateTime)
 	return Dates.format(timestamp, dateformat"yyyy_mm_dd__HH_MM_SS")
 end
+# -----------------------------------------------------------------------------------------
+"""
+	processSimulationData(agentDF::DataFrame)
 
+Create a dataframe that contains the minimum, maximun, and mean of the score 
+as well as the modifications for each step.
+"""
 function processSimulationData(agentDF::DataFrame)
 	# Define an array of operations to perform on the simulation data:
 	params = [
@@ -20,7 +36,12 @@ function processSimulationData(agentDF::DataFrame)
 	# Return the processed simulation data:
 	return processedDF
 end
+# -----------------------------------------------------------------------------------------
+"""
+	generateSimulationPlots(simulation::GASimulation, processedDF::DataFrame)
 
+Generate the desired simualtion plots of the simulation.
+"""
 function generateSimulationPlots(simulation::GASimulation, processedDF::DataFrame)
 	# Extract simulation parameters and results:
 	simulationData = simulation.agentDF
@@ -28,13 +49,19 @@ function generateSimulationPlots(simulation::GASimulation, processedDF::DataFram
 	
 	# Return a dictionary with "plot_name" => "plot" pairs:
 	return Dict{String, Plots.Plot}(
-		"scoreOT" => scoreOverTime(simulationData, algorithm),
+		#"scoreOT" => scoreOverTime(simulationData, algorithm),
 		"scoreSpanOT" => scoreSpanOverTime(processedDF, algorithm),
 		"topTierOT_5P" => topTierOverTime(simulationData, 5, algorithm),
-		"topTierOT_1P" => topTierOverTime(simulationData, 1, algorithm)
+		"topTierOT_1P" => topTierOverTime(simulationData, 1, algorithm),
+		"allelicExpNumbOT" => allelicExpressionNumber(simulationData, algorithm)
 	)
 end
+# -----------------------------------------------------------------------------------------
+"""
+	savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::DateTime)
 
+Save all generated plots as .png and .pdf file with the constructed filename.
+"""
 function savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::DateTime)
 	# Save all plots in the given dictionary to the current working directory:
 	for (plotKey, plot) in pairs(plots)
@@ -46,7 +73,11 @@ function savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::D
 		Plots.pdf(plot, filename)
 	end
 end
+"""
+	savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::DateTime)
 
+Save the desired plots of the simulation.
+"""
 function savePlots(simulation::GASimulation)
 	# Process simulation data:
 	processedDF = processSimulationData(simulation.agentDF)
@@ -55,9 +86,19 @@ function savePlots(simulation::GASimulation)
 	simulationPlots = generateSimulationPlots(simulation, processedDF)
 
 	# Save every plot of the given simulation:
-	savePlots(simulationPlots, "simulation", simulation.timestamp)
+	savePlots(
+		simulationPlots, 
+		string("simulation_", paramstring(simulation.algorithm)), 
+		simulation.timestamp
+	)
 end
 
+"""
+	savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::DateTime)
+
+Save a plot comparing the minimal scores per number of modifications for each simulation result 
+and if wanted the desired plots of each simulation.
+"""
 function savePlots(comparison::GAComparison; withSimulationPlots=true)
 	# Process data of every simulation:
 	processedData = Dict{GASimulation, DataFrame}(
@@ -77,36 +118,54 @@ function savePlots(comparison::GAComparison; withSimulationPlots=true)
 		for (simulation, processedDF) in processedData
 			savePlots(
 				generateSimulationPlots(simulation, processedDF), 
-				"simulation", 
+				string("simulation_", paramstring(simulation.algorithm)), 
 				simulation.timestamp
 			)
 		end
 	end
 end
+# -----------------------------------------------------------------------------------------
+"""
+	saveData(dataFrame::DataFrames.DataFrame, prefix::String, timestamp::DateTime, content::String)
 
-function saveData(dataFrames::Vector{DataFrames.DataFrame}, prefix::String, timestamp::DateTime, GAParameters)
-	for	i in 1:length(dataFrames)
+Save a dataframe as .csv file with the constructed filename.
+"""
+function saveData(dataFrame::DataFrame, prefix::String, timestamp::DateTime, content::String)
 		# Construct a filename:
-		filename = string(prefix, "_", formatTimestamp(timestamp), "_", GAParameters, ".csv") # equalized vs normal
+		filename = string(prefix, "_", formatTimestamp(timestamp), "_", content, ".csv") 
 
 		# Save dataframe as .csv:
-		CSV.write(filename, dataFrames[i])
-	end
+		CSV.write(filename, dataFrame)
 end
 
+"""
+	saveData(simulation::GASimulation)
+
+Save the dataframe including the results of each agent in the simulation.
+"""
 function saveData(simulation::GASimulation)
-	# Save agent and model dataframe of the given simulation:
-	saveData([simulation.agentDF], "simulation", simulation.timestamp, simulation.algorithm)
+	# Save agent dataframe of the simulation:
+	saveData(
+		simulation.agentDF, 
+		"simulation", 
+		simulation.timestamp, 
+		paramstring(simulation.algorithm)
+	)
 
 end
 
+"""
+	saveData(comparison::GAComparison)
+
+Save the dataframes including the results of each agent in each simulation 
+and the dataframe including the runtimes of each simulation.
+"""
 function saveData(comparison::GAComparison)
-	# Save agent and model dataframe of the given simulation
+	# Save agent dataframe for each simulation:
 	for i in 1:length(comparison.simulations)
 		saveData(comparison.simulations[i])
 	end
-	# Save runtimes
-	saveData([comparison.runtimes], "comparison", Dates.now(), "")
-end
 
-#DataFrame(CSV.File(filename))
+	# Save runtime dataframe:
+	saveData(comparison.runtimes, "comparison", comparison.timestamp, "runtimes")
+end
