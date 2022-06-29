@@ -51,7 +51,7 @@ end
 end
 
 """
-    warpMatrix(matrix,index)
+    wrapMatrix(matrix,index)
 
 extends the boundaries of a matrix to return valid indices
 """
