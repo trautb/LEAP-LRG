@@ -63,3 +63,50 @@ struct ExploratoryGA <: GeneticAlgorithm
 		return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, speedAdvantage, M)
 	end 
 end	
+
+# -----------------------------------------------------------------------------------------
+"""
+	paramstring(algorithm::GeneticAlgorithm)
+
+Return the parameters for the GeneticAlgorithm `algorithm` as a formatted string.
+
+The returned string is formatted as follows:  
+	
+	<<GA-Name>>--<<param1>>-<<value1>>--<<param2>>-<<value2>> ...
+
+Every GeneticAlgorithm should have a custom implementation of this method.
+"""
+function paramstring(algorithm::GeneticAlgorithm)
+	return "no_specific_paramstring_impl_found"
+end
+
+function paramstring(algorithm::BasicGA)
+	return string("BasicGA",
+		"--nIndividuals-", algorithm.nIndividuals,
+		"--nGenes-", algorithm.nGenes,
+		"--mu-", pointToUnderscore(repr(algorithm.mu)),
+		"--useHN-", algorithm.useHintonNowlan
+	)
+end
+
+function paramstring(algorithm::ExploratoryGA)
+	return string("ExploratoryGA",
+		"--nIndividuals-", algorithm.nIndividuals,
+		"--nGenes-", algorithm.nGenes,
+		"--mu-", pointToUnderscore(repr(algorithm.mu)),
+		"--useHN-", algorithm.useHintonNowlan,
+		"--nTrials-", algorithm.nTrials
+	)
+end
+
+# -----------------------------------------------------------------------------------------
+"""
+	pointToUnderscore(s::String)
+
+Replaces every dot "." in string `s` with an underscore "_".
+
+Returns the new string.
+"""
+function pointToUnderscore(s::String)
+	return replace(s, "." => "_")
+end

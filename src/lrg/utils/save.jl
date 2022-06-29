@@ -56,7 +56,11 @@ function savePlots(simulation::GASimulation)
 	simulationPlots = generateSimulationPlots(simulation, processedDF)
 
 	# Save every plot of the given simulation:
-	savePlots(simulationPlots, "simulation", simulation.timestamp)
+	savePlots(
+		simulationPlots, 
+		string("simulation_", paramstring(simulation.algorithm)), 
+		simulation.timestamp
+	)
 end
 
 function savePlots(comparison::GAComparison; withSimulationPlots=true)
@@ -78,7 +82,7 @@ function savePlots(comparison::GAComparison; withSimulationPlots=true)
 		for (simulation, processedDF) in processedData
 			savePlots(
 				generateSimulationPlots(simulation, processedDF), 
-				"simulation", 
+				string("simulation_", paramstring(simulation.algorithm)), 
 				simulation.timestamp
 			)
 		end
@@ -95,7 +99,12 @@ end
 
 function saveData(simulation::GASimulation)
 	# Save agent and model dataframe of the given simulation:
-	saveData(simulation.agentDF, "simulation", simulation.timestamp, simulation.algorithm)
+	saveData(
+		simulation.agentDF, 
+		"simulation", 
+		simulation.timestamp, 
+		paramstring(simulation.algorithm)
+	)
 
 end
 
@@ -104,8 +113,9 @@ function saveData(comparison::GAComparison)
 	for i in 1:length(comparison.simulations)
 		saveData(comparison.simulations[i])
 	end
+
 	# Save runtimes
-	saveData(comparison.runtimes, "comparison", Dates.now(), "runtimes")
+	saveData(comparison.runtimes, "comparison", comparison.timestamp, "runtimes")
 end
 
 #DataFrame(CSV.File(filename))
