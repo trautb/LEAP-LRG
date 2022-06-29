@@ -49,3 +49,25 @@ function rotate_2dvector(vector)
 end
 
 end
+
+"""
+    warpMatrix(matrix,index)
+
+extends the boundaries of a matrix to return valid indices
+"""
+
+ function wrapMat(matrix::Matrix{Float64}, index::Vector{Int64})
+    if index[1]==0
+      index[1] =-1
+    end
+    if index[1]==size(matrix)[1]
+      index[1] = size(matrix)[1]+1
+    end
+    if index[2]==0
+      index[2] =-1
+    end
+    if index[2]==size(matrix)[2]
+      index[2] = size(matrix)[2]+1
+    end
+      return  [rem(index[1]+size(matrix)[1],size(matrix)[1]),rem(index[2]+size(matrix)[2],size(matrix)[2])]
+  end
