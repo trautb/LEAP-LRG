@@ -38,9 +38,9 @@ end
         model = ABM(LightSource, space2d, scheduler = Schedulers.randomly,properties = properties)
         
     
-        i = 1
-        for _ in 1:n_sources
-            if (i == 1)
+      
+        for id in 1:n_sources
+            if (id == 1)
                 pos = Tuple([2 round(((1/4)*worldsize))])
             else
                 pos = Tuple([2 round(((3/4)*worldsize))])
@@ -54,7 +54,6 @@ end
             phase,
             EBSource,
             )
-            i += 1;
         end
         return model
     end
@@ -71,14 +70,14 @@ end
         show(stdout, "text/plain", model.EB)
         println("\n")
         mw_EB = zeros(model.worldsize,model.worldsize)
-        h = 4
+        h = 2
         map(CartesianIndices((2:13,2:13))) do x
-            mw_EB[x[1],x[2]] = (4/(h^2))*(model.EB[x[1],x[2]-1]+model.EB[x[1],x[2]+1] + model.EB[x[1]-1,x[2]] + model.EB[x[1]+1,x[2]]-model.EB[x[1],x[2]])
+            mw_EB[x[1],x[2]] = (1/(h^2))*(model.EB[x[1],x[2]-1]+model.EB[x[1],x[2]+1] + model.EB[x[1]-1,x[2]] + model.EB[x[1]+1,x[2]]-4*model.EB[x[1],x[2]])
         end
        
         model.dEB_dt = model.dEB_dt.+model.dt .*model.c .*model.c .* (mw_EB.-model.EB)./(model.dxy*model.dxy)
         attu = 0.03
-        model.dEB_dt = (1 - attu).*model.dEB_dt
+        model.dEB_dt = model.dEB_dt.*(1 - attu)
         println("\n")
         show(stdout, "text/plain", model.dEB_dt)
         println("\n")

@@ -41,7 +41,7 @@ end
 
 function rotate_2dvector(φ, vector)
     
-    Tuple(
+    return Tuple(
         [
             cos(φ) -sin(φ)
             sin(φ) cos(φ)
@@ -56,9 +56,13 @@ end
 rotates a given `vector` by a random degree ∈ -π:.01:π
 """
 function eigvec(vector)
+    if (vector == Tuple([0.0, 0.0]))
+        return Tuple([0.0, 0.0])
+    else
     vector1 = vector[1]/sqrt((vector[1])^2+(vector[2])^2)
     vector2 = vector[2]/sqrt((vector[1])^2+(vector[2])^2)
-    vector = Tuple([vector1, vector2])
+    return Tuple([vector1, vector2])
+    end
 end
 
 
@@ -66,7 +70,7 @@ function rotate_2dvector(vector)
     # more efficient to call `rand` on a variable (no need for additional allocations)
     φ = rand(DEGREES)
     
-    Tuple(
+    return Tuple(
         [
             cos(φ) -sin(φ)
             sin(φ) cos(φ)

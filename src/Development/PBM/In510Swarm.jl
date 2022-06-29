@@ -12,7 +12,7 @@ using .AgentToolBox
     end
 
     function initialize_model(  
-        ;n_sources = 500,
+        ;n_sources = 640,
         worldsize,
         griddims = (worldsize, worldsize),
         ticks=1,
@@ -66,25 +66,30 @@ using .AgentToolBox
         f.(xy, xy')
     end
 
+
     function agent_step!(sources,model)
+        
         ids = collect(nearby_ids(sources.pos, model, 12,exact=false))
-        min_patchvalue = sources.patchvalue
-        best_pos = sources.pos
-       
+        #min_patchvalue = sources.patchvalue
+        #best_pos = sources.pos
+        
+        patch(ids) = model[ids].patchvalue
+        min_patch(patch, itr) = itr[argmin(map(patch, itr))]
+        id = min_patch(patch, ids)
+        #=
         for id in ids
             if model[id].patchvalue < min_patchvalue
                 min_patchvalue = model[id].patchvalue
                 best_pos = model[id].pos
             end
         end
+        =#
 
-        sources.vel = Tuple([-sources.pos[1], -sources.pos[2]]) .+ best_pos
-        if sources.vel[1] != 0.0 && sources.vel[2] != 0.0
-            sources.vel = eigvec(sources.vel)
-        end
-
-        sources.patchvalue = model.patches[round(Int,sources.pos[1]),round(Int,sources.pos[2])]
+        #sources.vel = Tuple([-sources.pos[1], -sources.pos[2]]) .+ model[id].pos
+        sources.vel = eigvec(model[id].pos.-sources.pos)
+        
         move_agent!(sources,model,1);
+        sources.patchvalue = model.patches[round(Int,sources.pos[1]),round(Int,sources.pos[2])]
     end
 
     function demo()
@@ -105,8 +110,7 @@ using .AgentToolBox
         
         #https://makie.juliaplots.org/stable/documentation/figure/
         #https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
-        figure,p= abmexploration(model;agent_step!,am = particlemarker,ac = :red,params,plotkwargs...)
-        #Colorbar(figure[:,end+1],colormap = cgrad(:ice),limits = (-8,0))
+        figure,_= abmexploration(model;agent_step!,am = particlemarker,ac = :red,plotkwargs...)
         figure 
     end
     
