@@ -1,5 +1,5 @@
 # =========================================================================================
-### Define different algorithm types
+### algorithms.jl: Defines different algorithm types
 # =========================================================================================
 
 # Ensure, that the including module exports the algorithm types
@@ -8,7 +8,7 @@ export BasicGA, ExploratoryGA
 """
 	GeneticAlgorithm
 
-	Abstract supertype for all genetic algorithms.
+Abstract supertype for all genetic algorithms.
 """
 abstract type GeneticAlgorithm end
 
@@ -19,21 +19,21 @@ abstract type GeneticAlgorithm end
 A struct containing all constants to run the basic genetic algorithm.
 """
 struct BasicGA <: GeneticAlgorithm
-	nIndividuals::Integer
-	nGenes::Integer
-	mu::Number
-	useHintonNowlan::Bool
-	M::Integer
+    nIndividuals::Integer
+    nGenes::Integer
+    mu::Number# mutation rate
+    useHintonNowlan::Bool
+    M::Integer # the size of the ABM space
 
-	function BasicGA(
-		nIndividuals::Integer = 100, 
-		nGenes::Integer = 128,
-		mu::Number = 1/nIndividuals,
-		useHintonNowlan::Bool = false;
-		M::Integer = 1
-	) 
-		return new(nIndividuals, nGenes, mu, useHintonNowlan, M)
-	end 
+    function BasicGA(
+        nIndividuals::Integer=100,
+        nGenes::Integer=128,
+        mu::Number=1 / nIndividuals,
+        useHintonNowlan::Bool=false;
+        M::Integer=1
+    )
+        return new(nIndividuals, nGenes, mu, useHintonNowlan, M)
+    end
 end
 
 # -----------------------------------------------------------------------------------------
@@ -43,23 +43,23 @@ end
 A struct containing all constants to run the exploratory genetic algorithm.
 """
 struct ExploratoryGA <: GeneticAlgorithm
-	nIndividuals::Integer
-	nGenes::Integer
-	mu::Number
-	useHintonNowlan::Bool
-	nTrials::Integer
-	speedAdvantage::Number
-	M::Integer
+    nIndividuals::Integer
+    nGenes::Integer
+    mu::Number # mutation rate
+    useHintonNowlan::Bool
+    nTrials::Integer
+    speedAdvantage::Number
+    M::Integer # the size of the ABM space
 
-	function ExploratoryGA(
-		nIndividuals::Integer = 100, 
-		nGenes::Integer = 128,
-		mu::Number = 1/nIndividuals,
-		useHintonNowlan::Bool = false,
-		nTrials::Integer = 100;
-		speedAdvantage::Number = 10,
-		M::Integer = 1
-	) 
-		return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, speedAdvantage, M)
-	end 
-end	
+    function ExploratoryGA(
+        nIndividuals::Integer=100,
+        nGenes::Integer=128,
+        mu::Number=1 / nIndividuals,
+        useHintonNowlan::Bool=false,
+        nTrials::Integer=100;
+        speedAdvantage::Number=10,
+        M::Integer=1
+    )
+        return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, speedAdvantage, M)
+    end
+end

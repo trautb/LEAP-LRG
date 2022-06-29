@@ -1,16 +1,17 @@
 # =========================================================================================
-### Define different allele types
+### alleles.jl: Defines different allele types (for each algorithm)
 # =========================================================================================
 """
 	BasicGAAlleles
 
-Enum for alleles in BasicGA. Possible values are 0 and 1
+Enum for the possible alleles in BasicGA. The possible values are 0 and 1.
 """
 @enum BasicGAAlleles bZero bOne
 
 """
 	ExploratoryGAAlleles
 
-Enum for Alleles in Exploratory GA, Possible values are 0, 1, ?
+Enum for the pissible alleles in ExploratoryGA. The possible values are 0, 1, ?. Where
+the "?" gets evaluated in exploratory learning steps.
 """
 @enum ExploratoryGAAlleles eZero eOne qMark
