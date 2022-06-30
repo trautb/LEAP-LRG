@@ -66,9 +66,28 @@ end
         source.EBSource = sin(source.phase + 2π * model.freq * model.ticks * model.dt)
 
         model.EB[Int(source.pos[1]), Int(source.pos[2])] = source.EBSource
+
         println("\n")
         show(stdout, "text/plain", model.EB)
         println("\n")
+
+        si = floor(Int,sqrt(length(model.EB)))
+        cart(i,j) = (j-1)*si+i
+        nma(i,j) = [cart(i,j-1) cart(i,j+1) cart(i-1,j) cart(i+1,j)]
+
+        map(CartesianIndices((2:13,2:13))) do x
+            #model.EB[nma(x[1],x[2])] .= 0.8 * model.EB[x[1],x[2]]
+            model.EB[x[1],x[2]-1] = 0.8 * model.EB[x[1],x[2]]
+            model.EB[x[1],x[2]+1] = 0.8 * model.EB[x[1],x[2]]
+            model.EB[x[1]-1,x[2]] = 0.8 * model.EB[x[1],x[2]]
+            model.EB[x[1]+1,x[2]] = 0.8 * model.EB[x[1],x[2]]
+        end
+        
+        
+        println("\n")
+        show(stdout, "text/plain", model.EB)
+        println("\n")
+        #=
         mw_EB = zeros(model.worldsize,model.worldsize)
         h = 2
         map(CartesianIndices((2:13,2:13))) do x
@@ -88,6 +107,7 @@ end
         show(stdout, "text/plain", model.EB)
         println("\n")
         println("-------------------")
+        =#
     end
 
    

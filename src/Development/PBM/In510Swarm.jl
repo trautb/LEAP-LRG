@@ -36,8 +36,7 @@ using .AgentToolBox
         
         
         for _ in 1:n_sources
-            pos_random = rand(2:1:worldsize-1,2,1)
-            pos = Tuple([pos_random[1] pos_random[2]])
+            pos = Tuple(rand(2:1:worldsize-1,2,1))
             patchvalue = model.patches[round(Int,pos[1]),round(Int,pos[2])]
             vel = Tuple([1 1])
             add_agent!(
@@ -70,22 +69,11 @@ using .AgentToolBox
     function agent_step!(sources,model)
         
         ids = collect(nearby_ids(sources.pos, model, 12,exact=false))
-        #min_patchvalue = sources.patchvalue
-        #best_pos = sources.pos
-        
+
         patch(ids) = model[ids].patchvalue
         min_patch(patch, itr) = itr[argmin(map(patch, itr))]
         id = min_patch(patch, ids)
-        #=
-        for id in ids
-            if model[id].patchvalue < min_patchvalue
-                min_patchvalue = model[id].patchvalue
-                best_pos = model[id].pos
-            end
-        end
-        =#
 
-        #sources.vel = Tuple([-sources.pos[1], -sources.pos[2]]) .+ model[id].pos
         sources.vel = eigvec(model[id].pos.-sources.pos)
         
         move_agent!(sources,model,1);
