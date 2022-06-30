@@ -56,7 +56,6 @@ struct ExploratoryGA <: GeneticAlgorithm
 		mu::Number = 2/(nIndividuals*nGenes),
 		useHintonNowlan::Bool = false,
 		nTrials::Integer = 100;
-		speedAdvantage::Number = 10,
 		M::Integer = 1
 	) 
 		return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, M)
