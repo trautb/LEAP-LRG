@@ -74,24 +74,20 @@ end
 
 #---------------------------------------------------------------------------------------------------
 """
-	fitness(genpool::BitMatrix, plasticityTrials::Int64, casino, useHintonNowlan::Bool) 
+	fitness(genpool::Matrix{ExploratoryGAAlleles}, nTrials::Integer, casino, useHintonNowlan::Bool)  
 
 Calculate normalised fitness based on the Objective function at each plasticity trial
 and keeps the best fitness and underlying evaluation of all plasticity trials for each individual. 
-bestFitnessVals is a column vector of normalised fitnesses of the population, minus all 
-sub-sigma-scaled individuals (see Mitchell p.168). Negative sigma-scaling maximises 
-the objective function; higher magnitudes raise the fitness pressure. 
+Finding good fitness gets rewarded propornational to the time it took.
+bestFitnessVals is a column vector of the best normalised fitnesses of all trials for each individual
+of the population, minus all sub-sigma-scaled individuals (see Mitchell p.168). Negative sigma-scaling 
+maximises the objective function; higher magnitudes raise the fitness pressure. 
 underlyingEvaluations is a colum vector of evaluations of the population. 
 
 Returns fitness and underlying evaluation values.
 """
-function fitness(
-		genpool::Matrix{ExploratoryGAAlleles}, 
-		nTrials::Integer, 
-		speedAdvantage::Number,
-		casino,
-		useHintonNowlan::Bool
-	) 
+fitness(genpool::Matrix{ExploratoryGAAlleles}, nTrials::Integer, casino, useHintonNowlan::Bool) 
+
 	nIndividuals, _ = size(genpool)
 
 	# Fitness and evaluations at plasticity trial 0:
