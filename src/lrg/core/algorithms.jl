@@ -28,7 +28,7 @@ struct BasicGA <: GeneticAlgorithm
 	function BasicGA(
 		nIndividuals::Integer = 100, 
 		nGenes::Integer = 128,
-		mu::Number = 1/nIndividuals,
+		mu::Number = 2/(nIndividuals*nGenes),
 		useHintonNowlan::Bool = false;
 		M::Integer = 1
 	) 
@@ -53,7 +53,7 @@ struct ExploratoryGA <: GeneticAlgorithm
 	function ExploratoryGA(
 		nIndividuals::Integer = 100, 
 		nGenes::Integer = 128,
-		mu::Number = 1/nIndividuals,
+		mu::Number = 2/(nIndividuals*nGenes),
 		useHintonNowlan::Bool = false,
 		nTrials::Integer = 100;
 		speedAdvantage::Number = 10,
