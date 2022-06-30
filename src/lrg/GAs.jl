@@ -73,7 +73,7 @@ function exploratory_step!(model)
 	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(genpool, model.nTrials, model.speedAdvantage, model.casino, model.useHintonNowlan) 
+	popFitness, evaluations = fitness(genpool, model.nTrials, model.casino, model.useHintonNowlan) 
 
 	# Perform selection:
 	selectionWinners = encounter(popFitness)
@@ -131,7 +131,6 @@ function initialize(exploratoryGA::ExploratoryGA)
 		:casino => Casino(exploratoryGA.nIndividuals + 1, exploratoryGA.nGenes + 1),
 		:useHintonNowlan => exploratoryGA.useHintonNowlan,
 		:nTrials => exploratoryGA.nTrials,
-		:speedAdvantage => exploratoryGA.speedAdvantage,
 	])
 
 	model = ABM(ExploratoryGAAgent{ExploratoryGAAlleles}, space; properties)

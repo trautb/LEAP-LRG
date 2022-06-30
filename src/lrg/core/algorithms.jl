@@ -48,7 +48,6 @@ struct ExploratoryGA <: GeneticAlgorithm
 	mu::Number
 	useHintonNowlan::Bool
 	nTrials::Integer
-	speedAdvantage::Number
 	M::Integer
 
 	function ExploratoryGA(
@@ -60,7 +59,7 @@ struct ExploratoryGA <: GeneticAlgorithm
 		speedAdvantage::Number = 10,
 		M::Integer = 1
 	) 
-		return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, speedAdvantage, M)
+		return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, M)
 	end 
 end	
 

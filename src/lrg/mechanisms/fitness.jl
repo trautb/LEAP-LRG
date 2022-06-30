@@ -80,8 +80,7 @@ best_evaluations is a colum vector of evaluations of the population.
 """
 function fitness(
 		genpool::Matrix{ExploratoryGAAlleles}, 
-		nTrials::Integer, 
-		speedAdvantage::Number,
+		nTrials::Integer,
 		casino,
 		useHintonNowlan::Bool
 	) 
