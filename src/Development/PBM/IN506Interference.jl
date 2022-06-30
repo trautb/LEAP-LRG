@@ -2,6 +2,8 @@ module Interference
 using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
 export demo
+include("./AgentToolBox.jl")
+using .AgentToolBox
 
 mutable struct LightSource <: AbstractAgent
     id::Int                    # Boid identity
@@ -67,10 +69,10 @@ end
 
         model.EB[Int(source.pos[1]), Int(source.pos[2])] = source.EBSource
 
-        println("\n")
-        show(stdout, "text/plain", model.EB)
-        println("\n")
 
+        model.EB = diffuse4(model.EB,0.8)
+
+        #=
         si = floor(Int,sqrt(length(model.EB)))
         cart(i,j) = (j-1)*si+i
         nma(i,j) = [cart(i,j-1) cart(i,j+1) cart(i-1,j) cart(i+1,j)]
@@ -83,7 +85,7 @@ end
             model.EB[x[1]+1,x[2]] = 0.8 * model.EB[x[1],x[2]]
         end
         
-        
+        =#
         println("\n")
         show(stdout, "text/plain", model.EB)
         println("\n")
