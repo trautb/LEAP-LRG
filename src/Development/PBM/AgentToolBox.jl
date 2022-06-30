@@ -102,3 +102,29 @@ extends the boundaries of a matrix to return valid indices
     end
       return  [rem(index[1]+size(matrix)[1],size(matrix)[1]),rem(index[2]+size(matrix)[2],size(matrix)[2])]
   end
+
+
+
+
+
+#Implementation of diffuse4 from Netlogo
+function diffuse4(mat::Matrix{Float64},rDiff::Float64)
+  map(CartesianIndices(( 1:size(mat)[1], 1:size(mat)[2]))) do x
+    iX=x[1]
+    iY=x[2]
+    neighbours = [wrapMat(mat,[iX+1,iY]), wrapMat(mat,[iX-1,iY]), wrapMat(mat,[iX,iY-1]),  wrapMat(mat,[iX,iY+1])]
+                 
+    flow = mat[iX,iY]*rDiff
+    mat[iX,iY] *= 1-rDiff
+    map(neighbours) do j
+      mat[j[1],j[2]] += flow/4 
+    end
+  end
+  return mat
+
+
+  
+end
+
+
+
