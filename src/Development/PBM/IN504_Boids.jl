@@ -3,10 +3,12 @@ export Bird, demo
 
 using Agents, LinearAlgebra
 using Random # hides
-using Pkg
-Pkg.add("CairoMakie")
-Pkg.add("GLMakie")
-Pkg.status("InteractiveDynamics")
+using InteractiveDynamics
+using GLMakie
+# using Pkg
+# Pkg.add("CairoMakie")
+# Pkg.add("GLMakie")
+# Pkg.status("InteractiveDynamics")
 
 
 mutable struct Bird <: AbstractAgent
@@ -97,8 +99,7 @@ function bird_marker(b::Bird)
 end
 
 ## Plotting the flock
-using InteractiveDynamics
-using GLMakie
+
  # hide
 function demo()
     

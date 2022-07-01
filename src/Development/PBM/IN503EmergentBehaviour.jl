@@ -9,7 +9,7 @@ cannot easily see how it arises from the behaviours of the individual Particles.
 However, this is not a collective pattern, since a single agent is also
 capable of constructing it.
 
-Author: , 16/05/22
+Author: Niall Palfreyman (January 2020), Nick Diercksen (May 2022)
 """
 module EmergentBehaviour
 

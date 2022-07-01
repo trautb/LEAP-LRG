@@ -10,7 +10,7 @@
     such a tiny advantage a huge effect on the outcome of the simulation!
 
 
-Author: , 30/05/22
+Author: Niall Palfreyman (March 2020), Nick Diercksen (May 2022)
 """
 module NeutralDrift
 
