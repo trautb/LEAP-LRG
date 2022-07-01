@@ -44,12 +44,15 @@ end
         for id in 1:n_sources
             if (id == 1)
                 pos = Tuple([2 round(((1/4)*worldsize))])
+
             else
                 pos = Tuple([2 round(((3/4)*worldsize))])
 
             end
+            
             phase = 0
             EBSource = 0.0
+            #model.EB[Int(pos[1]), Int(pos[2])] = EBSource
             add_agent!(
             pos,
             model,
@@ -66,12 +69,15 @@ end
         #println(source.id)
         #println("\n")
         source.EBSource = sin(source.phase + 2π * model.freq * model.ticks * model.dt)
-
+        println(source.EBSource)
+        #source.EBSource = 1.0
         model.EB[Int(source.pos[1]), Int(source.pos[2])] = source.EBSource
 
-
-        model.EB = diffuse4(model.EB,0.8)
-
+        attu = 0.003
+        model.EB = diffuse4(model.EB,0.3)
+        #model.dEB_dt = model.dEB_dt.+model.dt .*model.c .*model.c .* (mw_EB.-model.EB)./(model.dxy*model.dxy)
+        #model.EB = model.EB.*(1 - attu)
+        #model.EB =  model.EB .+  model.dt .*  model.dEB_dt
         #=
         si = floor(Int,sqrt(length(model.EB)))
         cart(i,j) = (j-1)*si+i
@@ -86,9 +92,7 @@ end
         end
         
         =#
-        println("\n")
-        show(stdout, "text/plain", model.EB)
-        println("\n")
+        
         #=
         mw_EB = zeros(model.worldsize,model.worldsize)
         h = 2
@@ -120,8 +124,8 @@ end
         heatarray = :EB,
         add_colorbar=false,
         heatkwargs = (
-            colorrange=(-1, 1),
-            colormap = cgrad(:bluesreds), #Set1_3
+            #colorrange=(-1, 1),
+            colormap = cgrad(:ice), #Set1_3
         ),
     
         )
