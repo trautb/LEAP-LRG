@@ -4,18 +4,18 @@
 
 **Module Turing**: \\
 This program is an exercise in how to speed up a simulation by directly
-calculating values that aren’t quite correct, but are ‘good enough’ to help you
+calculating values that aren't quite correct, but are *good enough* to help you
 model a complex biological system. Do you remember how boringly slow the
 reaction-diffusion system was in chapter 14? That was because we had to
-painfully solve the dynamics of the system using Euler’s method.
+painfully solve the dynamics of the system using Euler's method.
 
 
 Author: , 31/05/22
 """
 module Turing
 
-export demo_explorer                # Externally available names
-using Agents, GLMakie, InteractiveDynamics   # Required packages
+export demo_explorer                        # Externally available names
+using Agents, GLMakie, InteractiveDynamics  # Required packages
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -24,124 +24,221 @@ using Agents, GLMakie, InteractiveDynamics   # Required packages
 """
 	Patch
 
-To construct a new agent implementation, use the @agent macro and add all necessary extra
-attributes. Again, id, pos and vel are automatically inserted.
+In this chapter the agent will not actually be used.
+Since this is an approximation only matrices containing attributes of each patch
+will be used
 """
-@agent Patch GridAgent{2} begin end
+mutable struct Patch <: AbstractAgent
+    id::Int                         # id of the agent needed by the model
+    pos::NTuple{2,Float64}          # position of the patch
+    # differentiation::Float64      # My current level of differentiation.
+    # activators::Int64             # The cells around me that can activate my differentiation.
+    # inhibitors::Int64             # The cells further away that can inhibit my differentiation.
+end
 
-const blue = true;
-const lime = false;
 
-#-----------------------------------------------------------------------------------------
-# Module methods:
+const dt = 0.1
 
-#-----------------------------------------------------------------------------------------
+# ============================================================================================
+#  Module methods:
+# ============================================================================================
 """
-    create_model()
+initialize_model()
 
 Create the world model.
 """
-function create_model(;
-    pB=0.5,                 # proportion of blues
-    AB=0.000,                 # Evolutionary advantage of blue individuals
-    worldsize=32,
+function initialize_model(;
+    inner_radius_x=2.5,
+    inner_radius_y=4.2,
+    outer_radius_x=6.0,
+    outer_radius_y=6.8,
+    inhibition=0.35,
+    worldsize=140,
     extent=(worldsize, worldsize)
 )
 
     properties = Dict(
-        :patches => falses(extent),
-        :pB => pB,
-        :AB => AB,
-        :spu => 30,
-        :sleep => 0.0,
-        :initialized => false)
+        :differentiation => rand(extent...),                # differentiation levels of the patches
+        :activators => Matrix{Vector{Tuple{Int64,Int64}}},  # activators for each patch
+        :inhibitors => Matrix{Vector{Tuple{Int64,Int64}}},  # inhibitors for each patch
+        :inner_radius_x => inner_radius_x,                  # adjustable inner radius
+        :inner_radius_y => inner_radius_y,                  # adjustable inner radius
+        :outer_radius_x => outer_radius_x,                  # adjustable outer radius
+        :outer_radius_y => outer_radius_y,                  # adjustable outer radius
+        :inhibition => inhibition,                          # inhibition factor
+        :init_values => [],                                 # with slider adjustable values # TODO: extract to AgentToolBox
+        # :tick => 0                                          # current tick counter
 
-    model = ABM(Patch, GridSpace(extent); properties=properties)
-    add_agent!(model) # Add one dummy agent so that abm_video will allow us to plot.
+    )
+
+    model = ABM(Patch, ContinuousSpace(extent, 1.0); properties=properties)
+
+    set_influencers!(model)
+
+    add_agent!(model)   # Add one dummy agent so that abm_exploration will allow us to plot.
     return model
 end
 
 #-----------------------------------------------------------------------------------------
 
 """
-    spawn_blues!()
+    set_influencers!(model)
 
-Spawn blue patches according to the proportion of blues `pB`.
+part of the initialization
 """
-function spawn_blues!(model)
-    model.patches = rand(size(model.patches)...) .< model.pB
+function set_influencers!(model)
+    patches = positions(model) |> collect
+
+    # Compute inner-neighbours in an ellipse around each cell:
+    model.activators = map(patches) do patch
+        nearNbrs(patch, model)
+    end
+    # Compute outer-neighbors in a ring around each cell (computationally expensive!):
+    model.inhibitors = map(patches) do patch
+        farNbrs(patch, model)
+    end
+
+    # set
+    model.init_values = [model.inner_radius_x, model.inner_radius_y, model.outer_radius_x, model.outer_radius_y]
     return model
 end
-
 #-----------------------------------------------------------------------------------------
 
 """
     model_step!(world)
 
-Simulate a Moran process, in which a random individual dies, and is replaced by a
+Simulate the Turing activator-inhibitor system, in which a random individual dies, and is replaced by a
 child from a random neighbour, except that blues may have an evolutionary advantage AB.
 """
 function model_step!(model)
-    if !model.initialized
-        initialize_model!(model)
+    if model.init_values != [model.inner_radius_x, model.inner_radius_y, model.outer_radius_x, model.outer_radius_y]
+        # if slider values have changed, recalculate influencers
+        set_influencers!(model)
     end
+    differentiate!.(positions(model), (model,))
+    # for patch ∈ positions(model)
+    #     differentiate!(patch, model)
+    # end
+    # model.tick = model.tick + 1
+end
 
-    patch = rand(CartesianIndices(model.patches))
-    random_neighbour = patch + rand(nearby_positions(patch.I, model).itr.iter)
-    random_neighbour = min(
-        CartesianIndex(size(model.space)...),
-        max(CartesianIndex(1, 1), random_neighbour)
-    )
-    model.patches[patch] = model.patches[random_neighbour]
+"""
 
-    # If that colour was blue, do it, otherwise only set
-    # to green with a certain (unfair) probability:
-    keeping_it_fair = model.patches[patch] == lime && rand() < 1 - model.AB
-    model.patches[patch] = keeping_it_fair ? lime : blue
+procedure to increment the differentiation level of the patch.
+"""
+function differentiate!(patch, model::AgentBasedModel)
+    # Calculate total activatory influence on me ...
+    activation = mapreduce(+, model.activators[patch...]) do activator
+        model.differentiation[activator...]
+    end
+    inhibition = mapreduce(+, model.inhibitors[patch...]) do inhibitor
+        model.differentiation[inhibitor...]
+    end
+    activation = activation - model.inhibition * inhibition
+
+    # ... then change my differentiation level in accordance:
+    model.differentiation[patch...] = (1 - dt) * model.differentiation[patch...]
+    if activation > 0
+        # Convex combination upwards towards 1:
+        model.differentiation[patch...] = model.differentiation[patch...] + dt
+    end
     return model
 end
 
-#-----------------------------------------------------------------------------------------
 
+# ============================================================================================
+#  Helper procedures for defining elliptical neighborhoods.
+# ============================================================================================
 """
-    initialize_model!(model)
-
-This method is needed to initialize the system. This is specially important to
-reflect the adjustements made with the parameters on the abmplot.
+    nearNbrs()
+    
+Calculate my nearest neighbours, who will activate me.
 """
-function initialize_model!(model)
-    spawn_blues!(model)
-    model.initialized = true
-    return model;
+function nearNbrs(patch, model)  #  patch procedure
+    neighbours = nearby_positions(patch, model, max(model.inner_radius_x, model.inner_radius_y)) |> collect
+    filter!(neighbours) do pos
+        1.0 >= (xdistance(patch, pos, model)^2) / (model.inner_radius_x^2) +
+               (ydistance(patch, pos, model)^2) / (model.inner_radius_y^2)
+    end
+    return neighbours 
 end
 
-#-----------------------------------------------------------------------------------------
+"""
+    farNbrs()
+
+Calculate my further neighbours, who will inhibit me.
+"""
+function farNbrs(patch, model)  #  patch procedure
+    neighbours = nearby_positions(patch, model, max(model.outer_radius_x, model.outer_radius_y)) |> collect
+    filter!(neighbours) do pos
+        1.0 >= (xdistance(patch, pos, model)^2) / (model.outer_radius_x^2) +
+               (ydistance(patch, pos, model)^2) / (model.outer_radius_y^2) &&
+            1.0 < (xdistance(patch, pos, model)^2) / (model.inner_radius_x^2) +
+                  (ydistance(patch, pos, model)^2) / (model.inner_radius_y^2)
+    end
+    return neighbours
+end
+
+# --------------------------------------------------------------------------------------------
+"""
+    xdistance()
+
+Patch procedure. Calculate the difference in x-position between me and
+other-patch. Note: We cannot simply calculate the difference in pxcor values, because the
+two patches might be separated by the world boundary.
+"""
+function xdistance(patch, other_patch, model)
+    other_patch = (first(other_patch), last(patch))
+    return edistance(Float64.(patch), Float64.(other_patch), model)
+end
 
 """
-    demo_explorer()
+    ydistance()
 
-creates an interactive abmplot of the EmergentBehaviour module to visualize
-Sierpinski's triangle.
+Patch procedure. Calculate the difference in y-position between me and
+other-patch. Again, the two patches might be separated by the world boundary.
 """
-function demo_explorer()
+function ydistance(patch, other_patch, model)
+    other_patch = (first(patch), last(other_patch))
+    return edistance(Float64.(patch), Float64.(other_patch), model)
+end
+
+
+# ============================================================================================
+#  visualization.
+# ============================================================================================
+"""
+    demo()
+
+creates an interactive abmplot of the Turing module to visualize the
+Turing activator-inhibitor system.
+"""
+function demo()
     params = Dict(
-        :pB => 0:0.1:1,
-        :AB => 0:0.001:0.01
+        :inner_radius_x => 0:0.1:10,
+        :inner_radius_y => 0:0.1:10,
+        :outer_radius_x => 0:0.1:10,
+        :outer_radius_y => 0:0.1:10,
+        :inhibition => 0:0.01:2
     )
 
     plotkwargs = (
         add_colorbar=false,
-        heatarray=:patches,
+        heatarray=:differentiation,
         heatkwargs=(
             colorrange=(0, 1),
-            colormap=cgrad([:lime, :blue]; categorical=true),
+            colormap=cgrad([:orange, :black]; categorical=true),
         ),
-        as = 0,
-        title = "Nuetral Drift:",
+        as=0,
+        title="Turing:",
     )
 
-    model = create_model()
+    model = initialize_model()
     fig, p = abmexploration(model; (agent_step!)=dummystep, model_step!, params, plotkwargs...)
+
+    # adding step counter # TODO: currently badly affecting layout
+    # t = lift(m -> "Turing, step = $(m.tick)", p.model)
+    # supertitle = Label(fig[0, :], t, textsize = 24, halign = :left)
     fig
 end
 
