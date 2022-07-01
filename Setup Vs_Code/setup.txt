@@ -1,6 +1,0 @@
-inorder to setup julia in vs code you need to define an command prompt in vs code 
-
-unten rechts steht julia in dem blauen feld 
-drücke darauf
-dann auf Julia sprachbasierte Einstellungen konfigurieren
-C:\Users\Admin\AppData\Roaming\Code\User
