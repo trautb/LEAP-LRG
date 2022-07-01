@@ -74,14 +74,7 @@ rotates a given `vector` by a random degree ∈ -π:.01:π
 function rotate_2dvector(vector)
     # more efficient to call `rand` on a variable (no need for additional allocations)
     φ = rand(DEGREES)
-
-    return Tuple(
-        [
-            cos(φ) -sin(φ)
-            sin(φ) cos(φ)
-        ] *
-        [vector...]
-    )
+    return rotate_2dvector(φ, vector)
 end
 
 
