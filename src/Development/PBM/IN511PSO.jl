@@ -7,13 +7,13 @@ This model demonstrates how swarms of particles can solve a minimisation
 problem - and also the major difficulty of swarm techniques: suboptimisation.
 
 
-Author: , 31/05/22
+Author: Niall Palfreyman (April 2020), Nick Diercksen (May 2022)
 """
 module PSO
 
 export demo                # Externally available names
 using Agents, GLMakie, InteractiveDynamics      # Required packages
-import LinearAlgebra: norm                      # magnitude of vector
+import Statistics: norm                      # magnitude of vector
 
 include("./AgentToolBox.jl")
 import .AgentToolBox: rotate_2dvector
@@ -43,7 +43,7 @@ end
 Create the world model.
 """
 function create_model(;
-    pPop=0.01,                 # proportion of patches to be populated by one particle
+    pPop=0.05,                 # proportion of patches to be populated by one particle
     temperature=0.001,
     tolerance=0.4,
     worldsize=80,
@@ -60,7 +60,6 @@ function create_model(;
         :temperature => temperature,
         :tolerance => tolerance,
         :deJong7 => deJong7,
-        # :deJong7 => Observable(deJong7), # TODO: maybe lift deJong7 directly at init
         :meanPosition => extent ./ 2
     )
 
