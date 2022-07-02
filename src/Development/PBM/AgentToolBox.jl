@@ -23,7 +23,7 @@ getAgentsByType(model, type) = [agent for agent in allagents(model) if agent.typ
 creates a turtle marker (triangle shape) for the given agent `p`. \\
 The orientation depends on the velocity of `p`
 """
-function polygon_maker(p::Union{ContinuousAgent,AbstractAgent})
+function polygon_marker(p::Union{ContinuousAgent,AbstractAgent})
     particle_polygon = Polygon(Point2f[(-0.25, -0.25), (0.5, 0), (-0.25, 0.25)])
     φ = atan(p.vel[2], p.vel[1])
     scale(rotate2D(particle_polygon, φ), 2)

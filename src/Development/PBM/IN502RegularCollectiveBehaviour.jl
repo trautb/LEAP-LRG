@@ -55,7 +55,7 @@ end
 function demo(world_size,particlesize,particlespeed)
     model = initialize_model(worldsize = world_size,particlespeed=particlespeed);
     mdata = [:meadist]
-    figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=particlesize,am = polygon_maker,mdata)
+    figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=particlesize,am = polygon_marker,mdata)
     figure;
 end
 end

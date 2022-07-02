@@ -92,7 +92,7 @@ function demo()
         )
     #https://makie.juliaplots.org/stable/documentation/figure/
     #https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
-    figure,_= abmexploration(model;agent_step!,am = polygon_maker,ac = :red,plotkwargs...)
+    figure,_= abmexploration(model;agent_step!,am = polygon_marker,ac = :red,plotkwargs...)
     figure 
 end
 end
