@@ -5,7 +5,7 @@ export demo
 include("./AgentToolBox.jl")
 using .AgentToolBox
 
-mutable struct LightSource <: AbstractAgent
+mutable struct ESource <: AbstractAgent
     id::Int                    # Boid identity
     pos::NTuple{2,Float64}              # Position of boid
     phase:: Float64
@@ -13,7 +13,7 @@ mutable struct LightSource <: AbstractAgent
 end   
 
     function initialize_model(  
-        ;n_sources = 1,
+        ;n_sources = 2,
         worldsize,
         griddims = (worldsize, worldsize),
         EB = zeros(griddims),
@@ -22,7 +22,8 @@ end
         c=1.0,
         freq=1.0,
         dt = 0.1,
-        dxy=0.1
+        dxy=0.1,
+        attenuation= 0.03,
         )
         space2d = ContinuousSpace(griddims, 1.0)
 
@@ -34,25 +35,21 @@ end
             :freq => freq,
             :dt => dt,
             :dxy => dxy,
+            :attenuation => attenuation,
             :worldsize => worldsize,
+
         )
 
-        model = ABM(LightSource, space2d, scheduler = Schedulers.randomly,properties = properties)
-        
-    
-      
+        model = ABM(ESource, space2d, scheduler = Schedulers.randomly,properties = properties)
+
         for id in 1:n_sources
             if (id == 1)
-                pos = Tuple([2 round(((1/4)*worldsize))])
-
+                pos = Tuple([1 round(((1/4)*worldsize))])
             else
-                pos = Tuple([2 round(((3/4)*worldsize))])
-
+                pos = Tuple([1 round(((3/4)*worldsize))])
             end
-            
             phase = 0
             EBSource = 0.0
-            #model.EB[Int(pos[1]), Int(pos[2])] = EBSource
             add_agent!(
             pos,
             model,
@@ -63,74 +60,45 @@ end
         return model
     end
     
-    function agent_step!(source,model)
+    function model_step!(model)
         
-        #println("\n")
-        #println(source.id)
-        #println("\n")
-        source.EBSource = sin(source.phase + 2π * model.freq * model.ticks * model.dt)
-        println(source.EBSource)
-        #source.EBSource = 1.0
-        model.EB[Int(source.pos[1]), Int(source.pos[2])] = source.EBSource
-
-        attu = 0.003
-        model.EB = diffuse4(model.EB,0.3)
-        #model.dEB_dt = model.dEB_dt.+model.dt .*model.c .*model.c .* (mw_EB.-model.EB)./(model.dxy*model.dxy)
-        #model.EB = model.EB.*(1 - attu)
-        #model.EB =  model.EB .+  model.dt .*  model.dEB_dt
-        #=
-        si = floor(Int,sqrt(length(model.EB)))
-        cart(i,j) = (j-1)*si+i
-        nma(i,j) = [cart(i,j-1) cart(i,j+1) cart(i-1,j) cart(i+1,j)]
-
-        map(CartesianIndices((2:13,2:13))) do x
-            #model.EB[nma(x[1],x[2])] .= 0.8 * model.EB[x[1],x[2]]
-            model.EB[x[1],x[2]-1] = 0.8 * model.EB[x[1],x[2]]
-            model.EB[x[1],x[2]+1] = 0.8 * model.EB[x[1],x[2]]
-            model.EB[x[1]-1,x[2]] = 0.8 * model.EB[x[1],x[2]]
-            model.EB[x[1]+1,x[2]] = 0.8 * model.EB[x[1],x[2]]
+        for ids in 1:2
+            model[ids].EBSource = sin(model[ids].phase + 2π * model.freq * model.ticks * model.dt)
+            model.EB[Int(model[ids].pos[1]), Int(model[ids].pos[2])] = model[ids].EBSource
         end
-        
-        =#
-        
-        #=
+        eFieldPulsation(model)
+        model.ticks += 1
+    end
+
+    function eFieldPulsation(model)
+        h = 4
+        nma(i,j) = [[i+1,j], [i-1,j], [i,j-1], [i,j+1]]
         mw_EB = zeros(model.worldsize,model.worldsize)
-        h = 2
-        map(CartesianIndices((2:13,2:13))) do x
-            mw_EB[x[1],x[2]] = (1/(h^2))*(model.EB[x[1],x[2]-1]+model.EB[x[1],x[2]+1] + model.EB[x[1]-1,x[2]] + model.EB[x[1]+1,x[2]]-4*model.EB[x[1],x[2]])
+        map(CartesianIndices((1:model.worldsize-1,1:model.worldsize-1))) do x
+            meannb = meanNb(model.EB, nma(x[1],x[2]))
+            mw_EB[x[1],x[2]] = (4/(h^2))*(meannb-model.EB[x[1],x[2]])
         end
        
         model.dEB_dt = model.dEB_dt.+model.dt .*model.c .*model.c .* (mw_EB.-model.EB)./(model.dxy*model.dxy)
-        attu = 0.03
-        model.dEB_dt = model.dEB_dt.*(1 - attu)
-        println("\n")
-        show(stdout, "text/plain", model.dEB_dt)
-        println("\n")
+        model.dEB_dt = model.dEB_dt.*(1 - model.attenuation)
         model.EB =  model.EB .+  model.dt .*  model.dEB_dt
-        model.ticks += 1
-
-        println("\n")
-        show(stdout, "text/plain", model.EB)
-        println("\n")
-        println("-------------------")
-        =#
     end
-
    
-    function demo()
-        model = initialize_model(worldsize=14);
+    function demo(worldsize)
+        model = initialize_model(worldsize=worldsize);
         #https://docs.juliaplots.org/latest/generated/colorschemes/
+        params = Dict(
+        :freq => 0.1:0.1:2,
+        :attenuation => 0:0.01:0.1
+        )
         plotkwargs = (
         heatarray = :EB,
         add_colorbar=false,
         heatkwargs = (
-            #colorrange=(-1, 1),
-            colormap = cgrad(:ice), #Set1_3
-        ),
-    
-        )
-        figure,p= abmexploration(model;agent_step!,params = Dict(),ac = :red,plotkwargs...)
+            colorrange=(-1, 1),
+            colormap = cgrad(:oslo), 
+        ))
+        figure,_= abmexploration(model;model_step!,params,ac = :yellow,plotkwargs...)
         figure
     end
-
 end

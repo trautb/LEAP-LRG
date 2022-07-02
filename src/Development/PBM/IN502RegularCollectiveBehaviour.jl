@@ -24,7 +24,6 @@ function initialize_model(  ;n_particles::Int = 50,
         :worldsize => worldsize,
     )
 
-
     model = ABM(ContinuousAgent,space2d, scheduler = Schedulers.fastest,properties = properties)
 
     for id in 1:n_particles
@@ -39,7 +38,8 @@ function initialize_model(  ;n_particles::Int = 50,
         )
         
     end
-    
+    model.meadist = mean(model.globaldist,dims=1)[1]
+
     return model
 end
 
@@ -49,18 +49,13 @@ function agent_step!(particle,model)
         move_agent!(particle,model,model.particlespeed);
         model.globaldist[particle.id,1] = edistance(particle.pos,Tuple([model.worldsize/2, model.worldsize/2]),model) #ändern
         model.meadist = mean(model.globaldist,dims=1)[1]
-
     end
-    
 end
-
 
 function demo(world_size,particlesize,particlespeed)
     model = initialize_model(worldsize = world_size,particlespeed=particlespeed);
     mdata = [:meadist]
     figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=particlesize,am = particlemarker,mdata)
     figure;
-
 end
-
 end

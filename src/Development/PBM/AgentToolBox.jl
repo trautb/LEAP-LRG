@@ -87,10 +87,16 @@ end
 extends the boundaries of a matrix to return valid indices
 """
 
-function wrapMat(size_row,size_col, index::Vector{Vector{Int64}})
+function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{Int64}})
 
     cart(i,j) = (j-1)*size_col+i
     indeces = []
+
+    if (typof(index == Vector{Vector{Int64}}))
+        size = size(index)[1]
+    elseif (typof(index == Vector{Int64}))
+        size = 1
+    end
     
 
     for ids in 1:size(index)[1]
@@ -110,15 +116,29 @@ function wrapMat(size_row,size_col, index::Vector{Vector{Int64}})
         index1 = rem(index[ids][1]+size_row,size_row)
         index2 = rem(index[ids][2]+size_col,size_col)
         append!(indeces,[cart(index1,index2)])
-        
-           
+ 
     end      
 
-    
       return  indeces
-  end
+end
 
+function meanNb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
 
+    cart(i,j) = (j-1)*size_col+i
+    sumup = []
+    size_row = size(mat)[1]
+    size_col = size(mat)[2]
+
+    for ids in 1:size(index)[1]
+        if index[ids][1]==0 || index[ids][1]==size_row || index[ids][2]==0 || index[ids][2]==size_col
+            append!(sumup,0)
+        else
+            append!(sumup,mat[index[ids][1],index[ids][2]])   
+        end    
+    end 
+    
+      return sum(sumup)
+end
 
 
 
@@ -143,6 +163,13 @@ function diffuse4(mat::Matrix{Float64},rDiff::Float64)
 
   end
   return mat
+end
+
+
+
+
+
+
 
 
 
