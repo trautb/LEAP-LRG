@@ -4,6 +4,7 @@ This module can be used as a collection of useful functions for modelling
     agent based systems, which are not already available through other packages
 """
 module AgentToolBox
+
 using Agents, InteractiveDynamics
 export getAgentsByType, rotate_2dvector, eigvec, polygon_marker, choosecolor, wrapMat, diffuse4,mean_nb
 
@@ -18,15 +19,15 @@ getAgentsByType(model, type) = [agent for agent in allagents(model) if agent.typ
 
 
 """
-    turtlemarker(p)
+    polygon_marker(p)
 
-creates a turtle marker (triangle shape) for the given agent `p`. \\
+creates a triangle shaped marker for the given agent `p`. \\
 The orientation depends on the velocity of `p`
 """
-function polygon_marker(p::Union{ContinuousAgent,AbstractAgent})
+function polygon_marker(p::Union{ContinuousAgent,AbstractAgent}; as=2)
     particle_polygon = Polygon(Point2f[(-0.25, -0.25), (0.5, 0), (-0.25, 0.25)])
     φ = atan(p.vel[2], p.vel[1])
-    scale(rotate2D(particle_polygon, φ), 2)
+    scale(rotate2D(particle_polygon, φ), as)
 end
 
 
@@ -92,11 +93,10 @@ end
 
 # TODO: finish description! (I have little clue what is expected as input nor what will be returned)
 """
-    wrapMatrix(matrix,index)
+    wrapMat(size_row, size_col,index)
 
 extends the boundaries of a matrix to return valid indices
 """
-
 function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{Int64}})
 
     cart(i,j) = (j-1)*size_col+i
@@ -172,10 +172,4 @@ function mean_nb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
       return sum(sumup)
 end
 
-end
-
-
-
-
-
-
+end # ... of module AgentToolBox
