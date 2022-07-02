@@ -30,9 +30,9 @@
 		yourself interested, I recommend checking out the official tuorial:
 			https://juliadynamics.github.io/Agents.jl/stable/tutorial/
 		
-		This package should already be in your environment, but if not you can add
-		it via the package manager.
-		As always, you will start by loading this package into your environment:
+		This package should already be installed in your (Ingolstadt) environment, but
+		if not, you can add it via the package manager.
+		As always, start by loading this package into your environment:
 
 			using Agents
 		
@@ -43,17 +43,42 @@
 	),
 	Activity(
 		"""
-		# TODO: creating an agent
+		Agents are nothing else than modifiable objects, that we will program to interact with
+		each other or the environment/world/model they exist in.
+
+		In Julia, we can implement them with `mutable struct`s (as introduced in Lab 02).
+		They need to be subtypes of `AbstractAgent`.
+
+		Now create such a subtype with some suitable attributes (fields) together with an `id`!
+		The `id` will be necessary to uniquely identify our agent instances later on.
 		""",
-		"???",
-		x -> true
+		"""
+		\t Remember with <: you can create a subtype of an abstract type.
+		\t The type of `id` needs to be an integer
+		""",
+		# cannot do `x <: AbstractAgent` here because `Agents.jl` is not loaded here => check with string
+		x -> string(supertype(x)) == "AbstractAgent"  && fieldtype(x, :id) <: Signed 
 	),
 	Activity(
 		"""
-		# TODO: creating/choosing a space
+		Agents will live in a model defined by a specific space. Agents offers multiple
+		spaces tailored to specific applications and agent types. For simplicity we will
+		only be using `ContiuousSpace` in two dimensions
+		(for more details have a look at the Agents.jl documentation).
+		
+		A space defines the size of the model. In two dimensions it has a width and a
+		height, which are usually the same. Together we will call them `extent`:
+
+			worldsize = height = weight = 40
+			extent = (worldsize, worldsize)
+		
+		Now create a space with dimensions 80x80
 		""",
-		"???",
-		x -> true
+		"""
+		\tMake sure to forward the extent as one parameter (Tuple): ContinuousSpace(extent)
+		\tDid you choose the right size?
+		""",
+		x -> typeof(x).name.name == :ContinuousSpace && x.extent == (80.0,80.0)
 	),
 	Activity(
 		"""
@@ -61,6 +86,28 @@
 		""",
 		"???",
 		x -> true
+	),
+	Activity(
+		"""
+		# TODO: creating an ABM (model properties)
+		""",
+		"???",
+		x -> true
+	),
+	Activity(
+		"""
+		# TODO: intro with SimpleWorld to accumulate all the current knowledge
+		# TODO: => maybe adjust SimpleWorld to contain some missing functionality if needed
+		# TODO: => maybe leave some places empty for a student to complete (the solution (complete file) can be placed in dev/PBM/IN500SimpleWorld.jl )
+
+			include("src/Development/PBM/IN500SimpleWorld.jl")
+			using .SimpleWorld
+			SimpleWorld.demo()
+		
+		how is the function called to obtain agents near a position?
+		""",
+		"have a look at the IN500SimpleWorld.jl file",
+		x -> string(x) |> x -> (x == "nearby_agents" || x == "nearby_ids")
 	),
 	Activity(
 		"""
@@ -121,6 +168,22 @@
 	),
 
 	# maybe other chapters:
+	Activity(
+		"""
+		# TODO: patches (matrices / )
+		# TODO: introduce `spacing` of ContinuousSpace to reveal locations and let patches be implemented
+		# TODO: => mention `divisions` ?
+		""",
+		"???",
+		x -> true
+	),
+	Activity(
+		"""
+		# TODO: visualizing (patches: heatarray)
+		""",
+		"???",
+		x -> true
+	),
 	Activity(
 		"""
 		# TODO: visualizing (agent inspection)
