@@ -12,10 +12,10 @@ function initialize_model(  ;n_particles::Int = 50,
                             particlespeed::Float64,
                             meadist::Float64=0.0,
                             globaldist::Matrix{Float64} = zeros(Float64,n_particles,1),
-                            griddims = (worldsize, worldsize),
+                            extent = (worldsize, worldsize),
                             )
 
-    space2d = ContinuousSpace(griddims, 1.0)
+    space = ContinuousSpace(extent, 1.0)
 
     properties = Dict(
         :globaldist => globaldist,
@@ -24,7 +24,7 @@ function initialize_model(  ;n_particles::Int = 50,
         :worldsize => worldsize,
     )
 
-    model = ABM(ContinuousAgent,space2d, scheduler = Schedulers.fastest,properties = properties)
+    model = ABM(ContinuousAgent,space, scheduler = Schedulers.fastest,properties = properties)
 
     for id in 1:n_particles
         vel = rotate_2dvector([10 10])
@@ -55,7 +55,7 @@ end
 function demo(world_size,particlesize,particlespeed)
     model = initialize_model(worldsize = world_size,particlespeed=particlespeed);
     mdata = [:meadist]
-    figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=particlesize,am = particlemarker,mdata)
+    figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=particlesize,am = polygon_maker,mdata)
     figure;
 end
 end

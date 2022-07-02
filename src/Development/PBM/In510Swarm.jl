@@ -14,12 +14,12 @@ end
 function initialize_model(  
     ;n_sources = 640,
     worldsize,
-    griddims = (worldsize, worldsize),
+    extent = (worldsize, worldsize),
     ticks=1,
     deJong7= false,
     pPop = 0.0,
     )
-    space2d = ContinuousSpace(griddims, 1.0)
+    space = ContinuousSpace(extent, 1.0)
 
     patches = deJong7 ? buildDeJong7(worldsize) : buildValleys(worldsize)
 
@@ -32,7 +32,7 @@ function initialize_model(
     )
     
     
-    model = ABM(Agent, space2d, scheduler = Schedulers.fastest,properties = properties)
+    model = ABM(Agent, space, scheduler = Schedulers.fastest,properties = properties)
     
     
     for _ in 1:n_sources
@@ -92,7 +92,7 @@ function demo()
         )
     #https://makie.juliaplots.org/stable/documentation/figure/
     #https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
-    figure,_= abmexploration(model;agent_step!,am = particlemarker,ac = :red,plotkwargs...)
+    figure,_= abmexploration(model;agent_step!,am = polygon_maker,ac = :red,plotkwargs...)
     figure 
 end
 end

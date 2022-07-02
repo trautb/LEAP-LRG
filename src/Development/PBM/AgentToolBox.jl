@@ -23,7 +23,7 @@ getAgentsByType(model, type) = [agent for agent in allagents(model) if agent.typ
 creates a turtle marker (triangle shape) for the given agent `p`. \\
 The orientation depends on the velocity of `p`
 """
-function turtlemarker(p::Union{ContinuousAgent,AbstractAgent})
+function polygon_maker(p::Union{ContinuousAgent,AbstractAgent})
     particle_polygon = Polygon(Point2f[(-0.25, -0.25), (0.5, 0), (-0.25, 0.25)])
     φ = atan(p.vel[2], p.vel[1])
     scale(rotate2D(particle_polygon, φ), 2)
@@ -151,7 +151,7 @@ function diffuse4(mat::Matrix{Float64},rDiff::Float64)
   
     end
     return mat
-  end
+end
 
 
 function meanNb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
@@ -172,6 +172,7 @@ function meanNb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
       return sum(sumup)
 end
 
+end
 
 
 

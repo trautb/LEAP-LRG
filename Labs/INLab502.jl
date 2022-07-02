@@ -3,7 +3,7 @@
 	Activity(
         """
         In the previous sections we learned some basic functions and calcultation methods of julia. In this Section we introduce you to Agent Based modelling
-        In this section we work with this package https://juliadynamics.github.io/Agents.jl/stable/performance_tips/.
+        In this section we work with this package https://juliadynamics.github.io/Agents.jl/dev/
         Here we learn how to create agent based simulations in julia. In Lab007 you learned about the type struct. In this section struct is an important type for your
         agent models. Now create an basic struct 
 

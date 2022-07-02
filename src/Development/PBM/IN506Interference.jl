@@ -6,8 +6,8 @@ include("./AgentToolBox.jl")
 using .AgentToolBox
 
 mutable struct ESource <: AbstractAgent
-    id::Int                    # Boid identity
-    pos::NTuple{2,Float64}              # Position of boid
+    id::Int                   
+    pos::NTuple{2,Float64}              
     phase:: Float64
     EBSource:: Float64
 end   
@@ -15,9 +15,9 @@ end
     function initialize_model(  
         ;n_sources = 2,
         worldsize,
-        griddims = (worldsize, worldsize),
-        EB = zeros(griddims),
-        dEB_dt= zeros(griddims),
+        extent = (worldsize, worldsize),
+        EB = zeros(extent),
+        dEB_dt= zeros(extent),
         ticks=1,
         c=1.0,
         freq=1.0,
@@ -25,7 +25,7 @@ end
         dxy=0.1,
         attenuation= 0.03,
         )
-        space2d = ContinuousSpace(griddims, 1.0)
+        space = ContinuousSpace(extent, 1.0)
 
         properties = Dict(
             :EB => EB,        #patches
@@ -40,7 +40,7 @@ end
 
         )
 
-        model = ABM(ESource, space2d, scheduler = Schedulers.randomly,properties = properties)
+        model = ABM(ESource, space, scheduler = Schedulers.randomly,properties = properties)
 
         for id in 1:n_sources
             if (id == 1)

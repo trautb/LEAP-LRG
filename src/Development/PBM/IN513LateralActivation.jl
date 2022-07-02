@@ -11,10 +11,10 @@ mutable struct Source <: AbstractAgent
 end   
 
 function initialize_model(  
-    ;n_sources::Int = 1,
+    ;
     worldsize::Int64 = 100,
-    griddims = (worldsize, worldsize),
-    patches = zeros(griddims),
+    extent = (worldsize, worldsize),
+    patches = zeros(extent),
     dt = 1,   
     aBic = 0.01,      
     rnaBic= 0.001,    
@@ -23,7 +23,7 @@ function initialize_model(
     DBic = 0.01,      
     bBic= 0.0,
     )
-    space2d = ContinuousSpace(griddims, 1.0)
+    space = ContinuousSpace(extent, 1.0)
 
     properties = Dict(
         :worldsize => worldsize,
@@ -36,7 +36,7 @@ function initialize_model(
         :DBic  => DBic,
         :bBic=> bBic ,                                
     )
-    model = ABM(Source, space2d, scheduler = Schedulers.randomly,properties = properties)
+    model = ABM(Source, space, scheduler = Schedulers.randomly,properties = properties)
     model.patches[1, Int(round(((1/2)*worldsize)))] = model.rnaBic
     model.bBic = model.rnaBic
     add_agent!(
