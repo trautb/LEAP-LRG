@@ -5,7 +5,7 @@ This module can be used as a collection of useful functions for modelling
 """
 module AgentToolBox
 using Agents, InteractiveDynamics
-export getAgentsByType, rotate_2dvector, eigvec, turtlemarker, choosecolor, wrapMat, diffuse4
+export getAgentsByType, rotate_2dvector, eigvec, polygon_marker, choosecolor, wrapMat, diffuse4,mean_nb
 
 DEGREES = 0:0.01:2π
 
@@ -154,7 +154,7 @@ function diffuse4(mat::Matrix{Float64},rDiff::Float64)
 end
 
 
-function meanNb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
+function mean_nb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
 
     cart(i,j) = (j-1)*size_col+i
     sumup = []

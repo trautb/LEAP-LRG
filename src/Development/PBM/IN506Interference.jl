@@ -62,20 +62,20 @@ end
     
     function model_step!(model)
         
-        for ids in 1:2
-            model[ids].EBSource = sin(model[ids].phase + 2π * model.freq * model.ticks * model.dt)
-            model.EB[Int(model[ids].pos[1]), Int(model[ids].pos[2])] = model[ids].EBSource
+        for particle in allagents(model)
+            particle.EBSource = sin(particle.phase + 2π * model.freq * model.ticks * model.dt)
+            model.EB[Int(particle.pos[1]), Int(particle.pos[2])] = particle.EBSource
         end
-        eFieldPulsation(model)
+        e_field_pulsation(model)
         model.ticks += 1
     end
 
-    function eFieldPulsation(model)
+    function e_field_pulsation(model)
         h = 4
         nma(i,j) = [[i+1,j], [i-1,j], [i,j-1], [i,j+1]]
         mw_EB = zeros(model.worldsize,model.worldsize)
         map(CartesianIndices((1:model.worldsize-1,1:model.worldsize-1))) do x
-            meannb = meanNb(model.EB, nma(x[1],x[2]))
+            meannb = mean_nb(model.EB, nma(x[1],x[2]))
             mw_EB[x[1],x[2]] = (4/(h^2))*(meannb-model.EB[x[1],x[2]])
         end
        
