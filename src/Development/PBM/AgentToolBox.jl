@@ -102,13 +102,13 @@ function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{In
     cart(i,j) = (j-1)*size_col+i
     indeces = []
 
-    if (typof(index == Vector{Vector{Int64}}))
-        size = size(index)[1]
-    elseif (typof(index == Vector{Int64}))
-        size = 1
-    end
-
-    for ids in 1:size
+    if typeof(index) == Vector{Int64}
+        index = [index]
+    end    
+    #println(size(index)[1])
+    #size = size(index)[1]
+    
+    for ids in 1:size(index)[1]
         if index[ids][1] == 0
             index[ids][1] = -1
         end

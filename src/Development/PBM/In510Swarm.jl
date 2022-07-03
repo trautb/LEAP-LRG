@@ -67,25 +67,37 @@ end
 
 function agent_step!(sources,model)
     
-    ids = collect(nearby_ids(sources.pos, model, 4,exact=false))
+    ids = collect(nearby_ids(sources.pos, model, 8,exact=false))
     patch(ids) = model[ids].patchvalue
     min_patch(patch, itr) = itr[argmin(map(patch, itr))]
     id = min_patch(patch, ids)
     sources.vel = eigvec(model[id].pos.-sources.pos)
     move_agent!(sources,model,1);
-    sources.patchvalue = model.patches[round(Int,sources.pos[1]),round(Int,sources.pos[2])]
+
+
+    sizerow = size(model.patches)[1]
+    sizecol = size(model.patches)[2]
+    index = [round(Int64,sources.pos[1]),round(Int64,sources.pos[2])]
+    
+
+    if (index[1] == 0 || index[2] == sizerow
+      ||index[2] == 0 || index[2] == sizecol)
+      indices = wrapMat(sizerow,sizecol,index)
+      sources.patchvalue = model.patches[indices[1]]
+    else
+        sources.patchvalue = model.patches[index[1],index[2]]
+    end
+   
 
 end
 
 function demo()
-    worldsize = 80
-    model = initialize_model(worldsize=worldsize);
+    model = initialize_model(worldsize=80);
     
     plotkwargs = (
         add_colorbar=false,
         heatarray=:patches,
         heatkwargs=(
-            # colorrange=(-8, 0),
             colormap=cgrad(:ice),
             ),
             

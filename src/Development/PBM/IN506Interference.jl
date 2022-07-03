@@ -62,7 +62,7 @@ end
     end
     
     function model_step!(model)
-        model.colorrange = (-1*model.freq,1*model.freq)
+        model.colorrange = ((-1*model.freq)-0.1,(1*model.freq)+0.1)
         for particle in allagents(model)
             particle.EBSource = sin(particle.phase + 2π * model.freq * model.ticks * model.dt)
             model.EB[Int(particle.pos[1]), Int(particle.pos[2])] = particle.EBSource
@@ -85,11 +85,11 @@ end
         model.EB =  model.EB .+  model.dt .*  model.dEB_dt
     end
    
-    function demo(worldsize)
-        model = initialize_model(worldsize=worldsize);
+    function demo()
+        model = initialize_model(worldsize=60);
         #https://docs.juliaplots.org/latest/generated/colorschemes/
         params = Dict(
-        :freq => 0.1:0.1:2,
+        :freq => 0.5:0.1:2,
         :attenuation => 0:0.01:0.1
         )
         plotkwargs = (
@@ -97,7 +97,7 @@ end
         add_colorbar=false,
         heatkwargs = (
             colorrange=model.colorrange,
-            colormap = cgrad(:oslo), #:oslo
+            colormap = cgrad(:oslo), 
         ))
         figure,_= abmexploration(model;model_step!,params,ac = :yellow,plotkwargs...)
         figure

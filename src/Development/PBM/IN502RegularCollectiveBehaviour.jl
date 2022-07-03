@@ -52,10 +52,10 @@ function agent_step!(particle,model)
     end
 end
 
-function demo(world_size,particlesize,particlespeed)
-    model = initialize_model(worldsize = world_size,particlespeed=particlespeed);
+function demo()
+    model = initialize_model(worldsize = 40,particlespeed=1.0);
     mdata = [:meadist]
-    figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=particlesize,am = polygon_marker,mdata)
+    figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=1.5,am = polygon_marker,mdata)
     figure;
 end
 end
