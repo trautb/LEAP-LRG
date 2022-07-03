@@ -135,6 +135,21 @@
     Activity( # nr 8
         """
         # TODO: Evolving the model (model_step)
+
+        The model_step! is always after the agent_step!. Here we can collect data from our model. with
+        allagents(model) we collect every agent in our model with agent we acces them. 
+        In this example we want to collect the mean velocity (vel). First of all we need the strength of 
+        every velocity. Just use Pytagoras.
+        
+        
+        sumvel = 0.0
+        for agent in allagents(model)
+            velpy = sqrt((agent.vel[1])^2+(agent.vel[2])^2)
+            sumvel += velpy
+        end
+
+        #calculate mean hint 3 agents
+         
         """,
         "???",
         x -> true
@@ -142,6 +157,9 @@
     Activity( # nr 9
         """
         # TODO: Evolving the model (dummystep)
+        # if you dont need an agent_step!, but you want still be able to
+        # use model_step! use dummystep.
+
         """,
         "???",
         x -> true
@@ -149,7 +167,23 @@
     Activity( # nr 10
         """
         # TODO: visualizing (abmplot)
-        # TODO: mention long compilation time of GLMakie
+
+        The simplest form of plotting your agents is plotting with abmplot. You can call abmplot in the function demo()
+        But first of all you need to import some Packages. GLMakie is an big libary with a lot of function and has
+        a long compilation time. GLMakie is used to plot linegraphs,heatmaps, charts.
+
+        using InteractiveDynamics,GLMakie
+
+        in the demo use this commands
+
+        function demo()
+            model = initialize_model()
+        
+            figure = abmplot(model)
+            figure
+        
+        end
+
         """,
         "???",
         x -> true

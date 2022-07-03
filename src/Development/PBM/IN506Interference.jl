@@ -24,6 +24,7 @@ end
         dt = 0.1,
         dxy=0.1,
         attenuation= 0.03,
+        colorrange=(-1, 1),
         )
         space = ContinuousSpace(extent, 1.0)
 
@@ -37,7 +38,7 @@ end
             :dxy => dxy,
             :attenuation => attenuation,
             :worldsize => worldsize,
-
+            :colorrange => colorrange,
         )
 
         model = ABM(ESource, space, scheduler = Schedulers.randomly,properties = properties)
@@ -61,7 +62,7 @@ end
     end
     
     function model_step!(model)
-        
+        model.colorrange = (-1*model.freq,1*model.freq)
         for particle in allagents(model)
             particle.EBSource = sin(particle.phase + 2π * model.freq * model.ticks * model.dt)
             model.EB[Int(particle.pos[1]), Int(particle.pos[2])] = particle.EBSource
@@ -95,8 +96,8 @@ end
         heatarray = :EB,
         add_colorbar=false,
         heatkwargs = (
-            colorrange=(-1, 1),
-            colormap = cgrad(:oslo), 
+            colorrange=model.colorrange,
+            colormap = cgrad(:oslo), #:oslo
         ))
         figure,_= abmexploration(model;model_step!,params,ac = :yellow,plotkwargs...)
         figure

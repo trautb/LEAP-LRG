@@ -44,9 +44,10 @@ end
 
 
 function model_step!(model)
-    for p in allagents(model)
-        println(p.id)
-    end
+    #for agent in allagents(model)
+    #end
+
+    #calculate the mean #hint 3 agents
 end
 
 # function demo()
