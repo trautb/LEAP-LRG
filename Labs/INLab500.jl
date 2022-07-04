@@ -170,7 +170,7 @@
 
         The simplest form of plotting your agents is plotting with abmplot. You can call abmplot in the function demo()
         But first of all you need to import some Packages. GLMakie is an big libary with a lot of function and has
-        a long compilation time. GLMakie is used to plot linegraphs,heatmaps, charts.
+        a long compilation time. GLMakie is used to plot linegraphs,heatmaps and charts.
 
         using InteractiveDynamics,GLMakie
 
@@ -191,6 +191,11 @@
     Activity( # nr 11
         """
         # TODO: visualizing (remember Observables? a sophisticated framework we will use leverages those)
+        With Abm Observables we are able to visualize changes in the agents behaviour. We can either visualize
+        agent_step! or model_step! or both. It shows us the agent position after every step.
+
+        figure, p = abmplot(model;agent_step!,model_step!)
+        figure
         """,
         "???",
         x -> true
@@ -198,14 +203,28 @@
     Activity( # nr 12
         """
         # TODO: visualizing (abmexploration [InteractiveDynamics])
+        abmexploration evolves an ABM interactively and plots its evolution, while allowing changing any of the 
+        model parameters interactively and also showing the evolution of collected data 
+        over time (if any are asked for, see below).
+
+        abmexploration is especially useful if you want to adjust paramters while the model is already compiled.
+        This can be achieved with using sliders. This concept will be introdced when model parameter are 
+        introdced.
+        The code to acess abmexploration is similar to abmobservable
+
+        figure, p = abmexploration(model;agent_step!, model_step!) 
+
         """,
         "???",
         x -> true
     ),
 	Activity( # nr 13
         """
-
-        """,
+        # TODO: patches (matrices / )
+        # TODO: introduce `spacing` of ContinuousSpace to reveal locations and let patches be implemented
+        # TODO: => mention `divisions` ?
+        """,    
+       
         "???",
         x -> true
     ),

@@ -97,7 +97,7 @@ end
 
 extends the boundaries of a matrix to return valid indices
 """
-function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{Int64}})
+function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{Int64}},output_cartindi = true)
 
     cart(i,j) = (j-1)*size_col+i
     indeces = []
@@ -105,8 +105,6 @@ function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{In
     if typeof(index) == Vector{Int64}
         index = [index]
     end    
-    #println(size(index)[1])
-    #size = size(index)[1]
     
     for ids in 1:size(index)[1]
         if index[ids][1] == 0
@@ -124,7 +122,13 @@ function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{In
 
         index1 = rem(index[ids][1]+size_row,size_row)
         index2 = rem(index[ids][2]+size_col,size_col)
-        append!(indeces,[cart(index1,index2)])
+
+        if output_cartindi == true 
+            append!(indeces,[cart(index1,index2)])
+        elseif output_cartindi == false 
+            append!(indeces,[index1,index2])
+        end
+        
  
     end      
 

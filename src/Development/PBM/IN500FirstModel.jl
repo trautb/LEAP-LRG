@@ -54,8 +54,8 @@ end
     model = initialize_model()
 
 
-    # abmplot(model)
-
+    # figure = abmplot(model)
+    # figure
 # end
 
 # end
