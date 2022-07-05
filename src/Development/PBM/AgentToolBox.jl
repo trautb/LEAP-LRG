@@ -135,7 +135,7 @@ function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{In
       return  indeces
 end
 
-function diffuse4(mat::Matrix{Float64},rDiff::Float64)
+function diffuse4(mat::Matrix{Float64},rDiff::Float64,wrapmat)
     size_row = size(mat)[1]
     size_col = size(mat)[2]
     map(CartesianIndices(( 1:size(mat)[1], 1:size(mat)[2]))) do x
@@ -144,11 +144,16 @@ function diffuse4(mat::Matrix{Float64},rDiff::Float64)
       nmacart(i,j) = [cart(i+1,j), cart(i-1,j), cart(i,j-1), cart(i,j+1)]
   
       nma(i,j) = [[i+1,j], [i-1,j], [i,j-1], [i,j+1]]
-      if (x[1] == 1 || x[1] == size_row || x[2]== 1 || x[2]== size_col)
-          neighbours = wrapMat(size_row,size_col,nma(x[1],x[2]))
-      else
-          neighbours = nmacart(x[1],x[2])
-      end
+        if (x[1] == 1 || x[1] == size_row || x[2]== 1 || x[2]== size_col)
+            if (wrapmat == true)
+                neighbours = wrapMat(size_row,size_col,nma(x[1],x[2]))
+            elseif (wrapmat == false)
+                neighbours = mean_nb(mat,nma(x[1],x[2]))
+                println(neighbours)
+            end
+        else
+            neighbours = nmacart(x[1],x[2])
+        end
       flow = mat[x[1],x[2]]*rDiff
       mat[x[1],x[2]] *= 1-rDiff
       mat[neighbours] = mat[neighbours] .+ (flow/4)
@@ -173,7 +178,7 @@ function mean_nb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
         end    
     end 
     
-      return sum(sumup)
+      return sumup #note 
 end
 
 end # ... of module AgentToolBox

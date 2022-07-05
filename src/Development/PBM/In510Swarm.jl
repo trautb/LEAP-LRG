@@ -87,7 +87,14 @@ function buildDeJong7(worldsize)
     f.(xy, xy')
 end
 
-
+"""
+In agent_step! we collect the nearby_ids of every agent in an range of 8.
+With min_patch we itarate over the ids and find the smallest patchvalue in
+the neighborhood. Then we create an eigenvector between the position with 
+the smallest patchvalue and the agent postion. Then the agents move.
+Then the position of the agent is collected and the corresponding indices 
+in the matrix are 
+"""
 function agent_step!(sources,model)
     ids = collect(nearby_ids(sources.pos, model, 8,exact=false))
     patch(ids) = model[ids].patchvalue
