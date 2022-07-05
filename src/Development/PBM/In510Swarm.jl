@@ -1,9 +1,16 @@
+"""
+This model demonstrates how swarms of particles can solve a minimisation problem
+and also the major difficulty of swarm techniques: suboptimisation.
+There are two minimisation problem in this Lab In510Swarm the first is DeJong and
+the next is valley. After every step the agent looks in his neighborhood and searches 
+for the smallest value in neighborhood. 
+"""
 module Swarm
 using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
-export demo
 include("./AgentToolBox.jl")
 using .AgentToolBox
+export demo
 mutable struct Agent <: AbstractAgent
     id::Int                    # Boid identity
     pos::NTuple{2,Float64}              # Position of boid
@@ -11,6 +18,13 @@ mutable struct Agent <: AbstractAgent
     patchvalue:: Float64 
 end
 
+"""
+Here the model is initialized and the agents are set. The model creates patches 
+to the coresponding function buildDeJong7 or buildValleys. The boolean deJong7
+decides which function is choosen. After that further model properties are created
+for example ticks. Then the agents are positioned and they get the patchvalue from theire
+current position.
+"""
 function initialize_model(  
     ;n_sources = 640,
     worldsize,
@@ -50,6 +64,10 @@ function initialize_model(
     return model
 end
 
+"""
+Mathematical function to calculate an valley. Here the model creates an 2D plane
+with several valleys and peeks.
+"""
 function buildValleys(worldsize)
     maxCoordinate = worldsize / 2
     xy = 4 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
@@ -58,6 +76,10 @@ function buildValleys(worldsize)
                 (3 * ((1 - x)^2)) * exp(-(x^2) - ((y + 1)^2))
     f.(xy, xy')
 end
+"""
+Mathematical function to calculate multiple local minima. Here the model creates an 2D plane
+with multiple local minima. 
+"""
 function buildDeJong7(worldsize)
     maxCoordinate = worldsize / 2
     xy = 20 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
@@ -65,21 +87,18 @@ function buildDeJong7(worldsize)
     f.(xy, xy')
 end
 
+
 function agent_step!(sources,model)
-    
     ids = collect(nearby_ids(sources.pos, model, 8,exact=false))
     patch(ids) = model[ids].patchvalue
     min_patch(patch, itr) = itr[argmin(map(patch, itr))]
     id = min_patch(patch, ids)
     sources.vel = eigvec(model[id].pos.-sources.pos)
     move_agent!(sources,model,1);
-
-
     sizerow = size(model.patches)[1]
     sizecol = size(model.patches)[2]
     index = [round(Int64,sources.pos[1]),round(Int64,sources.pos[2])]
     
-
     if (index[1] == 0 || index[2] == sizerow
       ||index[2] == 0 || index[2] == sizecol)
       indices = wrapMat(sizerow,sizecol,index)
