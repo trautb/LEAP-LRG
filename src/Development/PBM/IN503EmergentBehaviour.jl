@@ -34,175 +34,174 @@ attributes. Again, id, pos and vel are automatically inserted.
 
 #-----------------------------------------------------------------------------------------
 """
-    initialize_model()
+	initialize_model()
 
 Create the world model.
 """
 function initialize_model(;
-    n_particles=1,
-    r=0.5,
-    n_vertices=3,
-    worldsize=100,
-    extent=(worldsize, worldsize)
+	n_particles=1,
+	r=0.5,
+	n_vertices=3,
+	worldsize=100,
+	extent=(worldsize, worldsize)
 )
 
-    properties = Dict(:n_particles => n_particles,
-        :r => r,
-        :n_vertices => n_vertices,
-        :vertices => createVertexCoordinates(n_vertices),
-        :spu => 30,
-        :visited_locations => Array{Float64}(undef, 0, 2) # TODO: or is mdata meant for this?
-    )
+	properties = Dict(:n_particles => n_particles,
+		:r => r,
+		:n_vertices => n_vertices,
+		:vertices => createVertexCoordinates(n_vertices),
+		:spu => 30,
+		:visited_locations => Array{Float64}(undef, 0, 2) # TODO: or is mdata meant for this?
+	)
 
-    model = ABM(Particle, ContinuousSpace(extent); properties=properties, scheduler=Schedulers.randomly)
-    update_model!(model)
-    return model
+	model = ABM(Particle, ContinuousSpace(extent); properties=properties, scheduler=Schedulers.randomly)
+	update_model!(model)
+	return model
 end
 
 #-----------------------------------------------------------------------------------------
 
 """
-    random_vertex(model)
+	random_vertex(model)
 
 Returns a random vertex position as tuple.
 """
 function random_vertex(model)
-    n = size(model.vertices, 1)
-    model.vertices[rand(1:n), :] |> Tuple
+	n = size(model.vertices, 1)
+	model.vertices[rand(1:n), :] |> Tuple
 end
 
 #-----------------------------------------------------------------------------------------
 
 """
-    spawn_particles!(model, n_particles = model.n_particles)
+	spawn_particles!(model, n_particles = model.n_particles)
 
 Populates the model with the specified nr of particles.
 """
 function spawn_particles!(model, n_particles=model.n_particles)
-    for _ in 1:n_particles
-        add_agent_pos!(
-            Particle(
-                nextid(model),          # id
-                random_vertex(model),   # pos
-                (0.0, 0.0)              # vel
-            ),
-            model
-        )
-    end
-    return model
+	for _ in 1:n_particles
+		add_agent_pos!(
+			Particle(
+				nextid(model),          # id
+				random_vertex(model),   # pos
+				(0.0, 0.0)              # vel
+			),
+			model
+		)
+	end
+	return model
 end
 
 #-----------------------------------------------------------------------------------------
 
 """
-    createVertexCoordinates(n_vertices=3; worldsize=100)
+	createVertexCoordinates(n_vertices=3; worldsize=100)
 
 Returns coordinates for the vertices as nx2 Matrix where n corresponds to 
-    `n_vertices`. The two columns of the matrix represent x and y coordinates.
+	`n_vertices`. The two columns of the matrix represent x and y coordinates.
 """
 function createVertexCoordinates(n_vertices=3; worldsize=100)
-    angle_step = 2π / n_vertices
-    angles = 0:angle_step:2π-angle_step
+	angle_step = 2π / n_vertices
+	angles = 0:angle_step:2π-angle_step
 
-    [0.45 * worldsize .* sin.(angles) 0.45 * worldsize .* cos.(angles)] .+ 50
+	[0.45 * worldsize .* sin.(angles) 0.45 * worldsize .* cos.(angles)] .+ 50
 end
 function create_vertices!(model::AgentBasedModel)
-    n_vertices = model.n_vertices
-    worldsize = model.space.extent[1]
-    model.vertices = createVertexCoordinates(n_vertices; worldsize)
-    model
+	n_vertices = model.n_vertices
+	worldsize = model.space.extent[1]
+	model.vertices = createVertexCoordinates(n_vertices; worldsize)
+	model
 end
 
 #-----------------------------------------------------------------------------------------
 """
-    agent_step!( particle, model)
+	agent_step!( particle, model)
 
 Define how a particle moves within the particle world
 """
 function agent_step!(particle, model)
-    vertex = random_vertex(model)
-    newpos = particle.pos .+ model.r .* (vertex .- particle.pos)
-    move_agent!(particle, newpos, model)
+	vertex = random_vertex(model)
+	newpos = particle.pos .+ model.r .* (vertex .- particle.pos)
+	move_agent!(particle, newpos, model)
 end
 
 #-----------------------------------------------------------------------------------------
 
 """
-    model_step!(model)
+	model_step!(model)
 
 After all agents made one step, their current positions will be collected.
 """
 function model_step!(model)
-    verticesChanged = model.n_vertices != size(model.vertices, 1)
-    particlesChanged = model.n_particles != length(model.agents)
-    if verticesChanged || particlesChanged
-        update_model!(model)
-    end
+	verticesChanged = model.n_vertices != size(model.vertices, 1)
+	particlesChanged = model.n_particles != length(model.agents)
+	if verticesChanged || particlesChanged
+		update_model!(model)
+	end
 
-    particles = allagents(model)
-    current_pos = [p.pos for p in particles] |> (pos -> [first.(pos) last.(pos)])
-    model.visited_locations = vcat(model.visited_locations, current_pos)
+	particles = allagents(model)
+	current_pos = [p.pos for p in particles] |> (pos -> [first.(pos) last.(pos)])
+	model.visited_locations = vcat(model.visited_locations, current_pos)
 end
 
 #-----------------------------------------------------------------------------------------
 
 """
-    update_model!(model)
+	update_model!(model)
 
 This method is needed to initialize the system. This is specially important to
 reflect the adjustements made with the parameters on the abmplot.
 """
 function update_model!(model)
-    genocide!(model)            # unfortunate name by the devs (https://juliadynamics.github.io/Agents.jl/stable/api/#Agents.genocide!)
-    create_vertices!(model)      # 
-    spawn_particles!(model)
-    return model
+	genocide!(model)            # unfortunate name by the devs (https://juliadynamics.github.io/Agents.jl/stable/api/#Agents.genocide!)
+	create_vertices!(model)     # 
+	spawn_particles!(model)
+	return model
 end
 
 #-----------------------------------------------------------------------------------------
 
 """
-    demo()
+	demo()
 
 creates an interactive abmplot of the EmergentBehaviour module to visualize
 Sierpinski's triangle.
 """
 function demo()
-    # slider values
-    params = Dict(:n_particles => 1:10,
-        :r => 0:0.1:1,
-        :n_vertices => 3:7)
+	params = Dict(:n_particles => 1:10, # slider values
+		:r => 0:0.1:1,
+		:n_vertices => 3:7)
 
-    model = initialize_model()
-    fig, p = abmexploration(
-        model;
-        (agent_step!)=agent_step!,
-        model_step!,
-        params,
-        ac=:red, as=10, am=:circle
-    )
+	model = initialize_model()
+	fig, p = abmexploration(
+		model;
+		(agent_step!)=agent_step!,
+		model_step!,
+		params,
+		ac=:red, as=10, am=:circle
+	)
 
-    additional_plots(p)
-    fig
+	additional_plots(p)
+	fig
 end
 
 
 """
-    additional_plots(p::ABMObservable)
+	additional_plots(p::ABMObservable)
 
 adds a plot for the vertices as well as for the visited locations.
 """
 function additional_plots(p::ABMObservable)
-    position_points = Observable(Vector{Point{2,Float32}}(undef, 2))
-    vertex_points = Observable(Vector{Point{2,Float32}}(undef, 2))
+	position_points = Observable(Vector{Point{2,Float32}}(undef, 2))
+	vertex_points = Observable(Vector{Point{2,Float32}}(undef, 2))
 
-    on(p.model) do m # as soon as p gets updated, the arrays for the plots get updated as well
-        position_points[] = Point2f.(m.visited_locations[:, 1], m.visited_locations[:, 2])
-        vertex_points[] = Point2f.(m.vertices[:, 1], m.vertices[:, 2])
-    end
+	on(p.model) do m # as soon as p gets updated, the arrays for the plots get updated as well
+		position_points[] = Point2f.(m.visited_locations[:, 1], m.visited_locations[:, 2])
+		vertex_points[] = Point2f.(m.vertices[:, 1], m.vertices[:, 2])
+	end
 
-    scatter!(position_points, color=:red, markersize=5)
-    scatter!(vertex_points, color=:black, markersize=20)
+	scatter!(position_points, color=:red, markersize=5)
+	scatter!(vertex_points, color=:black, markersize=20)
 end
 
 end # ... of module EmergentBehaviour

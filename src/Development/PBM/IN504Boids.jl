@@ -22,12 +22,12 @@ To construct a new agent implementation, use the @agent macro and add all necess
 attributes. Again, id, pos and vel are automatically inserted.
 """
 @agent Boid ContinuousAgent{2} begin
-    speed::Float64						# Speed of boid
-    cohering::Float64					# Extent to which boids want to stay together
-    proximity::Float64					# Uncomfortable proximity distance
-    separating::Float64					# Extent to which boids move out of proximity
-    aligning::Float64					# Extent to which boids align their flight
-    sight::Float64						# Distance within which I notice other boids
+	speed::Float64						# Speed of boid
+	cohering::Float64					# Extent to which boids want to stay together
+	proximity::Float64					# Uncomfortable proximity distance
+	separating::Float64					# Extent to which boids move out of proximity
+	aligning::Float64					# Extent to which boids align their flight
+	sight::Float64						# Distance within which I notice other boids
 end
 
 #-----------------------------------------------------------------------------------------
@@ -38,8 +38,8 @@ const boid_polygon = Polygon(Point2f[(-0.5, -0.5), (1, 0), (-0.5, 0.5)])
 The graphical marker for boids
 """
 function boid_marker(b::Boid)
-    φ = atan(b.vel[2], b.vel[1])
-    scale(rotate2D(boid_polygon, φ), 2)
+	φ = atan(b.vel[2], b.vel[1])
+	scale(rotate2D(boid_polygon, φ), 2)
 end
 
 #-----------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-    agent_step!( boid, world)
+	agent_step!( boid, world)
 
 Define how a boid moves within the Boid world, depending on its propensity for cohering,
 separating and aligning.
@@ -119,15 +119,15 @@ end
 
 #-----------------------------------------------------------------------------------------
 function demo()
-    bworld = boidWorld()							# Create a Boid world ...
+	bworld = boidWorld()							# Create a Boid world ...
 
-    abmvideo(										# ... then make a pretty video of it.
-        "boids.mp4", bworld, agent_step!;
-        am = boid_marker,
-        framerate = 20,
-        frames = 100,
-        title = "Boids"
-    )
+	abmvideo(										# ... then make a pretty video of it.
+		"boids.mp4", bworld, agent_step!;
+		am = boid_marker,
+		framerate = 20,
+		frames = 100,
+		title = "Boids"
+	)
 end
 
 end		# ... of module Boids
