@@ -16,8 +16,7 @@ using Agents, GLMakie, InteractiveDynamics      # Required packages
 import Statistics: norm                      # magnitude of vector
 
 include("./AgentToolBox.jl")
-import .AgentToolBox: rotate_2dvector
-
+import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -78,37 +77,6 @@ Spawn patches according.
 """
 function setPatches!(model)
     model.patches = model.deJong7 ? buildDeJong7(model) : buildValleys(model)
-end
-
-"""
-    buildValleys(worldsize)
-
-creates a height map (u values) corresponding of a multimodal landscape.
-The returned matrix has dimensions of (worldsize, worldsize)
-"""
-function buildValleys(worldsize)
-    maxCoordinate = worldsize / 2
-    xy = 4 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
-
-    f(x, y) = (1 / 3) * exp(-((x + 1)^2) - (y^2)) +
-              10 * (x / 5 - (x^3) - (y^5)) * exp(-(x^2) - (y^2)) -
-              (3 * ((1 - x)^2)) * exp(-(x^2) - ((y + 1)^2))
-    f.(xy, xy')
-end
-
-"""
-    buildValleys(worldsize)
-
-creates a height map (u values) corresponding to De Jong's complicated multi-
-modal landscape.
-The returned matrix has dimensions of (worldsize, worldsize)
-"""
-function buildDeJong7(worldsize)
-    maxCoordinate = worldsize / 2
-    xy = 20 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
-
-    f(x, y) = sin(180 * 2 * x / pi) / (1 + abs(x)) + sin(180 * 2 * y / pi) / (1 + abs(y))
-    f.(xy, xy')
 end
 
 
