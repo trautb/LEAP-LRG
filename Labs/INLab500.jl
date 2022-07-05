@@ -77,7 +77,7 @@
 		\tMake sure to forward the extent as one parameter (Tuple): ContinuousSpace(extent)
 		\tDid you choose the right size?
 		""",
-		x -> typeof(x).name.name == :ContinuousSpace && x.extent == (80.0, 80.0)
+		x -> x isa Main.ContinuousSpace && x.extent == (80.0, 80.0)
 	),
 	Activity( # nr 5
 		"""
@@ -89,7 +89,7 @@
 
 		""",
 		"type ?AgentBasedModel",
-		x -> typeof(model).name.name == :AgentBasedModel
+		x -> x isa Main.AgentBasedModel
 	),
 	Activity( # nr 6 
 		"""
