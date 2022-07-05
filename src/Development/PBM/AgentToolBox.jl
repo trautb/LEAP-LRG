@@ -218,6 +218,31 @@ function buildDeJong7(worldsize)
     f.(xy, xy')
 end
 
-
+"""
+   takes an agent and a model and returns number of neighbours in the 4 neighbourhood 
+"""    
+function neighbourhood4(agent::AbstractAgent,model::ABM)
+    agentpos=[round(Int,agent.pos[1]),round(Int,agent.pos[2])]
+    iX=agentpos[1]
+    iY=agentpos[2]
+    neighbour4 =[wrapMat(mat,[iX+1,iY]), wrapMat(mat,[iX-1,iY]), wrapMat(mat,[iX,iY-1]),  wrapMat(mat,[iX,iY+1])]           
+    numNei = 0
+    for i in model.agents
+      if i[1]!= agent.id 
+        map(neighbour4)do x
+        if x == [round(Int,i[2].pos[1]),round(Int,i[2].pos[2])]
+        numNei +=1
+        end
+        end
+      end
+    end
+    return numNei
+end
+    
+    
+    
+    
+    
+    
 
 end # ... of module AgentToolBox
