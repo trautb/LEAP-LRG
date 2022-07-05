@@ -12,7 +12,7 @@ end
 
 function initialize_model(  
     ;
-    worldsize::Int64 = 100,
+    worldsize::Int64,
     extent = (worldsize, worldsize),
     patches = zeros(extent),
     dt = 1,   
@@ -49,6 +49,7 @@ end
 function model_step!(model)
     model.patches = react(model,model.patches,Tuple([1,Int(round(((1/2)*model.worldsize)))]))
     model.patches= diffuse4(model.patches,model.dt*model.DBic,false)
+    
 end
 
 function react(model,mat,origin)

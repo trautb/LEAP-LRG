@@ -100,10 +100,10 @@ it gets smaller over time. Then the EB field is created.
 """
 function e_field_pulsation(model)
     h = 4
-    neumanh(i,j) = [[i+1,j], [i-1,j], [i,j-1], [i,j+1]]
     mv_EB = zeros(model.worldsize,model.worldsize)
     map(CartesianIndices((1:model.worldsize-1,1:model.worldsize-1))) do x
-        meannb = mean_nb(model.EB, neumanh(x[1],x[2]))
+        indices = nonwrap_nb(model.worldsize,model.worldsize,neuman_neighborhood(x[1],x[2]))
+        meannb = sum(model.EB[indices])
         mv_EB[x[1],x[2]] = (4/(h^2))*(meannb-model.EB[x[1],x[2]])
     end
     
