@@ -6,10 +6,12 @@ the next is valley. After every step the agent looks in his neighborhood and sea
 for the smallest value in neighborhood. 
 """
 module Swarm
+
 using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
 include("./AgentToolBox.jl")
-using .AgentToolBox
+using .AgentToolBox: buildDeJong7, buildValleys, eigvec, wrapMat, polygon_marker
+
 export demo
 mutable struct Agent <: AbstractAgent
     id::Int                    # Boid identity
@@ -62,29 +64,6 @@ function initialize_model(
     end
 
     return model
-end
-
-"""
-Mathematical function to calculate an valley. Here the model creates an 2D plane
-with several valleys and peeks.
-"""
-function buildValleys(worldsize)
-    maxCoordinate = worldsize / 2
-    xy = 4 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
-    f(x, y) = (1 / 3) * exp(-((x + 1)^2) - (y^2)) +
-                10 * (x / 5 - (x^3) - (y^5)) * exp(-(x^2) - (y^2)) -
-                (3 * ((1 - x)^2)) * exp(-(x^2) - ((y + 1)^2))
-    f.(xy, xy')
-end
-"""
-Mathematical function to calculate multiple local minima. Here the model creates an 2D plane
-with multiple local minima. 
-"""
-function buildDeJong7(worldsize)
-    maxCoordinate = worldsize / 2
-    xy = 20 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
-    f(x, y) = sin(180 * 2 * x / pi) / (1 + abs(x)) + sin(180 * 2 * y / pi) / (1 + abs(y))
-    f.(xy, xy')
 end
 
 

@@ -100,7 +100,7 @@ extends the boundaries of a matrix to return valid indices
 function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{Int64}},output_cartindi = true)
 
     cart(i,j) = (j-1)*size_col+i
-    indeces = []
+    indices = []
 
     if typeof(index) == Vector{Int64}
         index = [index]
@@ -132,7 +132,7 @@ function wrapMat(size_row,size_col, index::Union{Vector{Vector{Int64}},Vector{In
  
     end      
 
-      return  indeces
+      return  indices
 end
 
 function diffuse4(mat::Matrix{Float64},rDiff::Float64)
@@ -175,5 +175,42 @@ function mean_nb(mat::Matrix{Float64}, index::Vector{Vector{Int64}})
     
       return sum(sumup)
 end
+
+
+# patches -----------------------
+
+"""
+    buildValleys(worldsize)
+
+creates a height map (u values) corresponding of a multimodal landscape.
+The returned matrix has dimensions of (worldsize, worldsize)
+"""
+function buildValleys(worldsize)
+    maxCoordinate = worldsize / 2
+    xy = 4 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
+
+    f(x, y) = (1 / 3) * exp(-((x + 1)^2) - (y^2)) +
+              10 * (x / 5 - (x^3) - (y^5)) * exp(-(x^2) - (y^2)) -
+              (3 * ((1 - x)^2)) * exp(-(x^2) - ((y + 1)^2))
+    f.(xy, xy')
+end
+
+
+"""
+    buildValleys(worldsize)
+
+creates a height map (u values) corresponding to De Jong's complicated multi-
+modal landscape.
+The returned matrix has dimensions of (worldsize, worldsize)
+"""
+function buildDeJong7(worldsize)
+    maxCoordinate = worldsize / 2
+    xy = 20 .* collect(-maxCoordinate:(maxCoordinate-1)) ./ maxCoordinate
+
+    f(x, y) = sin(180 * 2 * x / pi) / (1 + abs(x)) + sin(180 * 2 * y / pi) / (1 + abs(y))
+    f.(xy, xy')
+end
+
+
 
 end # ... of module AgentToolBox
