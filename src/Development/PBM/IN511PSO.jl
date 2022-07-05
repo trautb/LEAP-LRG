@@ -12,11 +12,12 @@ Author: Niall Palfreyman (April 2020), Nick Diercksen (May 2022)
 module PSO
 
 export demo                # Externally available names
-using Agents, GLMakie, InteractiveDynamics      # Required packages
-import Statistics: norm                      # magnitude of vector
+
+using Agents, GLMakie, InteractiveDynamics		# Required packages
+import Statistics: norm							# magnitude of vector
 
 include("./AgentToolBox.jl")
-import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys
+import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, custom_abmexploration
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -41,7 +42,7 @@ end
 
 Create the world model.
 """
-function create_model(;
+function initialize_model(;
 	pPop=0.05,                 # proportion of patches to be populated by one particle
 	temperature=0.001,
 	tolerance=0.4,
@@ -165,7 +166,7 @@ function agent_step!(particle, model)
 	# Now somersault if things are going badly:
 	if u > uPrevious
 		# Things are getting worse - somersault:
-		φ = rand(π/2:.01:3/2*π)
+		φ = rand(π/2:0.01:3/2*π)
 		particle.vel = rotate_2dvector(φ, particle.vel)
 	end
 
@@ -213,7 +214,7 @@ Particle Swarm Optimizations.
 """
 function demo()
 	params = Dict(
-		:deJong7 => [false, true]
+		:deJong7 => [false, true],
 	)
 
 	plotkwargs = (
@@ -225,21 +226,13 @@ function demo()
 		as=8,
 		ac=:yellow,
 		am=:circle,
-		title="PSO:",
 	)
 
-	model = create_model()
-	fig, p = abmexploration(model; (agent_step!)=agent_step!, model_step!, params, plotkwargs...)
+	fig, p = custom_abmexploration(initialize_model; (agent_step!)=agent_step!, model_step!, plotkwargs, params)
 
 	# as soon as meanPosition gets an update (after each step), the scatter will be updated
 	m = lift(m -> m.meanPosition, p.model)
 	scatter!(m, color=:red, markersize=20)
-
-	# TODO: add deJong7 
-	# dJ = lift(m -> println(m.deJong7), p.model)
-	# println(dJ)
-
-	# @lift(println($(p.model.val.deJong7)))
 
 	fig
 end
