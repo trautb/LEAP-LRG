@@ -248,10 +248,10 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=nothing)
 		simulationDF, 
 		2 => :organism, 4 => :zeros, 5 => :ones 	
 	)
-	excludeStepZero!(agentDF)								# Exclude data with no information
+	excludeStepZero!(simulationDF)								# Exclude data with no information
 	insertcols!(											# Insert number of genome modifications
 		simulationDF, 
-		(:modifications => agentDF[:, :step])	
+		(:modifications => simulationDF[:, :step])	
 	)
 
 	return GASimulation(basicGA, simulationDF)
@@ -301,7 +301,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=nothing)
 	)
 	excludeStepZero!(simulationDF)				# Exclude data with no information
 	insertcols!(								# Insert number of genome modifications
-		agentDF, 
+		simulationDF, 
 		(:modifications => simulationDF[:, :step] .* (exploratoryGA.nTrials + 1))
 	)
 
