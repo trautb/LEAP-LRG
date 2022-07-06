@@ -7,12 +7,18 @@
 	finalizePlot!(p::Plots.Plot)
 
 Set specific parameters for the given plot to make the output prettier.
+
+**Arguments:**
+- **p:** The plot, which should get finalized.
+
+**Return:**   
+- The plot, with specific parameters set.
 """
 function finalizePlot!(p::Plots.Plot)
 	plot!(p,
 		size = (1920, 1080), 			# Full-HD
-		bottom_margin = 10Plots.mm,
-		left_margin = 15Plots.mm,
+		bottom_margin = 10Plots.mm,		# Extra space at the bottom
+		left_margin = 15Plots.mm,		# Extra space on the left
 	)
 
 	return p
@@ -28,7 +34,11 @@ minimal scores per number of modifications for each simulation result.
 Attention: The DataFrames in `simulationData` have to be structured like the output of 
 `processSimulationData(agentDF::DataFrame)` in `save.jl`.
 
-Returns the finalized plot (see also `finalizePlot!`)
+**Arguments:**
+- **simulationData:** A dictionary of processedDFs for various simulations
+
+**Return:**
+- The finalized, generated plot (see also `finalizePlot!`) 
 """
 function compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 	# Initialize plot:
@@ -63,7 +73,12 @@ organism.
 
 Attention: This function is very expensive for a large number of organisms and steps!
 
-Returns the finalized plot (see also `finalizePlot!`).
+**Arguments:**
+- **agentDF:** The agent dataframe, that was returned by the simulation.
+- **algorithm:** The algorithm, that was used for the simulation.
+
+**Return:**
+- The generated, finalized plot (see also `finalizePlot!`)
 """
 function scoreOverTime(agentDF::DataFrame, algorithm::GeneticAlgorithm)
 	# Transform the simulation data to get score of each organism per step:
@@ -90,7 +105,12 @@ maximum, minimum and mean score over time.
 Attention: `processedDF` has to be a DataFrame structured like the output of 
 `processSimulationData(agentDF::DataFrame)` in `save.jl`.
 
-Returns the finalized plot (see also `finalizePlot!`).
+**Arguments:** 
+- **processedDF:** The DataFrame of processed simulation data
+- **algorithm:** The algorithm, which was used in the simulation
+
+**Return:**
+- The finalized generated plot (see also `finalizePlot!`)
 """
 function scoreSpanOverTime(processedDF::DataFrame, algorithm::GeneticAlgorithm)
 	plt = Plots.plot(
@@ -126,12 +146,18 @@ before plotting:
 --> To keep the visualization consistent with the message of the data, each bin represents the 
 	MEAN of the number of top-tiers in the range of modifications covered by the bin.
 	
-For example:  
+Example:  
 => bin 10 covers modifications 5-15 and t_i is the number of top-tiers after i modifications  
 => so the height of the bin is: mean(t_5 + t_6 + ... + t_15)  
 => and the bin is located over x-position mean(5 + 6 + ... + 14 + 15) = 10
 
-Returns the finalized bar-plot (see also `finalizePlot!`).
+**Arguments:**
+- **agentDF:** The agent dataframe, that was returned by the simulation.
+- **percentage:** The maximum relative distance from the best score an individual is allowed to 	
+				  have to still count as a top-tier.
+
+**Return:**
+- The generated, finalized plot (see also `finalizePlot!`).
 """
 function topTierOverTime(
 	agentDF::DataFrame,
@@ -188,12 +214,16 @@ end
 """
 	allelicExpressionNumber(agentDF::DataFrame, algorithm::GeneticAlgorithm) 
 
-This function takes an agent dataframe and plots the mean value of the number of the different allelic expressions 
-for every simulation steps.
+This function takes the data of a simulation, evalates the mean number of diffenrent alleles 
+every step and plots them afterwards.
+
+**Arguments:**
+- **agentDF:** The agent dataframe, that was returned by the simulation.
+- **algorithm:** The genetic algorithm, which was used for the simulation.
 """
 function allelicExpressionNumber(agentDF::DataFrame, algorithm::GeneticAlgorithm) 
 	
-	# Determine the mean value of the different allele expressions typical for each GA for each step:
+	# Determine the mean number of different alleles for each GA at each step:
 	allelDistrDF = groupby(agentDF,:step)
 	if any(names(allelDistrDF) .== "qMarks")
 		allelDistrDF= combine(allelDistrDF, :ones => mean, :zeros => mean, :qMarks => mean)
@@ -203,7 +233,7 @@ function allelicExpressionNumber(agentDF::DataFrame, algorithm::GeneticAlgorithm
 		labels = ["1" "0"]
 	end
 
-	# Create the plot:
+	# Create a plot with 3 graphs, when the "qMarks" allele is present, and with 2 graphs otherwise:
 	plt = plot(
 		allelDistrDF[:,1],
 		Matrix(allelDistrDF[:,2:end]), 

@@ -11,7 +11,7 @@ Enum for the possible alleles in BasicGA. The possible values are 0 and 1.
 """
 	ExploratoryGAAlleles
 
-Enum for the pissible alleles in ExploratoryGA. The possible values are 0, 1, ?. Where
+Enum for the possible alleles in ExploratoryGA. The possible values are 0, 1, ?. Where
 the "?" gets evaluated in exploratory learning steps.
 """
 @enum ExploratoryGAAlleles eZero eOne qMark

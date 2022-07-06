@@ -46,10 +46,10 @@ A struct containing all constants to run the exploratory genetic algorithm.
 struct ExploratoryGA <: GeneticAlgorithm
 	nIndividuals::Integer
 	nGenes::Integer
-	mu::Number					# Mutation rate
+	mu::Number						# Mutation rate
 	useHintonNowlan::Bool
 	nTrials::Integer
-	M::Integer					# The size of the abm space
+	M::Integer						# The size of the abm space
 
 	function ExploratoryGA(
 		nIndividuals::Integer = 100, 
@@ -67,6 +67,8 @@ end
 # -----------------------------------------------------------------------------------------
 """
 	paramstring(algorithm::GeneticAlgorithm)
+	paramstring(algorithm::BasicGA)
+	paramstring(algorithm::ExploratoryGA)
 
 Return the parameters for the GeneticAlgorithm `algorithm` as a formatted string.
 
@@ -75,6 +77,12 @@ The returned string is formatted as follows:
 	<<GA-Name>>--<<param1>>-<<value1>>--<<param2>>-<<value2>> ...
 
 Every GeneticAlgorithm should have a custom implementation of this method.
+
+**Arguments:**
+- **algorithm:** The genetic algorithm, that should be represented as string. 
+
+**Return:**
+- A string representing the algorithm and its parameters
 """
 function paramstring(algorithm::GeneticAlgorithm)
 	return "no_specific_paramstring_impl_found"

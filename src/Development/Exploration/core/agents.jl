@@ -12,6 +12,7 @@ to minimize an objective function via pure genetic search.
 	score::Number							# Current objective value
 end
 
+# -----------------------------------------------------------------------------------------
 """
 	ExploratoryGAAgent
 
