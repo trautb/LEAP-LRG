@@ -86,8 +86,12 @@ underlyingEvaluations is a colum vector of evaluations of the population.
 
 Returns fitness and underlying evaluation values.
 """
-fitness(genpool::Matrix{ExploratoryGAAlleles}, nTrials::Integer, casino, useHintonNowlan::Bool) 
-
+function fitness(
+	genpool::Matrix{ExploratoryGAAlleles}, 
+	nTrials::Integer,
+	casino,
+	useHintonNowlan::Bool
+)
 	nIndividuals, _ = size(genpool)
 
 	# Fitness and evaluations at plasticity trial 0:

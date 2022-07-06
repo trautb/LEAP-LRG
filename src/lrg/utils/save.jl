@@ -166,6 +166,6 @@ function saveData(comparison::GAComparison)
 		saveData(comparison.simulations[i])
 	end
 
-	# Save runtime dataframe:
+	# Save runtimes
 	saveData(comparison.runtimes, "comparison", comparison.timestamp, "runtimes")
 end

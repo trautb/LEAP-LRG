@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export functions to start a genetic algorithm simulation
-export simulate, compare, compareLevelplain
+export simulate, compare, compare
 
 # Import external modules
 using Statistics
@@ -73,7 +73,7 @@ function exploratory_step!(model)
 	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(genpool, model.nTrials, model.speedAdvantage, model.casino, model.useHintonNowlan) 
+	popFitness, evaluations = fitness(genpool, model.nTrials, model.casino, model.useHintonNowlan) 
 
 	# Perform selection:
 	selectionWinners = encounter(popFitness)
@@ -131,7 +131,6 @@ function initialize(exploratoryGA::ExploratoryGA)
 		:casino => Casino(exploratoryGA.nIndividuals + 1, exploratoryGA.nGenes + 1),
 		:useHintonNowlan => exploratoryGA.useHintonNowlan,
 		:nTrials => exploratoryGA.nTrials,
-		:speedAdvantage => exploratoryGA.speedAdvantage,
 	])
 
 	model = ABM(ExploratoryGAAgent{ExploratoryGAAlleles}, space; properties)
@@ -211,100 +210,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=42)
 end
 
 """
-	compare(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
-
-Compare the simulations for a given array of genetic algorithms.
-"""
-function compare(
-	basicGAs::Vector{BasicGA},
-	exploratoryGA::ExploratoryGA;
-	nModifications=101_000, 								# Total genome modifications
-	seed=42
-)
-	# Initialize necessary variables:
-	nBasicGAs = length(basicGAs)
-	nGAs = nBasicGAs + 1
-	simulationData = Vector{GASimulation}(undef, nGAs)
-	modsPerStep = exploratoryGA.nTrials + 1
-
-	# Adjust nModifications if necessary: 
-	if rem(nModifications, modsPerStep) != 0
-		modIncrease = modsPerStep * (div(nModifications, modsPerStep) + 1) - nModifications
-		print(string("WARNING: nModifications/exploratoryGA.nTrials did not result in an integer! Increasing nModifications by ", modIncrease, " ..."))
-		nModifications = nModifications + modIncrease
-	end
-	# Calculate necessary steps for ExploratoryGA
-	exploratorySteps = div(nModifications, modsPerStep)
-
-	# Run the simulations:
-	simulationData[1:nBasicGAs]=simulate.(basicGAs, nModifications; stepRem=modsPerStep, seed=seed)
-	simulationData[nGAs] = simulate(exploratoryGA, exploratorySteps; seed=seed)
-
-	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData, DataFrame())
-end
-
-function compare(
-	basicGAs::Vector{BasicGA},
-	exploratoryGAs::Vector{ExploratoryGA};
-	nModifications=100_000, 								# Total genome modifications
-	seed=42
-)
-	return [compare(
-		basicGAs, 
-		exploratoryGA; 
-		nModifications=nModifications, 
-		seed=seed
-	) for exploratoryGA in exploratoryGAs]
-end
-
-"""
-	compare(
-		dirname::String,
-		basicGAs::Vector{BasicGA},
-		exploratoryGAs::Vector{ExploratoryGA},
-		nModifications=100_000;
-		saveSpecificPlots=true,
-		seed=42
-	)	
-
-Compare the simulations for a given array of genetic algorithms and saves the plots to directory 
-dirname.
-"""
-function compare(
-	dirname::String,
-	basicGAs::Vector{BasicGA},
-	exploratoryGAs::Vector{ExploratoryGA};
-	nModifications=100_000,
-	saveSpecificPlots=true,
-	seed=42
-)
-	isDirnameValid = isdir(dirname)
-
-	if isDirnameValid
-		subdir = Dates.format(Dates.now(), dateformat"yyyy_mm_dd__HH_MM")
-	end
-
-	comparison = compare(basicGAs, exploratoryGAs; nModifications=nModifications, seed=seed)
-
-	if isDirnameValid
-		pwdBackup = pwd()
-		cd(dirname)
-		mkpath(subdir)
-		cd(subdir)
-
-		savePlots.(comparison; withSimulationPlots=saveSpecificPlots)
-
-		cd(pwdBackup)
-	else
-		@warn "Given dirname is no valid directory! Skipped saving figures ..."
-	end
-
-	return comparison
-end
-
-"""
-compareLevelplain(
+compare(
 	geneticAlgorithms::Vector{T}, 
 	nSteps=100; 
 	seed=42
@@ -313,7 +219,7 @@ compareLevelplain(
 Compare the simulations for a given array of genetic algorithms and returns the data in a
 GAComparison struct. Runs each simulation in an own Thread (if there are enough).
 """
-function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) where {T <: GeneticAlgorithm}
+function compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=true, seed=42) where {T <: GeneticAlgorithm}
 	
 	runtimes = TrackingTimer()
 	# Initialize necessary variables:
@@ -333,29 +239,42 @@ function compareLevelplain(geneticAlgorithms::Vector{T}, nSteps=100; seed=42) wh
 	, geneticAlgorithms)
 
 	maxEvals, _ = findmax(evalsPerStep)
-	simDataLock = ReentrantLock()
 
-	# Perform similar simulations for every given genetic algorithm:
-	Threads.@threads for i in 1:nGAs
-		currentAlgorithm = geneticAlgorithms[i]
-		factor, remainder = divrem(maxEvals, evalsPerStep[i])
-		if !(remainder == 0) @warn "Algorithms not exactly comparable" end
-		@info string("[Thread ", Threads.threadid(), "] Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
-		TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(currentAlgorithm, nSteps*factor; seed=seed)
-		lock(simDataLock) 
-		try
+	if multiThreading
+		simDataLock = ReentrantLock()
+
+		# Perform similar simulations for every given genetic algorithm:
+		Threads.@threads for i in 1:nGAs
+			currentAlgorithm = geneticAlgorithms[i]
+			factor, remainder = divrem(maxEvals, evalsPerStep[i])
+			if !(remainder == 0) @warn "Genome modifications not exactly comparable" end
+			@info string("[Thread ", Threads.threadid(), "] (", Dates.Time(now()), ") Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
+			TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(currentAlgorithm, nSteps*factor; seed=seed)
+			lock(simDataLock) 
+			try
+				simulationData[i] = result
+			finally
+				unlock(simDataLock)
+			end
+			@info string("[Thread ", Threads.threadid(), "] (", Dates.Time(now()), ") Finished running ", currentAlgorithm, ".")
+			end
+	else
+		for i in 1:nGAs
+			currentAlgorithm = geneticAlgorithms[i]
+			factor, remainder = divrem(maxEvals, evalsPerStep[i])
+			if !(remainder == 0) @warn "Genome modifications not exactly comparable" end
+			@info string("(", Dates.Time(now()), ") Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
+			TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(currentAlgorithm, nSteps*factor; seed=seed)
 			simulationData[i] = result
-		finally
-			unlock(simDataLock)
-		end
-		@info string("[Thread ", Threads.threadid(), "] Finished running ", currentAlgorithm, ".")
+			@info string("(", Dates.Time(now()), ") Finished running ", currentAlgorithm, ".")
+			end
 	end
 	
 	# Return a comparison of the given genetic algorithms:
 	return GAComparison(simulationData,DataFrame(runtimes))
 end
 
-function compareLevelplain(
+function compare(
 	dirname::String,
 	geneticAlgorithms::Vector{T}, 
 	nSteps=100;
@@ -368,7 +287,7 @@ function compareLevelplain(
 		subdir = Dates.format(Dates.now(), dateformat"yyyy_mm_dd__HH_MM")
 	end
 
-	comparison = compareLevelplain(geneticAlgorithms, nSteps; seed=seed)
+	comparison = compare(geneticAlgorithms, nSteps; seed=seed)
 
 	if isDirnameValid
 		pwdBackup = pwd()
