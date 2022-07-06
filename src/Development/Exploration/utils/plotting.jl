@@ -32,7 +32,7 @@ This function takes the results of various simulations and returns a plot, that 
 minimal scores per number of modifications for each simulation result. 
 
 Attention: The DataFrames in `simulationData` have to be structured like the output of 
-`processSimulationData(agentDF::DataFrame)` in `save.jl`.
+`processSimulationData(simulationDF::DataFrame)` in `save.jl`.
 
 **Arguments:**
 - **simulationData:** A dictionary of processedDFs for various simulations
@@ -66,27 +66,27 @@ end
 
 # -----------------------------------------------------------------------------------------
 """
-	scoreOverTime(agentDF::DataFrame, algorithm::GeneticAlgorithm)
+	scoreOverTime(simulationDF::DataFrame, algorithm::GeneticAlgorithm)
 
-This function takes the data of a simulation (``agentDF``) and plots the score per step for every 
+This function takes the data of a simulation (``simulationDF``) and plots the score per step for every 
 organism.
 
 Attention: This function is very expensive for a large number of organisms and steps!
 
 **Arguments:**
-- **agentDF:** The agent dataframe, that was returned by the simulation.
+- **simulationDF:** The agent dataframe, that was returned by the simulation.
 - **algorithm:** The algorithm, that was used for the simulation.
 
 **Return:**
 - The generated, finalized plot (see also `finalizePlot!`)
 """
-function scoreOverTime(agentDF::DataFrame, algorithm::GeneticAlgorithm)
+function scoreOverTime(simulationDF::DataFrame, algorithm::GeneticAlgorithm)
 	# Transform the simulation data to get score of each organism per step:
-	pltDF = unstack(agentDF, :step, :organism, :score)
+	pltDF = unstack(simulationDF, :step, :organism, :score)
 
 	# Create the plot. The plot contains a seperate line for each organism:
 	plt = Plots.plot(
-		Matrix(pltDF[:, Symbol.(unique!(sort!(agentDF[:, :organism])))]),  # Select organisms only
+		Matrix(pltDF[:, Symbol.(unique!(sort!(simulationDF[:, :organism])))]),  # Select organisms only
 		legend = false, 
 		title = repr(algorithm)
 	)
@@ -103,7 +103,7 @@ This function takes a DataFrame of processed simulation data (``processedDF``) a
 maximum, minimum and mean score over time.
 
 Attention: `processedDF` has to be a DataFrame structured like the output of 
-`processSimulationData(agentDF::DataFrame)` in `save.jl`.
+`processSimulationData(simulationDF::DataFrame)` in `save.jl`.
 
 **Arguments:** 
 - **processedDF:** The DataFrame of processed simulation data
@@ -130,15 +130,15 @@ end
 # -----------------------------------------------------------------------------------------
 """
 	topTierOverTime(
-		agentDF::DataFrame, 
+		simulationDF::DataFrame, 
 		percentage::Number, 
 		algorithm::GeneticAlgorithm;
 		maxBins::Integer = 100
 	)
 
-This function takes the data of a simulation (``agentDF``) and plots the number of organisms in 
+This function takes the data of a simulation (``simulationDF``) and plots the number of organisms in 
 range ``percentage`` around the best score ("top-tiers") for each number of modifications. If the 
-number of steps taken from ``agentDF`` is greater than ``maxBins``, the data has to be processed 
+number of steps taken from ``simulationDF`` is greater than ``maxBins``, the data has to be processed 
 before plotting:
 
 --> If the number of simulation steps is to high, the bar chart would become a black block, so 	
@@ -152,7 +152,7 @@ Example:
 => and the bin is located over x-position mean(5 + 6 + ... + 14 + 15) = 10
 
 **Arguments:**
-- **agentDF:** The agent dataframe, that was returned by the simulation.
+- **simulationDF:** The agent dataframe, that was returned by the simulation.
 - **percentage:** The maximum relative distance from the best score an individual is allowed to 	
 				  have to still count as a top-tier.
 
@@ -160,14 +160,14 @@ Example:
 - The generated, finalized plot (see also `finalizePlot!`).
 """
 function topTierOverTime(
-	agentDF::DataFrame,
+	simulationDF::DataFrame,
 	percentage::Number, 
 	algorithm::GeneticAlgorithm;
 	maxBins::Integer = 100
 )
 	# Find the maximum number of steps and modifications:
-	steps = maximum(agentDF[!, :step])
-	mods = maximum(agentDF[!, :modifications])
+	steps = maximum(simulationDF[!, :step])
+	mods = maximum(simulationDF[!, :modifications])
 
 	# Calculate the number of bins to disply in the plot:
 	bins = steps < maxBins ? steps : maxBins
@@ -176,7 +176,7 @@ function topTierOverTime(
 	topTiers = scores -> sum(scores .< (minimum(scores) + minimum(scores) * (percentage/100))) 
 	
 	# Group the data per number of modification:
-	topTierDF = groupby(agentDF, :modifications)
+	topTierDF = groupby(simulationDF, :modifications)
 
 	# Calculate the number of top-tiers for each number of modifications:
 	topTierDF = combine(topTierDF, :score => topTiers => :topTiers)
@@ -212,19 +212,19 @@ function topTierOverTime(
 end
 # -----------------------------------------------------------------------------------------
 """
-	allelicExpressionNumber(agentDF::DataFrame, algorithm::GeneticAlgorithm) 
+	allelicExpressionNumber(simulationDF::DataFrame, algorithm::GeneticAlgorithm) 
 
 This function takes the data of a simulation, evalates the mean number of diffenrent alleles 
 every step and plots them afterwards.
 
 **Arguments:**
-- **agentDF:** The agent dataframe, that was returned by the simulation.
+- **simulationDF:** The agent dataframe, that was returned by the simulation.
 - **algorithm:** The genetic algorithm, which was used for the simulation.
 """
-function allelicExpressionNumber(agentDF::DataFrame, algorithm::GeneticAlgorithm) 
+function allelicExpressionNumber(simulationDF::DataFrame, algorithm::GeneticAlgorithm) 
 	
 	# Determine the mean number of different alleles for each GA at each step:
-	allelDistrDF = groupby(agentDF,:step)
+	allelDistrDF = groupby(simulationDF,:step)
 	if any(names(allelDistrDF) .== "qMarks")
 		allelDistrDF= combine(allelDistrDF, :ones => mean, :zeros => mean, :qMarks => mean)
 		labels = ["1" "0" "?"]

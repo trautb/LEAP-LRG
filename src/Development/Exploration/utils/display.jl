@@ -1,17 +1,24 @@
 """
-displayCompareMinimumScoresPlot(simulations::Vector{GASimulation})
+    displayCompareMinimumScoresPlot(simulations::Vector{GASimulation})
 
 This function takes in the simulation data of the compare function and plots the minimal scores per step for each simulation result.
 This plot will then be displayed.
 simulations: Vector that contains the results of every simulation
+
+**Arguments:**
+- **simulations:** Vector containing the results of simulations.
+
+**Return:**
+- Nothing
 """
 function displayCompareMinimumScoresPlot(simulations::Vector{GASimulation})
 
     processedData = Dict{GASimulation, DataFrame}(
-		map(sim -> sim => processSimulationData(sim.agentDF), simulations)
+		map(sim -> sim => processSimulationData(sim.simulationDF), simulations)
 	)
 
     comparisonPlot = compareMinimumScores(processedData)
 
     display(comparisonPlot)
+    return
 end

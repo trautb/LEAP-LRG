@@ -8,18 +8,24 @@
 	mepi(genome::BitVector)
 
 Watson's maximally epistatic objective function.
+
+**Arguments:**
+- **genome:** A vector containing the genes of one individual.
+
+**Return:**
+- One value of the datatype Intger. The lower the value the better. The minimum equals the genome length.
 """
 function mepi(genome::BitVector)
 	dim = length(genome)
 
 	if dim == 1
-		1
+		return 1
 	else
 		# Mepi is minimized if allels are the same:
 		penality = all(genome) || !any(genome) ? 0 : 1
 		# Form product of the first and second halves of genome separately:
 		halflen = div(dim, 2)
-		dim * penality + mepi(genome[1:halflen]) + mepi(genome[halflen + 1:end])
+		return dim * penality + mepi(genome[1:halflen]) + mepi(genome[halflen + 1:end])
 	end
 end
 
@@ -28,6 +34,12 @@ end
 hintonNowlan(genome::BitVector)
 
 Hinton and Nowlans's simple example function.
+
+**Arguments:**
+- **genome:** A vector containing the genes of one individual.
+
+**Return:**
+- One value of the datatype Integer. Will only be 0 if the whole genome is made out of ones. Otherwise it will be 1.
 """
 function hintonNowlan(genome::BitVector)
 	# hintonNowlan is minimized if all allels are 1:
@@ -44,7 +56,12 @@ minus all sub-sigma-scaled individuals (see Mitchell p.168). Negative sigma-scal
 the objective function; higher magnitudes raise the fitness pressure. 
 evaluations is a colum vector of evaluations of the population. 
 
-Returns the fitness and underlying evaluation values.
+**Arguments:**
+- **genpool:** A matrix containing the genome of every individual.
+- **useHintonNowlan:** Switch to either use mepi or hintonNowlan function.
+
+**Return:**
+- The fitness and underlying evaluation values.
 """
 function fitness(genpool::BitMatrix, useHintonNowlan::Bool) 
 
@@ -84,7 +101,14 @@ of the population, minus all sub-sigma-scaled individuals (see Mitchell p.168). 
 maximises the objective function; higher magnitudes raise the fitness pressure. 
 underlyingEvaluations is a colum vector of evaluations of the population. 
 
-Returns fitness and underlying evaluation values.
+**Arguments:**
+- **genpool:** A matrix containing the genome of every individual.
+- **nTrials:** The number of exploratory searches per step.
+- **casino:** Use the casino module. 
+- **useHintonNowlan:** Switch to either use mepi or hintonNowlan function.
+
+**Return:**
+- The fitness and underlying evaluation values.
 """
 function fitness(
 	genpool::Matrix{ExploratoryGAAlleles}, 

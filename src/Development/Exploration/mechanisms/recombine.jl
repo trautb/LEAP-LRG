@@ -2,13 +2,23 @@
 ### recombine.jl: Defines a function to recombine two genomes 
 # =========================================================================================
 """
-	recombine
+	recombine(genpool::Matrix{T}, parents::AbstractVector) where {T<:Enum}
+    nIndividuals, nGenes = size(genpool)
 
 This function takes a matrix (individual * genome) and an Array of indices (i.e. the 
 parents) as an input.
 It recombines the genomes corresponding to the first 1:N indices (where N is the population
 size and length(parents) == 2N) with the genomes corresponding to the second half of the 
 parents Array and returns a matrix of the next generation.
+
+**Arguments:**
+- **genpool:** Matrix containing the genome of every individual.
+- **alleles:** Vector containing the alleles found in the genpool. (basicGA: 0,1 ; exploratoryGA: 0,1,2)
+- **mu:** Mutation rate.
+- **casino:** Use the casino module. 
+
+**Return:**
+- The mutated (original) genpool.
 """
 function recombine(genpool::Matrix{T}, parents::AbstractVector) where {T<:Enum}
     nIndividuals, nGenes = size(genpool)

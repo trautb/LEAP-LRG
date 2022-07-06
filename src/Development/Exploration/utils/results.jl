@@ -7,7 +7,7 @@
 
 A GASimulation contains the results of a single simulation, which is run by calling `simulate`.
 
-The DataFrame `agentDF` should contain at least the following columns:  
+The DataFrame `simulationDF` should contain at least the following columns:  
 	:step 		- The step, at which the data was collected  
 	:organism	- The id of the organism, for which the data was collected  
 	:score		- The score of the organism at the corresponding step  
@@ -18,14 +18,14 @@ The DataFrame `agentDF` should contain at least the following columns:
 struct GASimulation
     timestamp::DateTime						# The end-time of the simulation
     algorithm::GeneticAlgorithm				# The algorithm used for the simulation
-    agentDF::DataFrame						# The agent-data collected during the simulation
+    simulationDF::DataFrame						# The agent-data collected during the simulation
 
 	# Constructor of a GASimulation, that inserts the current time as simulation end-time:
     function GASimulation(
         algorithm::GeneticAlgorithm, 
-        agentDF::DataFrame
+        simulationDF::DataFrame
     )
-        return new(Dates.now(), algorithm, agentDF)
+        return new(Dates.now(), algorithm, simulationDF)
     end
 end
 

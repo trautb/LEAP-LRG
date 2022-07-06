@@ -11,7 +11,12 @@ Perform a random translation from `qMark` to `eZero` or `eOne` in a given `genpo
 
 Every `qMark` has an equal probability of 50% to change into an `eZero` or an `eOne`.
 
-Returns the phenotype-matrix resulting from the above translation (plasticity) as a new array.
+**Arguments:**
+- **genpool:** Matrix containing the genome of every individual.
+- **casino:** Use the casino module. 
+
+**Return:**
+- The phenotype-matrix resulting from the above translation (plasticity) as a new array.
 """
 function plasticity(genpool::Matrix{ExploratoryGAAlleles}, casino)
 	# Find all qMarks in the genpool:

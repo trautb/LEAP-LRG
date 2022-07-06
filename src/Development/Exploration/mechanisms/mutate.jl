@@ -12,6 +12,15 @@ should be a vector of possible allele choices. To dermine the loci, where a muta
 the function uses the Casino `casino`.
 
 ATTENTION: The mutation modifies the original array, but the new genpool is returned anyway.
+
+**Arguments:**
+- **genpool:** Matrix containing the genome of every individual.
+- **alleles:** Vector containing the alleles found in the genpool. (basicGA: 0,1 ; exploratoryGA: 0,1,2)
+- **mu:** Mutation rate.
+- **casino:** Use the casino module. 
+
+**Return:**
+- The mutated (original) genpool.
 """
 function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
 	# Only expend effort on mutating if it is really wanted:
@@ -47,6 +56,14 @@ Mutates the given genpool of alleles (represented by enums) by mutating its inte
 See above: `mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}`
 
 ATTENTION: The mutation modifies the original array, but the new genpool is returned anyway.
+
+**Arguments:**
+- **genpool:** Matrix containing the genome of every individual.
+- **mu:** Mutation rate.
+- **casino:** Use the casino module. 
+
+**Return:**
+- The mutated (original) genpool.
 """
 function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
 	# Determine possible alleles:

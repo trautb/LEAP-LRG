@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export functions to start a genetic algorithm simulation
-export simulate, compare, compare
+export simulate, compare, compare, demo
 
 # Import external modules
 using Statistics
@@ -27,6 +27,7 @@ include("utils/transpose.jl")
 include("utils/results.jl")				# Depends on core/algorithms.jl		
 include("utils/plotting.jl")			# Depends on utils/results.jl
 include("utils/save.jl")				# Depends on utils/plotting.jl
+include("utils/display.jl")				# Depends on utils/plotting.jl and utils/save.jl
 
 # Include evolutionary mechanisms
 include("mechanisms/plasticity.jl")		# Depends on core/alleles.jl
@@ -230,20 +231,20 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=nothing)
 	
 	model = initialize(basicGA)
 
-	agentDF, _ = run!(model, dummystep, basic_step!, nSteps; 
+	simulationDF, _ = run!(model, dummystep, basic_step!, nSteps; 
 		adata=[
 			:score,
 			(a -> sum(a.genome .== bZero)),
 			(a -> sum(a.genome .== bOne))
 		]
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones)
+	DataFrames.rename!(simulationDF, 2 => :organism, 4 => :zeros, 5 => :ones)
 	
 	# Postprocessing of data:
-	excludeStepZero!(agentDF)
-	insertcols!(agentDF, (:modifications => agentDF[:, :step]))
+	excludeStepZero!(simulationDF)
+	insertcols!(simulationDF, (:modifications => simulationDF[:, :step]))
 
-	return GASimulation(basicGA, agentDF)
+	return GASimulation(basicGA, simulationDF)
 end
 
 """
@@ -273,7 +274,7 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=nothing)
 
 	model = initialize(exploratoryGA)
 
-	agentDF, _ = run!(model, dummystep, exploratory_step!, nSteps; 
+	simulationDF, _ = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
 			:score,
 			(a -> sum(a.genome .== eZero)),
@@ -281,13 +282,13 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=nothing)
 			(a -> sum(a.genome .== qMark))
 		]
 	)
-	DataFrames.rename!(agentDF, 2 => :organism, 4 => :zeros, 5 => :ones, 6 => :qMarks)
+	DataFrames.rename!(simulationDF, 2 => :organism, 4 => :zeros, 5 => :ones, 6 => :qMarks)
 
 	# Postprocessing of data:
-	excludeStepZero!(agentDF)
-	insertcols!(agentDF, (:modifications => agentDF[:, :step] .* (exploratoryGA.nTrials + 1)))
+	excludeStepZero!(simulationDF)
+	insertcols!(simulationDF, (:modifications => simulationDF[:, :step] .* (exploratoryGA.nTrials + 1)))
   
-	return GASimulation(exploratoryGA, agentDF)
+	return GASimulation(exploratoryGA, simulationDF)
 end
 
 # -------------------------------------------------------------------------------------------------
@@ -433,7 +434,13 @@ end
 """
 demo()
 This function shows the use of this module. It will create 4 genetic algorithms with different parameters and runn the simulation with them. 
-Afterwards the results will be plotted.  
+Afterwards the results will be plotted. 
+
+**Arguments:**
+- Nothing
+
+**Return:**
+- Nothing
 """
 function demo()
 	bga1 = BasicGA(100,128,1/100,false;M=1)
@@ -442,7 +449,7 @@ function demo()
 	ega2 = ExploratoryGA(100,128,1/1000,false,100;speedAdvantage=10,M=1)
 	comparison = compare([bga1, bga2, ega1, ega2])
 	displayCompareMinimumScoresPlot(comparison.simulations)
-
+	return
 end
 
 end # of module GAs

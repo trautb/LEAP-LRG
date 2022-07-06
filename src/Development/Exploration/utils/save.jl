@@ -9,18 +9,30 @@ export savePlots, saveData
 	formatTimestamp(timestamp::DateTime)
 
 Format the timestamp format to yyyy_mm_dd__HH_MM_SS.
+
+**Arguments:**
+- **timestamp:** One DateTime value 
+
+**Return:**
+- Formatted timestamp
 """
 function formatTimestamp(timestamp::DateTime)
 	return Dates.format(timestamp, dateformat"yyyy_mm_dd__HH_MM_SS")
 end
 # -----------------------------------------------------------------------------------------
 """
-	processSimulationData(agentDF::DataFrame)
+	processSimulationData(simulationDF::DataFrame)
 
 Create a dataframe that contains the minimum, maximun, and mean of the score 
 as well as the modifications for each step.
+
+**Arguments:**
+- **simulationDF:** DataFrame containing the simulation data for every individual. 
+	
+**Return:**
+	- DataFrame containing the minimum, maximum and mean values for the entirety of individuals at every step. 
 """
-function processSimulationData(agentDF::DataFrame)
+function processSimulationData(simulationDF::DataFrame)
 	# Define an array of operations to perform on the simulation data:
 	params = [
 		:score => minimum => :minimum,
@@ -30,7 +42,7 @@ function processSimulationData(agentDF::DataFrame)
 	]
 
 	# Perform the above operations for each simulation step:
-	dataPerStep = groupby(agentDF, :step)
+	dataPerStep = groupby(simulationDF, :step)
 	processedDF = combine(dataPerStep, params...)
 
 	# Return the processed simulation data:
@@ -41,15 +53,21 @@ end
 	generateSimulationPlots(simulation::GASimulation, processedDF::DataFrame)
 
 Generate the desired simualtion plots of the simulation.
+
+**Arguments:**
+- **simulation:** The result of one simulation.
+- **processedDF:** DataFrame processed by processSimulationData().  
+	
+**Return:**
+	- Dictionary containing all plots that get created using the simulation and processedDF parameters.
 """
 function generateSimulationPlots(simulation::GASimulation, processedDF::DataFrame)
 	# Extract simulation parameters and results:
-	simulationData = simulation.agentDF
+	simulationData = simulation.simulationDF
 	algorithm = simulation.algorithm
 	
 	# Return a dictionary with "plot_name" => "plot" pairs:
 	return Dict{String, Plots.Plot}(
-		#"scoreOT" => scoreOverTime(simulationData, algorithm),
 		"scoreSpanOT" => scoreSpanOverTime(processedDF, algorithm),
 		"topTierOT_5P" => topTierOverTime(simulationData, 5, algorithm),
 		"topTierOT_1P" => topTierOverTime(simulationData, 1, algorithm),
@@ -74,13 +92,13 @@ function savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::D
 	end
 end
 """
-	savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::DateTime)
+	savePlots(simulation::GASimulation)
 
 Save the desired plots of the simulation.
 """
 function savePlots(simulation::GASimulation)
 	# Process simulation data:
-	processedDF = processSimulationData(simulation.agentDF)
+	processedDF = processSimulationData(simulation.simulationDF)
 
 	# Generate plots for the given simulation:
 	simulationPlots = generateSimulationPlots(simulation, processedDF)
@@ -98,11 +116,18 @@ end
 
 Save a plot comparing the minimal scores per number of modifications for each simulation result 
 and if wanted the desired plots of each simulation.
+
+**Arguments:**
+- **comparison:** Contains the results multiple genetic algorithm simulations.
+- **withSimulationPlots:** Switch that will decide if only comparisonPlots or also simulationPlots will be plotted and saved. 
+
+**Return:**
+- Nothing
 """
 function savePlots(comparison::GAComparison; withSimulationPlots=true)
 	# Process data of every simulation:
 	processedData = Dict{GASimulation, DataFrame}(
-		map(sim -> sim => processSimulationData(sim.agentDF), comparison.simulations)
+		map(sim -> sim => processSimulationData(sim.simulationDF), comparison.simulations)
 	)
 	
 	# Generate plots for the given comparison:
@@ -123,10 +148,11 @@ function savePlots(comparison::GAComparison; withSimulationPlots=true)
 			)
 		end
 	end
+	return
 end
 # -----------------------------------------------------------------------------------------
 """
-	saveData(dataFrame::DataFrames.DataFrame, prefix::String, timestamp::DateTime, content::String)
+	saveData(dataFrame::DataFrame, prefix::String, timestamp::DateTime, content::String)
 
 Save a dataframe as .csv file with the constructed filename.
 """
@@ -146,7 +172,7 @@ Save the dataframe including the results of each agent in the simulation.
 function saveData(simulation::GASimulation)
 	# Save agent dataframe of the simulation:
 	saveData(
-		simulation.agentDF, 
+		simulation.simulationDF, 
 		"simulation", 
 		simulation.timestamp, 
 		paramstring(simulation.algorithm)
@@ -159,6 +185,12 @@ end
 
 Save the dataframes including the results of each agent in each simulation 
 and the dataframe including the runtimes of each simulation.
+
+**Arguments:**
+- **comparison:** Contains the results multiple genetic algorithm simulations.
+
+**Return:**
+- Nothing
 """
 function saveData(comparison::GAComparison)
 	# Save agent dataframe for each simulation:
@@ -168,4 +200,5 @@ function saveData(comparison::GAComparison)
 
 	# Save runtimes
 	saveData(comparison.runtimes, "comparison", comparison.timestamp, "runtimes")
+	return
 end

@@ -10,7 +10,7 @@ That is because during recombination the amount of individuals will be cut in ha
 - **fitness:** A vector containing the current fitness values of all individuals.
 
 **Return:**
-- **parents:** A vector containing the indices of the individuals that won the tournament selection. 
+- A vector containing the indices of the individuals that won the tournament selection. 
 """
 function encounter(fitness::AbstractVector)
 
