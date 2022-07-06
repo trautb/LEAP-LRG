@@ -4,7 +4,7 @@ module GAs
 # =========================================================================================
 
 # Export functions to start a genetic algorithm simulation
-export simulate, compare, compare
+export simulate, compare, compare, demo
 
 # Import external modules
 using Statistics
@@ -27,6 +27,7 @@ include("utils/transpose.jl")
 include("utils/results.jl")				# Depends on core/algorithms.jl		
 include("utils/plotting.jl")			# Depends on utils/results.jl
 include("utils/save.jl")				# Depends on utils/plotting.jl
+include("utils/display.jl")
 
 # Include evolutionary mechanisms
 include("mechanisms/plasticity.jl")		# Depends on core/alleles.jl
@@ -304,6 +305,24 @@ function compare(
 	end
 
 	return comparison
+end
+
+
+
+"""
+demo()
+
+This function shows the use of this module. It will create 4 genetic algorithms with different parameters and runn the simulation with them. 
+Afterwards the results will be plotted.  
+"""
+function demo()
+	bga1 = BasicGA(100,128,1/100,false;M=1)
+	bga2 = BasicGA(100,128,1/1000,false;M=1)
+	ega1 = ExploratoryGA(100,128,1/100,false,100;speedAdvantage=10,M=1)
+	ega2 = ExploratoryGA(100,128,1/1000,false,100;speedAdvantage=10,M=1)
+	comparison = compare([bga1, bga2, ega1, ega2])
+	displayCompareMinimumScoresPlot(comparison.simulations)
+
 end
 
 end # of module GAs
