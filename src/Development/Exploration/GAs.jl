@@ -128,8 +128,10 @@ the parameters provided by the BasicGA struct.
 - The agent based model to use for the simulation.
 """
 function initialize(basicGA::BasicGA)
+	# Define a space for the model (mandatory parameter, but not used in BasicGA simulations):
 	space = GridSpace((basicGA.M, basicGA.M); periodic=false)
 	
+	# Define model properties using the parameters of the GA instance:
 	properties = Dict([
 		# Properties for algorithm execution:
 		:mu => basicGA.mu,
@@ -137,8 +139,8 @@ function initialize(basicGA::BasicGA)
 		:useHintonNowlan => basicGA.useHintonNowlan,
 	])
 
+	# Initialize the agent based model with properties and fill it with agents:
 	model = ABM(BasicGAAgent{BasicGAAlleles}, space; properties)
-
 	for n in 1:basicGA.nIndividuals
         agent = BasicGAAgent(
 			n, (1, 1), rand(instances(BasicGAAlleles), basicGA.nGenes), 0
@@ -162,8 +164,10 @@ using the parameters provided by the ExploratoryGA struct.
 - The agent based model to use for the simulation.
 """
 function initialize(exploratoryGA::ExploratoryGA)
+	# Define a space for the model (mandatory parameter, but not used in ExploratoryGA simulations):
 	space = GridSpace((exploratoryGA.M, exploratoryGA.M); periodic=false)
 
+	# Define model properties using the parameters of the GA instance:
 	properties = Dict([
 		# Properties for algorithm execution:
 		:mu => exploratoryGA.mu,
@@ -172,8 +176,8 @@ function initialize(exploratoryGA::ExploratoryGA)
 		:nTrials => exploratoryGA.nTrials,
 	])
 
+	# Initialize the agent based model with properties and fill it with agents:
 	model = ABM(ExploratoryGAAgent{ExploratoryGAAlleles}, space; properties)
-
 	for n in 1:exploratoryGA.nIndividuals
         agent = ExploratoryGAAgent(
 			n, (1, 1), rand(instances(ExploratoryGAAlleles), exploratoryGA.nGenes), 0
@@ -229,20 +233,26 @@ function simulate(basicGA::BasicGA, nSteps=100; seed=nothing)
 		Random.seed!(seed);
 	end
 	
+	# Initialize and run the agent based model with parameters from basicGA:
 	model = initialize(basicGA)
-
 	simulationDF, _ = run!(model, dummystep, basic_step!, nSteps; 
-		adata=[
-			:score,
-			(a -> sum(a.genome .== bZero)),
-			(a -> sum(a.genome .== bOne))
+		adata=[	
+			:score,											# Track the score (objective)
+			(a -> sum(a.genome .== bZero)),					# Track number of 0's
+			(a -> sum(a.genome .== bOne))					# Track number of 1's
 		]
 	)
-	DataFrames.rename!(simulationDF, 2 => :organism, 4 => :zeros, 5 => :ones)
-	
-	# Postprocessing of data:
-	excludeStepZero!(simulationDF)
-	insertcols!(simulationDF, (:modifications => simulationDF[:, :step]))
+
+	# Process the simulation data before returning it:
+	DataFrames.rename!(										# Give columns meaningful names
+		simulationDF, 
+		2 => :organism, 4 => :zeros, 5 => :ones 	
+	)
+	excludeStepZero!(agentDF)								# Exclude data with no information
+	insertcols!(											# Insert number of genome modifications
+		simulationDF, 
+		(:modifications => agentDF[:, :step])	
+	)
 
 	return GASimulation(basicGA, simulationDF)
 end
@@ -272,22 +282,29 @@ function simulate(exploratoryGA::ExploratoryGA, nSteps=100; seed=nothing)
 		Random.seed!(seed);
 	end
 
+	# Initialize and run the agent based model with parameters from exploratoryGA:
 	model = initialize(exploratoryGA)
-
 	simulationDF, _ = run!(model, dummystep, exploratory_step!, nSteps; 
 		adata=[
-			:score,
-			(a -> sum(a.genome .== eZero)),
-			(a -> sum(a.genome .== eOne)),
-			(a -> sum(a.genome .== qMark))
+			:score,								# Track the score (objective)
+			(a -> sum(a.genome .== eZero)),		# Track number of 0's
+			(a -> sum(a.genome .== eOne)),		# Track number of 1's
+			(a -> sum(a.genome .== qMark))		# Track number of ?'s
 		]
 	)
-	DataFrames.rename!(simulationDF, 2 => :organism, 4 => :zeros, 5 => :ones, 6 => :qMarks)
+	
+	# Process the simulation data before returning it:
+	DataFrames.rename!(							# Give columns meaningful names 					
+		simulationDF, 
+		2 => :organism, 4 => :zeros, 
+		5 => :ones, 6 => :qMarks			
+	)
+	excludeStepZero!(simulationDF)				# Exclude data with no information
+	insertcols!(								# Insert number of genome modifications
+		agentDF, 
+		(:modifications => simulationDF[:, :step] .* (exploratoryGA.nTrials + 1))
+	)
 
-	# Postprocessing of data:
-	excludeStepZero!(simulationDF)
-	insertcols!(simulationDF, (:modifications => simulationDF[:, :step] .* (exploratoryGA.nTrials + 1)))
-  
 	return GASimulation(exploratoryGA, simulationDF)
 end
 
@@ -320,11 +337,12 @@ Default: nothing
 """
 function compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=true, seed=nothing) where {T <: GeneticAlgorithm}
 	
+	# Initialize runtime tracker, number of simulations and container for simulation results:
 	runtimes = TrackingTimer()
-	# Initialize necessary variables:
 	nGAs = length(geneticAlgorithms)
 	simulationData = Vector{GASimulation}(undef, nGAs)
 
+	# Calculate the objective function evaluations per step for each genetic algorithm:
 	evalsPerStep = 
 		map(function(algo) 
 			if typeof(algo) == BasicGA
@@ -336,41 +354,67 @@ function compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=
 			end
 		end
 	, geneticAlgorithms)
+	maxEvals, _ = findmax(evalsPerStep)					
 
-	maxEvals, _ = findmax(evalsPerStep)
-
-	if multiThreading && Threads.nthreads() > 1 # TODO: Comment
-		simDataLock = ReentrantLock()
+	# Only attempt to use multithreading, if it is specified and there is more than one thread:
+	if multiThreading && Threads.nthreads() > 1
+		simDataLock = ReentrantLock()					# Initialize lock for multithreading
 
 		# Perform similar simulations for every given genetic algorithm:
 		Threads.@threads for i in 1:nGAs
-			currentAlgorithm = geneticAlgorithms[i]
+			# Determine the the adjustment for the number of steps of the next simulation:
 			factor, remainder = divrem(maxEvals, evalsPerStep[i])
 			if !(remainder == 0) @warn "Genome modifications not exactly comparable" end
-			@info string("[Thread ", Threads.threadid(), "] (", Dates.Time(now()), ") Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
-			TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(currentAlgorithm, nSteps*factor; seed=seed)
-			lock(simDataLock) 
+			
+			currentAlgorithm = geneticAlgorithms[i]		# Get the next algorithm to simulate
+
+			# Print an information to the console, that the simulation has started:
+			@info string(
+				"[Thread ", Threads.threadid(), "] (", Dates.Time(now()), ") Running ", currentAlgorithm, " with ", nSteps*factor, " steps."
+			)
+
+			# Run the genetic algorithm and initialize runtime tracking:
+			TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = 
+				simulate(currentAlgorithm, nSteps*factor; seed=seed)
+			
+			# Store the results in the result vector:
+			lock(simDataLock) 							# Lock the result vector to avoid data race
 			try
 				simulationData[i] = result
 			finally
 				unlock(simDataLock)
 			end
-			@info string("[Thread ", Threads.threadid(), "] (", Dates.Time(now()), ") Finished running ", currentAlgorithm, ".")
-			end
+
+			# Print an information to the console, that the simulation has finished:
+			@info string(
+				"[Thread ", Threads.threadid(), "] (", Dates.Time(now()),
+				") Finished running ", currentAlgorithm, "."
+			)
+		end
 	else
 		for i in 1:nGAs
-			currentAlgorithm = geneticAlgorithms[i]
+			# Determine the the adjustment for the number of steps of the next simulation:
 			factor, remainder = divrem(maxEvals, evalsPerStep[i])
 			if !(remainder == 0) @warn "Genome modifications not exactly comparable" end
+			
+			currentAlgorithm = geneticAlgorithms[i]			# Get the next algorithm to simulate
+			
+			# Print an information to the console, that the simulation has started:
 			@info string("(", Dates.Time(now()), ") Running ", currentAlgorithm, " with ", nSteps*factor, " steps.")
-			TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = simulate(currentAlgorithm, nSteps*factor; seed=seed)
-			simulationData[i] = result
+
+			# Run the genetic algorithm and initialize runtime tracking:
+			TrackingTimers.@timeit runtimes string(i, ": ",currentAlgorithm) result = 
+				simulate(currentAlgorithm, nSteps*factor; seed=seed)
+			
+			simulationData[i] = result						# Store the results
+
+			# Print an information to the console, that the simulation has finished:
 			@info string("(", Dates.Time(now()), ") Finished running ", currentAlgorithm, ".")
-			end
+		end
 	end
 	
 	# Return a comparison of the given genetic algorithms:
-	return GAComparison(simulationData,DataFrame(runtimes))
+	return GAComparison(simulationData, DataFrame(runtimes))
 end
 
 """
@@ -407,20 +451,23 @@ function compare(
 ) where {T <: GeneticAlgorithm}
 	isDirnameValid = isdir(dirname)
 
+	# If the given dirname is valid, construct a new subdir name out of the current datetime:
 	if isDirnameValid
 		subdir = Dates.format(Dates.now(), dateformat"yyyy_mm_dd__HH_MM")
 	end
 
+	# Run the simulations:
 	comparison = compare(geneticAlgorithms, nSteps; multiThreading=multiThreading, seed=seed)
 
+	# If it is valid, save the simulation results to the given directory:
 	if isDirnameValid
 		pwdBackup = pwd()
 		cd(dirname)
 		mkpath(subdir)
 		cd(subdir)
 
-		savePlots(comparison, withSimulationPlots=saveSpecificPlots)
-		saveData(comparison)
+		savePlots(comparison, withSimulationPlots=saveSpecificPlots)		
+		saveData(comparison)												
 
 		cd(pwdBackup)
 	else
