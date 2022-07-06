@@ -1,13 +1,16 @@
 """
-encounter(fitness::AbstractVector)
+    encounter(fitness::AbstractVector)
 
 This function takes all individuals and lets each one compete against another individual. 
 The individual with the higher fitness will be a parent for the next generation. 
 This will be done 2 times, so that the parent vector is twice the size as the individuals. 
 That is because during recombination the amount of individuals will be cut in half again.
 
-fitness: A vector containing the current fitness values of all individuals.
-parents: A vector containing the indices of the individuals that won the tournament selection. 
+**Arguments:**
+- **fitness:** A vector containing the current fitness values of all individuals.
+
+**Return:**
+- **parents:** A vector containing the indices of the individuals that won the tournament selection. 
 """
 function encounter(fitness::AbstractVector)
 
