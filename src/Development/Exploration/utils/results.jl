@@ -18,7 +18,7 @@ The DataFrame `simulationDF` should contain at least the following columns:
 struct GASimulation
     timestamp::DateTime						# The end-time of the simulation
     algorithm::GeneticAlgorithm				# The algorithm used for the simulation
-    simulationDF::DataFrame						# The agent-data collected during the simulation
+    simulationDF::DataFrame					# The agent-data collected during the simulation
 
 	# Constructor of a GASimulation, that inserts the current time as simulation end-time:
     function GASimulation(
