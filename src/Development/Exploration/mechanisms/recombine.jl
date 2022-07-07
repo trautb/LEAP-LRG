@@ -15,7 +15,7 @@ parents Array and returns a matrix of the next generation.
 - **genpool:** Matrix containing the genome of every individual.
 - **alleles:** Vector containing the alleles found in the genpool. (basicGA: 0,1 ; exploratoryGA: 0,1,2)
 - **mu:** Mutation rate.
-- **casino:** Use the casino module. 
+- **casino:** The Casino instance to use. 
 
 **Return:**
 - The mutated (original) genpool.

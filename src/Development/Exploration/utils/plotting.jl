@@ -215,7 +215,7 @@ end
 	allelicExpressionNumber(simulationDF::DataFrame, algorithm::GeneticAlgorithm) 
 
 This function takes the data of a simulation, evalates the mean number of diffenrent alleles 
-every step and plots them afterwards.
+at every step and plots them afterwards.
 
 **Arguments:**
 - **simulationDF:** The agent dataframe, that was returned by the simulation.

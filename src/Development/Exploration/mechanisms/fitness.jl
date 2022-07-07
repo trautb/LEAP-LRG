@@ -104,7 +104,7 @@ underlyingEvaluations is a colum vector of evaluations of the population.
 **Arguments:**
 - **genpool:** A matrix containing the genome of every individual.
 - **nTrials:** The number of exploratory searches per step.
-- **casino:** Use the casino module. 
+- **casino:** The Casino instance to use. 
 - **useHintonNowlan:** Switch to either use mepi or hintonNowlan function.
 
 **Return:**

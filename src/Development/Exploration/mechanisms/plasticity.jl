@@ -13,7 +13,7 @@ Every `qMark` has an equal probability of 50% to change into an `eZero` or an `e
 
 **Arguments:**
 - **genpool:** Matrix containing the genome of every individual.
-- **casino:** Use the casino module. 
+- **casino:** The Casino instance to use. 
 
 **Return:**
 - The phenotype-matrix resulting from the above translation (plasticity) as a new array.

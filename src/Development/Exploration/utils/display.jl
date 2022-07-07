@@ -3,10 +3,9 @@
 
 This function takes in the simulation data of the compare function and plots the minimal scores per step for each simulation result.
 This plot will then be displayed.
-simulations: Vector that contains the results of every simulation
 
 **Arguments:**
-- **simulations:** Vector containing the results of simulations.
+- **simulations:** Vector containing the results of the simulations.
 
 **Return:**
 - Nothing

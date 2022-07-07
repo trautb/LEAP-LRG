@@ -310,7 +310,7 @@ end
 
 # -------------------------------------------------------------------------------------------------
 """
-compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=true, seed=nothing)
+	compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=true, seed=nothing)
 
 Run one simulation for every genetic algorithm given by the vector `geneticAlgorithms`. 
 	
@@ -362,7 +362,7 @@ function compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=
 
 		# Perform similar simulations for every given genetic algorithm:
 		Threads.@threads for i in 1:nGAs
-			# Determine the the adjustment for the number of steps of the next simulation:
+			# Determine the adjustment for the number of steps of the next simulation:
 			factor, remainder = divrem(maxEvals, evalsPerStep[i])
 			if !(remainder == 0) @warn "Genome modifications not exactly comparable" end
 			
@@ -393,7 +393,7 @@ function compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=
 		end
 	else
 		for i in 1:nGAs
-			# Determine the the adjustment for the number of steps of the next simulation:
+			# Determine the adjustment for the number of steps of the next simulation:
 			factor, remainder = divrem(maxEvals, evalsPerStep[i])
 			if !(remainder == 0) @warn "Genome modifications not exactly comparable" end
 			
@@ -480,7 +480,7 @@ end
 # ---------------------------------------------------------------------------------------------------
 """
 demo()
-This function shows the use of this module. It will create 4 genetic algorithms with different parameters and runn the simulation with them. 
+This function shows the use of this module. It will create 4 genetic algorithms with different parameters and run a simulation for each of them. 
 Afterwards the results will be plotted. 
 
 **Arguments:**

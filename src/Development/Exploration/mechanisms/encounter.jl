@@ -1,3 +1,9 @@
+# ===============================================================================================
+### encounter.jl: 
+# Defines functions to determine, which individuals of a population will reproduce to generate the
+# next generation of individuals.
+# ===============================================================================================
+
 """
     encounter(fitness::AbstractVector)
 

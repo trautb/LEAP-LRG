@@ -8,7 +8,7 @@ export savePlots, saveData
 """
 	formatTimestamp(timestamp::DateTime)
 
-Format the timestamp format to yyyy_mm_dd__HH_MM_SS.
+Format the timestamp to match the pattern `yyyy_mm_dd__HH_MM_SS`.
 
 **Arguments:**
 - **timestamp:** One DateTime value 
@@ -115,7 +115,7 @@ end
 	savePlots(plots::Dict{String, Plots.Plot}, prefix::String, timestamp::DateTime)
 
 Save a plot comparing the minimal scores per number of modifications for each simulation result 
-and if wanted the desired plots of each simulation.
+and the desired plots of each simulation, if specified.
 
 **Arguments:**
 - **comparison:** Contains the results multiple genetic algorithm simulations.
@@ -167,7 +167,7 @@ end
 """
 	saveData(simulation::GASimulation)
 
-Save the dataframe including the results of each agent in the simulation.
+Save the dataframe containing the results of each agent in the simulation.
 """
 function saveData(simulation::GASimulation)
 	# Save agent dataframe of the simulation:
@@ -183,8 +183,8 @@ end
 """
 	saveData(comparison::GAComparison)
 
-Save the dataframes including the results of each agent in each simulation 
-and the dataframe including the runtimes of each simulation.
+Save the dataframes containing the results of each agent in each simulation 
+and the dataframe containing the runtimes of each simulation.
 
 **Arguments:**
 - **comparison:** Contains the results multiple genetic algorithm simulations.
