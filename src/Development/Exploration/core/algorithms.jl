@@ -22,7 +22,7 @@ struct BasicGA <: GeneticAlgorithm
     nIndividuals::Integer
     nGenes::Integer
     mu::Number 						# mutation rate
-    useHintonNowlan::Bool
+    useHaystack::Bool
     M::Integer 						# the size of the ABM space
 
 
@@ -30,10 +30,10 @@ function BasicGA(
 		nIndividuals::Integer = 100, 
 		nGenes::Integer = 128,
 		mu::Number = 2/(nIndividuals*nGenes),
-		useHintonNowlan::Bool = false;
+		useHaystack::Bool = false;
 		M::Integer = 1
 	) 
-		return new(nIndividuals, nGenes, mu, useHintonNowlan, M)
+		return new(nIndividuals, nGenes, mu, useHaystack, M)
 	end 
 end
 
@@ -47,7 +47,7 @@ struct ExploratoryGA <: GeneticAlgorithm
 	nIndividuals::Integer
 	nGenes::Integer
 	mu::Number						# Mutation rate
-	useHintonNowlan::Bool
+	useHaystack::Bool
 	nTrials::Integer
 	M::Integer						# The size of the abm space
 
@@ -55,12 +55,12 @@ struct ExploratoryGA <: GeneticAlgorithm
 		nIndividuals::Integer = 100, 
 		nGenes::Integer = 128,
 		mu::Number = 2/(nIndividuals*nGenes),
-		useHintonNowlan::Bool = false,
+		useHaystack::Bool = false,
 		nTrials::Integer = 100;
 		speedAdvantage::Number = 10,
 		M::Integer = 1
 	) 
-		return new(nIndividuals, nGenes, mu, useHintonNowlan, nTrials, M)
+		return new(nIndividuals, nGenes, mu, useHaystack, nTrials, M)
 	end 
 end	
 
@@ -93,7 +93,7 @@ function paramstring(algorithm::BasicGA)
 		"--nIndividuals-", algorithm.nIndividuals,
 		"--nGenes-", algorithm.nGenes,
 		"--mu-", pointToUnderscore(repr(algorithm.mu)),
-		"--useHN-", algorithm.useHintonNowlan
+		"--useHN-", algorithm.useHaystack
 	)
 end
 
@@ -102,7 +102,7 @@ function paramstring(algorithm::ExploratoryGA)
 		"--nIndividuals-", algorithm.nIndividuals,
 		"--nGenes-", algorithm.nGenes,
 		"--mu-", pointToUnderscore(repr(algorithm.mu)),
-		"--useHN-", algorithm.useHintonNowlan,
+		"--useHN-", algorithm.useHaystack,
 		"--nTrials-", algorithm.nTrials
 	)
 end

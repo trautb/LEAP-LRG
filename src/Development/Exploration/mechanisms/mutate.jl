@@ -1,32 +1,32 @@
 # =========================================================================================
-### mutate.jl: Defines functions to mutate the genpool of a population
+### mutate.jl: Defines functions to mutate the genePool of a population
 # =========================================================================================
 
 """
-	mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
+	mutate!(genePool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
 
-Mutates the given genpool of alleles (represented by integers).
+Mutates the given genePool of alleles (represented by integers).
 
-Each element in `genpool` has probability `mu` to be replaced by a random allele of `alleles`, which
+Each element in `genePool` has probability `mu` to be replaced by a random allele of `alleles`, which
 should be a vector of possible allele choices. To dermine the loci, where a mutation should happen,
 the function uses the Casino `casino`.
 
-ATTENTION: The mutation modifies the original array, but the new genpool is returned anyway.
+ATTENTION: The mutation modifies the original array, but the new genePool is returned anyway.
 
 **Arguments:**
-- **genpool:** Matrix containing the genome of every individual.
-- **alleles:** Vector containing the alleles found in the genpool. (basicGA: 0,1 ; exploratoryGA: 0,1,2)
+- **genePool:** Matrix containing the genome of every individual.
+- **alleles:** Vector containing the alleles found in the genePool. (basicGA: 0,1 ; exploratoryGA: 0,1,2)
 - **mu:** Mutation rate.
 - **casino:** The Casino instance to use. 
 
 **Return:**
-- The mutated (original) genpool.
+- The mutated (original) genePool.
 """
-function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
+function mutate!(genePool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}
 	# Only expend effort on mutating if it is really wanted:
 	if mu > 0
 		# Get population size and number of genes per individual:
-		nIndividuals, nGenes = size(genpool)
+		nIndividuals, nGenes = size(genePool)
 
 		# Find loci to mutate:
 		loci = draw(casino, nIndividuals, nGenes, mu)
@@ -36,45 +36,45 @@ function mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <:
 			draw(casino, nIndividuals, nGenes) .* length(alleles)
 		))
 
-		# Now mutate the genpool of the population:
+		# Now mutate the genePool of the population:
 		for i ∈ 1:nIndividuals
 			# Modifiy the selected loci:
-			genpool[i, loci[i, :]] = alleles[alleleIdx[i, loci[i, :]]];
+			genePool[i, loci[i, :]] = alleles[alleleIdx[i, loci[i, :]]];
 		end
 	end
 
-	# Return the mutated (original) genpool:
-	return genpool
+	# Return the mutated (original) genePool:
+	return genePool
 end
 
 # -----------------------------------------------------------------------------------------
 """
-	mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
+	mutate!(genePool::Matrix{T}, mu, casino) where {T <: Enum}
 
-Mutates the given genpool of alleles (represented by enums) by mutating its integer representation.
+Mutates the given genePool of alleles (represented by enums) by mutating its integer representation.
 
-See above: `mutate!(genpool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}`
+See above: `mutate!(genePool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}`
 
-ATTENTION: The mutation modifies the original array, but the new genpool is returned anyway.
+ATTENTION: The mutation modifies the original array, but the new genePool is returned anyway.
 
 **Arguments:**
-- **genpool:** Matrix containing the genome of every individual.
+- **genePool:** Matrix containing the genome of every individual.
 - **mu:** Mutation rate.
 - **casino:** Use the casino module. 
 
 **Return:**
-- The mutated (original) genpool.
+- The mutated (original) genePool.
 """
-function mutate!(genpool::Matrix{T}, mu, casino) where {T <: Enum}
+function mutate!(genePool::Matrix{T}, mu, casino) where {T <: Enum}
 	# Determine possible alleles:
-	alleles = eltype(genpool);
+	alleles = eltype(genePool);
 
 	# Get alleles and convert them to integers:
 	intAlleles = [Int(i) for i in instances(alleles)]
 	
-	# Perform mutation on the genpool of the population:
-	mutatedGenpool = mutate!(Int.(genpool), intAlleles; mu, casino)
+	# Perform mutation on the genePool of the population:
+	mutatedGenePool = mutate!(Int.(genePool), intAlleles; mu, casino)
 
-	# Convert integers back to alleles and modfiy original genpool:
-	return genpool .= alleles.(mutatedGenpool)
+	# Convert integers back to alleles and modfiy original genePool:
+	return genePool .= alleles.(mutatedGenePool)
 end

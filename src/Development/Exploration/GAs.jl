@@ -51,25 +51,25 @@ Implements one single step of a BasicGA simulation.
 - Nothing
 """
 function basic_step!(model)
-	# Get the populations' genpool:
-	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
+	# Get the populations' genePool:
+	genePool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(Bool.(genpool), model.useHintonNowlan)
+	popFitness, evaluations = fitness(Bool.(genePool), model.useHaystack)
 
 	# Perform selection:
 	selectionWinners = encounter(popFitness)
 
 	# Perform recombination:
-	nextGenpool = recombine(genpool, selectionWinners)
+	nextGenePool = recombine(genePool, selectionWinners)
 
 	# Perform mutation:
-	mutate!(nextGenpool, model.mu, model.casino)
+	mutate!(nextGenePool, model.mu, model.casino)
 
 	# "import" new genome into the ABM:
 	agentIDs = collect(allids(model))
 	for i ∈ 1:nagents(model)
-		model[agentIDs[i]].genome = nextGenpool[i,:]
+		model[agentIDs[i]].genome = nextGenePool[i,:]
 		model[agentIDs[i]].score = evaluations[i]
 	end
 	
@@ -89,25 +89,25 @@ Implements one single step of a ExploratoryGA simulation.
 - Nothing
 """
 function exploratory_step!(model)
-	# Get the populations' genpool:
-	genpool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
+	# Get the populations' genePool:
+	genePool = reduce(vcat, map(agent -> transpose(agent.genome), allagents(model)))
 
 	# Evaluate objective function and fitness:
-	popFitness, evaluations = fitness(genpool, model.nTrials, model.casino, model.useHintonNowlan) 
+	popFitness, evaluations = fitness(genePool, model.nTrials, model.casino, model.useHaystack) 
 
 	# Perform selection:
 	selectionWinners = encounter(popFitness)
 
 	# Perform recombination:
-	nextGenpool = recombine(genpool, selectionWinners)
+	nextGenePool = recombine(genePool, selectionWinners)
 	
 	# Perform mutation:
-	mutate!(nextGenpool, model.mu, model.casino)
+	mutate!(nextGenePool, model.mu, model.casino)
 	
 	# "import" new genome into the ABM:
 	agentIDs = collect(allids(model))
 	for i ∈ 1:nagents(model)
-		model[agentIDs[i]].genome = nextGenpool[i,:]
+		model[agentIDs[i]].genome = nextGenePool[i,:]
 		model[agentIDs[i]].score = evaluations[i]
 	end
 
@@ -136,7 +136,7 @@ function initialize(basicGA::BasicGA)
 		# Properties for algorithm execution:
 		:mu => basicGA.mu,
 		:casino => Casino(basicGA.nIndividuals + 1, basicGA.nGenes + 1),
-		:useHintonNowlan => basicGA.useHintonNowlan,
+		:useHaystack => basicGA.useHaystack,
 	])
 
 	# Initialize the agent based model with properties and fill it with agents:
@@ -172,7 +172,7 @@ function initialize(exploratoryGA::ExploratoryGA)
 		# Properties for algorithm execution:
 		:mu => exploratoryGA.mu,
 		:casino => Casino(exploratoryGA.nIndividuals + 1, exploratoryGA.nGenes + 1),
-		:useHintonNowlan => exploratoryGA.useHintonNowlan,
+		:useHaystack => exploratoryGA.useHaystack,
 		:nTrials => exploratoryGA.nTrials,
 	])
 

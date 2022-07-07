@@ -31,9 +31,10 @@ end
 
 # -----------------------------------------------------------------------------------------
 """
-hintonNowlan(genome::BitVector)
+haystack(genome::BitVector)
 
-Hinton and Nowlans's simple example function.
+Hinton and Nowlans's example function. It works like finding a needle in a haystack only
+returning 0 when every gene of an individual has the value 1. 
 
 **Arguments:**
 - **genome:** A vector containing the genes of one individual.
@@ -41,14 +42,14 @@ Hinton and Nowlans's simple example function.
 **Return:**
 - One value of the datatype Integer. Will only be 0 if the whole genome is made out of ones. Otherwise it will be 1.
 """
-function hintonNowlan(genome::BitVector)
-	# hintonNowlan is minimized if all allels are 1:
+function haystack(genome::BitVector)
+	# haystack is minimized if all allels are 1:
 	return all(genome) ? 0 : 1
 end
 
 # -----------------------------------------------------------------------------------------
 """
-	fitness(genpool::BitMatrix, useHintonNowlan::Bool)
+	fitness(genePool::BitMatrix, useHaystack::Bool)
 
 Calculate normalised fitness of the population based on the Objective function. 
 fitness is a column vector of normalised fitnesses of GA population, 
@@ -57,21 +58,21 @@ the objective function; higher magnitudes raise the fitness pressure.
 evaluations is a colum vector of evaluations of the population. 
 
 **Arguments:**
-- **genpool:** A matrix containing the genome of every individual.
-- **useHintonNowlan:** Switch to either use mepi or hintonNowlan function.
+- **genePool:** A matrix containing the genome of every individual.
+- **useHaystack:** Switch to either use mepi or haystack function.
 
 **Return:**
 - The fitness and underlying evaluation values.
 """
-function fitness(genpool::BitMatrix, useHintonNowlan::Bool) 
+function fitness(genePool::BitMatrix, useHaystack::Bool) 
 
-	nIndividuals = size(genpool)[1]
+	nIndividuals = size(genePool)[1]
 
 	# Calculate the current evaluations of the coosen objective function of the population:
-	if useHintonNowlan
-		evaluations = hintonNowlan.([genpool[i,:] for i = 1:nIndividuals]) 
+	if useHaystack
+		evaluations = haystack.([genePool[i,:] for i = 1:nIndividuals]) 
 	else
-		evaluations = mepi.([genpool[i,:] for i = 1:nIndividuals]) 
+		evaluations = mepi.([genePool[i,:] for i = 1:nIndividuals]) 
 	end
 
 	# Normalise the evaluations into frequencies:
@@ -91,7 +92,7 @@ end
 
 #---------------------------------------------------------------------------------------------------
 """
-	fitness(genpool::Matrix{ExploratoryGAAlleles}, nTrials::Integer, casino, useHintonNowlan::Bool)  
+	fitness(genePool::Matrix{ExploratoryGAAlleles}, nTrials::Integer, casino, useHaystack::Bool)  
 
 Calculate normalised fitness based on the Objective function at each plasticity trial
 and keeps the best fitness and underlying evaluation of all plasticity trials for each individual. 
@@ -102,21 +103,21 @@ maximises the objective function; higher magnitudes raise the fitness pressure.
 underlyingEvaluations is a colum vector of evaluations of the population. 
 
 **Arguments:**
-- **genpool:** A matrix containing the genome of every individual.
+- **genePool:** A matrix containing the genome of every individual.
 - **nTrials:** The number of exploratory searches per step.
 - **casino:** The Casino instance to use. 
-- **useHintonNowlan:** Switch to either use mepi or hintonNowlan function.
+- **useHaystack:** Switch to either use mepi or haystack function.
 
 **Return:**
 - The fitness and underlying evaluation values.
 """
 function fitness(
-	genpool::Matrix{ExploratoryGAAlleles}, 
+	genePool::Matrix{ExploratoryGAAlleles}, 
 	nTrials::Integer,
 	casino,
-	useHintonNowlan::Bool
+	useHaystack::Bool
 )
-	nIndividuals, _ = size(genpool)
+	nIndividuals, _ = size(genePool)
 
 	# Fitness and evaluations at plasticity trial 0:
 	bestFitnessVals = - ones(nIndividuals)	 # Ensure, evaluations are included at least once
@@ -124,7 +125,7 @@ function fitness(
 
 	# Calculates the fitness at each plasticity trial and keeps the best for each individual:
 	for i in 1:nTrials
-		fitness_i, evaluations_i = fitness(plasticity(genpool, casino), useHintonNowlan) 
+		fitness_i, evaluations_i = fitness(plasticity(genePool, casino), useHaystack) 
 		# Rewarding finding good fitness quickly (see Hinton and Nowlan p.498):
 		fitness_i = fitness_i .* ((1 + 19 * (nTrials - i)) / nTrials) 
 
