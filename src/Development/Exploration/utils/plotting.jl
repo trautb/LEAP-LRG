@@ -102,7 +102,7 @@ end
 This function takes a DataFrame of processed simulation data (``processedDF``) and plots and the 
 maximum, minimum and mean score over time.
 
-Attention: `processedDF` has to be a DataFrame structured like the output of 
+_Attention_: `processedDF` has to be a DataFrame structured like the output of 
 `processSimulationData(simulationDF::DataFrame)` in `save.jl`.
 
 **Arguments:** 
