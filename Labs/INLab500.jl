@@ -218,58 +218,140 @@
 		"???",
 		x -> true
 	),
-	Activity( # nr 13
-		"""
-		# TODO: patches (matrices / )
-		# TODO: introduce `spacing` of ContinuousSpace to reveal locations and let patches be implemented
-		# TODO: => mention `divisions` ?
-		""",    
-	   
-		"???",
-		x -> true
-	),
-	Activity( # nr 14
-		"""
-		# TODO: visualizing (abmvideo? is intro even needed? does this occur somehere? maybe at the end to possibly generate/export a video)
-		""",
-		"???",
-		x -> true
-	),
-
+	
 	# maybe other chapters:
-	Activity( # nr 15
-		"""
-		# TODO: patches (matrices / )
-		# TODO: introduce `spacing` of ContinuousSpace to reveal locations and let patches be implemented
-		# TODO: => mention `divisions` ?
-		""",
-		"???",
-		x -> true
-	),
-	Activity( # nr 16 # TODO: creating an ABM (model properties)
-		"""
-		Now that all
-		""",
-		"???",
-		x -> true
-	),
-	Activity( # nr 17
-		"""
-		# TODO: visualizing (patches: heatarray)
-		""",
-		"???",
-		x -> true
-	),
+	Activity( # nr 13
+        """
+        often we want the ground/surrounding of the Simulation to have propperties/behaviour too.
+        In order to do so, we can define a Matrix with the size of the model space.
+        we can either define one 2d matrix for every property or we can create a multidimensional matrix
+
+        i.e.: patches = zeros(200,200,4) 
+        patches[:,:,1] would then correspond to one of the tile`s propperties
+
+        for readability purposes however, it makes more sense to define several space matricies 
+        i.e.: patches_property1 = zeros=(200,200)
+              patches_property2 = zeros(200,200)
+              etc.
+              now: initialize a 200x200 patches Matrix called nutrients
+        """,    
+        
+        "???",
+        x -> true
+    ),
+    Activity( # nr 14
+        """
+        Most of the time you want to work with continuous spaces, because it gives your agents more flexibility to move.
+        the problem, as you might imagine, is that you cannot use the agent's position (usually a Float) to index the patches matrix.
+            to solve that problem, you can round the agent`s position to an int: i.e.: 
+
+            index = [round(Int,position(1)) round(Int,position(2))]
+        
+            now you can make the agent interact with his surrounding. you can make him pick something up, or drop something for other agents to interact with.
+            It gives your simulation a lot of possibilities!
+            try to use posistion = [50.7 67.88] to idex your nutrients matrix and set its value to 2
+        """,
+        "???",
+        x -> true
+    ),
+
+    # maybe other chapters:
+    Activity( # nr 15
+        """
+        Agents.jl will deal with space boundaries for you when moving your agent. If you work with own matricies however, you need to deal with that yourself.
+        What do you do if you want to check a tile on your nutrients matrix, that is in front of your agent, but your agent already is standing at the border of the map?
+        One technique is, to make him check the first tile on the opposite side of the matrix. You can achive this, by following funktion:
+        
+            function wrapMatrix(mat,index)
+
+                for ids in 1:size(index)[1]
+                    if index[ids][1] == 0
+                        index[ids][1] = -1
+                    end
+                    if index[ids][1] == size_row
+                        index[ids][1] = size_row + 1
+                    end
+                    if index[ids][2] == 0
+                        index[ids][2] = -1
+                    end
+                    if index[ids][2] == size_col
+                        index[ids][2] = size_col + 1
+                    end
+            
+                    index1 = rem(index[ids][1]+size_row,size_row)
+                    index2 = rem(index[ids][2]+size_col,size_col)
+                    return [index1, index2]
+            end
+
+        Hint: rem() gives you the remain/rest after division
+
+        now you canmake an agent interact with his surrounding, wherever he is standing!
+
+        """,
+        "???",
+        x -> true
+    ),
+	Activity( # nr 16
+        """
+        One thing, that Agent based Simulations are not so efficient at, are differential equations. There is an other disciplline called equation based moddeling for that.
+        So if you want to model something like diffusion, you have to find a workaround, or an approximation, that is good enough. Either way can work.
+        Lets stick to the example of diffusion!
+        In this case I personally have two options in mind. You could take advantage of techniques from Image processing, and apply an blurr filter
+        to your matrix of diffusing values. Read a little about Immage filtering and kernels in google and return once youre done!
+        But we can simplify a little more! take a look at the following function:
+
+        function diffuse4(mat::Matrix{Float64},rDiff::Float64)
+
+            map(CartesianIndices(( 1:size(mat)[1]-1, 1:size(mat)[2]-1))) do x
+              iX=x[1]
+              iY=x[2]
+              neighbours = [wrapMat(mat,[iX+1,iY]), wrapMat(mat,[iX-1,iY]), wrapMat(mat,[iX,iY-1]),  wrapMat(mat,[iX,iY+1])]           
+              flow = mat[iX,iY]*rDiff
+              mat[iX,iY] *= 1-rDiff
+        
+              map(neighbours) do j
+                mat[j[1],j[2]] += flow/4
+              end
+            end
+            return mat
+          end
+
+
+          basicly we are applying a small, simple kernell to our matrix and tell every tile, to split a certain ammount of its value to its 4 neighbours.
+          This works good enogh for most of our use cases. 
+          see how we take advantage of our previous functions? (i.e.: wrapMat)
+        """,
+        "???",
+        x -> true
+    ),
+    Activity( # nr 17
+        """
+        Taka a matrix n x m : I bet you are used to iterate through something like this using two for loops...
+        But that is actually really inefficient.
+        it is better to use an array of cartesian indicees, and apply the map function like this:
+
+        map(CartesianIndices(( 1:size(mat)[1]-1, 1:size(mat)[2]-1))) do x
+
+            ... do something with each element x i.e.:
+            println(matrix[x[1],x[2]])
+        end
+
+        now we have only one loop! That is so much faster!
+
+        """,
+        "???",
+        x -> true
+    ),
 	Activity( # nr 18
 		"""
-		# TODO: visualizing (colorschemes)
+		# TODO: visualizing (custom abmplot: lifting)
 		""",
 		"???",
 		x -> true
 	),
 	Activity( # nr 19
 		"""
-		# TODO: visualizing (agent inspection)
+		# TODO: visualizing (mdata, adata)
 		""",
 		"???",
 		x -> true
