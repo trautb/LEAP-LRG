@@ -190,7 +190,7 @@ function compareMinimumScores(simulationData::Vector{GAs.GASimulation}, refGA::G
 			minimumComparison,
 			processedDF[:, :modifications],
 			processedDF[:, :minimum], 
-			label = generateLabel(simulation.algorithm, asSubplot),
+			label = generateLabel(simulation.algorithm, !asSubplot),
 			legend = !asSubplot
 		)
 	end
