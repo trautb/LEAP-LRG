@@ -31,14 +31,14 @@ end
 This function takes the results of various simulations and returns a plot, that compares the 
 minimal scores per number of modifications for each simulation result. 
 
-Attention: The DataFrames in `simulationData` have to be structured like the output of 
+_Attention_: The DataFrames in `simulationData` have to be structured like the output of 
 `processSimulationData(simulationDF::DataFrame)` in `save.jl`.
 
 **Arguments:**
-- **simulationData:** A dictionary of processedDFs for various simulations
+- **simulationData:** A dictionary of processedDFs for various simulations.
 
 **Return:**
-- The finalized, generated plot (see also `finalizePlot!`) 
+- The finalized, generated plot. (see also `finalizePlot!`) 
 """
 function compareMinimumScores(simulationData::Dict{GASimulation, DataFrame})
 	# Initialize plot:
@@ -78,7 +78,7 @@ _Attention_: This function is very expensive for a large number of organisms and
 - **algorithm:** The algorithm, that was used for the simulation.
 
 **Return:**
-- The generated, finalized plot (see also `finalizePlot!`)
+- The generated, finalized plot. (see also `finalizePlot!`)
 """
 function scoreOverTime(simulationDF::DataFrame, algorithm::GeneticAlgorithm)
 	# Transform the simulation data to get score of each organism per step:
@@ -106,11 +106,11 @@ Attention: `processedDF` has to be a DataFrame structured like the output of
 `processSimulationData(simulationDF::DataFrame)` in `save.jl`.
 
 **Arguments:** 
-- **processedDF:** The DataFrame of processed simulation data
-- **algorithm:** The algorithm, which was used in the simulation
+- **processedDF:** The DataFrame of processed simulation data.
+- **algorithm:** The algorithm, which was used in the simulation.
 
 **Return:**
-- The finalized generated plot (see also `finalizePlot!`)
+- The finalized generated plot. (see also `finalizePlot!`)
 """
 function scoreSpanOverTime(processedDF::DataFrame, algorithm::GeneticAlgorithm)
 	plt = Plots.plot(
@@ -159,7 +159,7 @@ Example:
 - **maxBins:** The maximum number of bins in the histogram
 
 **Return:**
-- The generated, finalized plot (see also `finalizePlot!`).
+- The generated, finalized plot. (see also `finalizePlot!`)
 """
 function topTierOverTime(
 	simulationDF::DataFrame,

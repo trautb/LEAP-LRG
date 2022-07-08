@@ -11,10 +11,10 @@ export savePlots, saveData
 Format the timestamp to match the pattern `yyyy_mm_dd__HH_MM_SS`.
 
 **Arguments:**
-- **timestamp:** One DateTime value 
+- **timestamp:** One DateTime value. 
 
 **Return:**
-- Formatted timestamp
+- Formatted timestamp.
 """
 function formatTimestamp(timestamp::DateTime)
 	return Dates.format(timestamp, dateformat"yyyy_mm_dd__HH_MM_SS")
@@ -59,7 +59,7 @@ Generate the desired simualtion plots of the simulation.
 - **processedDF:** DataFrame processed by processSimulationData().  
 	
 **Return:**
-	- Dictionary containing all plots that get created using the simulation and processedDF parameters.
+- Dictionary containing all plots that get created using the simulation and processedDF parameters.
 """
 function generateSimulationPlots(simulation::GASimulation, processedDF::DataFrame)
 	# Extract simulation parameters and results:

@@ -16,7 +16,7 @@ end
 """
 	ExploratoryGAAgent
 
-The agent for a exploratory algorithm (ExploratoryGA) simulation. It represents an organism, which 
+The agent for an exploratory algorithm (ExploratoryGA) simulation. It represents an organism, which 
 tries to minimize an objective function via genetic search in combination with exploration.
 """
 @agent ExploratoryGAAgent{ExploratoryGAAlleles} GridAgent{2} begin

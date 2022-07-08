@@ -8,12 +8,12 @@
 A GASimulation contains the results of a single simulation, which is run by calling `simulate`.
 
 The DataFrame `simulationDF` should contain at least the following columns:  
-	:step 		- The step, at which the data was collected  
-	:organism	- The id of the organism, for which the data was collected  
-	:score		- The score of the organism at the corresponding step  
-	:zeros		- The number of zeros in the organisms genome  
-	:ones		- The number of ones in the organisms genome  
-	:qMarks		- The number of qMarks in the organisms genome (only for ExploratoryGAs)  
+	:step 		- The step, at which the data was collected.  
+	:organism	- The id of the organism, for which the data was collected.  
+	:score		- The score of the organism at the corresponding step.  
+	:zeros		- The number of zeros in the organisms genome.  
+	:ones		- The number of ones in the organisms genome.  
+	:qMarks		- The number of qMarks in the organisms genome (only for ExploratoryGAs).  
 """
 struct GASimulation
     timestamp::DateTime						# The end-time of the simulation
