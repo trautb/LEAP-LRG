@@ -317,7 +317,7 @@ function most often, is run for `nSteps` steps, while the number of steps for al
 gets adjusted accordingly.
 
 If `multiThreading` is set to `true`, the function runs every simulation in a single thread, if 
-possible.
+possible. Julia must therefore be started with more than one thread.
 
 **Arguments:**
 - **geneticAlgorithms:** The different parameter initialisations, for which simulations should be 

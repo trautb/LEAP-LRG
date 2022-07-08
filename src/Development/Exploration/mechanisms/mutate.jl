@@ -11,7 +11,7 @@ Each element in `genePool` has probability `mu` to be replaced by a random allel
 should be a vector of possible allele choices. To dermine the loci, where a mutation should happen,
 the function uses the Casino `casino`.
 
-ATTENTION: The mutation modifies the original array, but the new genePool is returned anyway.
+_ATTENTION_: The mutation modifies the original array, but the new genePool is returned anyway.
 
 **Arguments:**
 - **genePool:** Matrix containing the genome of every individual.
@@ -55,7 +55,7 @@ Mutates the given genePool of alleles (represented by enums) by mutating its int
 
 See above: `mutate!(genePool::Matrix{T}, alleles::Vector{T}; mu, casino) where {T <: Integer}`
 
-ATTENTION: The mutation modifies the original array, but the new genePool is returned anyway.
+_ATTENTION_: The mutation modifies the original array, but the new genePool is returned anyway.
 
 **Arguments:**
 - **genePool:** Matrix containing the genome of every individual.

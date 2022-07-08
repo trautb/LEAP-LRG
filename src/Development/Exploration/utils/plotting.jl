@@ -71,7 +71,7 @@ end
 This function takes the data of a simulation (``simulationDF``) and plots the score per step for every 
 organism.
 
-Attention: This function is very expensive for a large number of organisms and steps!
+_Attention_: This function is very expensive for a large number of organisms and steps!
 
 **Arguments:**
 - **simulationDF:** The agent dataframe, that was returned by the simulation.
@@ -155,6 +155,8 @@ Example:
 - **simulationDF:** The agent dataframe, that was returned by the simulation.
 - **percentage:** The maximum relative distance from the best score an individual is allowed to 	
 				  have to still count as a top-tier.
+- **algorithm:** The genetic algorithm used for the simulation
+- **maxBins:** The maximum number of bins in the histogram
 
 **Return:**
 - The generated, finalized plot (see also `finalizePlot!`).
@@ -220,6 +222,9 @@ at every step and plots them afterwards.
 **Arguments:**
 - **simulationDF:** The agent dataframe, that was returned by the simulation.
 - **algorithm:** The genetic algorithm, which was used for the simulation.
+
+**Return:**
+- The generated, finalized plot (see also `finalizePlot!`).
 """
 function allelicExpressionNumber(simulationDF::DataFrame, algorithm::GeneticAlgorithm) 
 	
