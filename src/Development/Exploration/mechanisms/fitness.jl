@@ -96,7 +96,7 @@ end
 
 Calculate normalised fitness based on the Objective function at each plasticity trial
 and keeps the best fitness and underlying evaluation of all plasticity trials for each individual. 
-Finding good fitness gets rewarded proportional to the time it took.
+Finding good fitness gets rewarded indirect proportional to the time it took.
 bestFitnessVals is a column vector of the best normalised fitnesses of all trials for each individual
 of the population, minus all sub-sigma-scaled individuals (see Mitchell p.168). Negative sigma-scaling 
 maximises the objective function; higher magnitudes raise the fitness pressure. 
