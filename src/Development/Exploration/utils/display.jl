@@ -1,7 +1,7 @@
 """
     displayCompareMinimumScoresPlot(simulations::Vector{GASimulation})
 
-This function takes in the simulation data of the compare function and plots the minimal scores per step for each simulation result.
+This function takes in the simulation data of the compare function and plots the minimal/best scores per step for each simulation result.
 This plot will then be displayed.
 
 **Arguments:**

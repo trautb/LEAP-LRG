@@ -82,7 +82,7 @@ Every GeneticAlgorithm should have a custom implementation of this method.
 - **algorithm:** The genetic algorithm, that should be represented as string. 
 
 **Return:**
-- A string representing the algorithm and its parameters
+- A string representing the algorithm and its parameters.
 """
 function paramstring(algorithm::GeneticAlgorithm)
 	return "no_specific_paramstring_impl_found"

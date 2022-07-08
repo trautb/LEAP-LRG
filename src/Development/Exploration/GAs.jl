@@ -45,7 +45,7 @@ using .Casinos
 Implements one single step of a BasicGA simulation.
 
 **Arguments:**
-- **model:** The current agent based model (from Agents.jl)
+- **model:** The current agent based model. (from Agents.jl)
 
 **Return**
 - Nothing
@@ -83,7 +83,7 @@ end
 Implements one single step of a ExploratoryGA simulation.
 
 **Arguments:**
-- **model:** The current agent based model (from Agents.jl)
+- **model:** The current agent based model. (from Agents.jl)
 
 **Return**
 - Nothing
@@ -154,7 +154,7 @@ end
 """
 	initialize(exploratoryGA::ExploratoryGA)
 
-Initializes an agent based model (see Agents.jl documentation) to run a ExploratoryGA simulation 
+Initializes an agent based model (see Agents.jl documentation) to run an ExploratoryGA simulation 
 using the parameters provided by the ExploratoryGA struct.
 
 **Arguments:**
@@ -198,7 +198,7 @@ Excludes all rows from the given dataframe that match the condition :step == 0.
 - **dataframe:** The dataframe, that gets modified.
 
 **Return:**
-- The modified (original) dataframe
+- The modified (original) dataframe.
 """
 function excludeStepZero!(dataframe::DataFrame)
 	filter!(:step => step -> step != 0, dataframe)
@@ -220,10 +220,8 @@ at every step and returns the data as DataFrame.
 
 **Arguments:**
 - **basicGA:** The BasicGA instance, that provides the necessary parameters for the simulation.
-- **nSteps:** The number of steps, that the simulation should run. 
-			  Default: 100
-- **seed:** The seed to use for the simulation. If it's set no `nothing`, no seed is used. 
-			Default: nothing
+- **nSteps:** The number of steps, that the simulation should run. (Default: 100)
+- **seed:** The seed to use for the simulation. If it's set no `nothing`, no seed is used. (Default: nothing)
 
 **Return:**
 - A `GASimulation` instance, containing the simulation results.
@@ -263,16 +261,14 @@ end
 Run a simulation with `nSteps` steps using the given exploratory genetic algorithm.
 
 The function initializes an agent based model (see Agents.jl documentation for details) and runs it
-using the `exploratory_step!` function as model step. The model collects the total number of 0's, 1's and ?'s in the genome of the individuals as well as the current score and the number of genome 
-modifications at every step and returns the data as DataFrame.
+using the `exploratory_step!` function as model step. 
+The model collects the total number of 0's, 1's and ?'s in the genome of the individuals as well as the current score 
+and the number of genome modifications at every step and returns the data as DataFrame.
 
 **Arguments:**
-- **exploratoryGA:** The BasicGA instance, that provides the necessary parameters for the 
-					 simulation.
-- **nSteps:** The number of steps, that the simulation should run. 
-			  Default: 100
-- **seed:** The seed to use for the simulation. If it's set no `nothing`, no seed is used. 
-			Default: nothing
+- **exploratoryGA:** The BasicGA instance, that provides the necessary parameters for the simulation.
+- **nSteps:** The number of steps, that the simulation should run. (Default: 100)
+- **seed:** The seed to use for the simulation. If it's set no `nothing`, no seed is used. (Default: nothing)
 
 **Return:**
 - A `GASimulation` instance, containing the simulation results.
@@ -327,9 +323,9 @@ possible.
 - **geneticAlgorithms:** The different parameter initialisations, for which simulations should be 
 						 run
 - **nSteps:** The minimum number of steps a simulation will run. (see description above)
-- **multiThreading:** Specifies, if multithreading should be used. Default: true
+- **multiThreading:** Specifies, if multithreading should be used. (Default: true)
 - **seed:** The seed to use for the simulations. If it's set no `nothing`, no seed is used. 
-Default: nothing
+(Default: nothing)
 
 **Return:**
 - A GAComparison instance containing the simulation results as well as tracked runtimes of every 
@@ -418,7 +414,7 @@ function compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=
 end
 
 """
-compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=true, seed=nothing)
+	compare(geneticAlgorithms::Vector{T}, nSteps=100; multiThreading::Bool=true, seed=nothing)
 
 Run one simulation for every genetic algorithm given by the vector `geneticAlgorithms` and save the 
 simulation results to the directory `dirname`.
@@ -431,11 +427,11 @@ For further information on how the simulations are run, see
 - **geneticAlgorithms:** The different parameter initialisations, for which simulations should be 
 						 run
 - **nSteps:** The minimum number of steps a simulation will run. (see description above)
-- **multiThreading:** Specifies, if multithreading should be used. Default: true
+- **multiThreading:** Specifies, if multithreading should be used. (Default: true)
 - **saveSpecificPlots:** Specifies, whether to create and save plots, that only relate to a single 
-						 simulation. Default: true
+						 simulation. (Default: true)
 - **seed:** The seed to use for the simulations. If it's set no `nothing`, no seed is used. 
-Default: nothing
+(Default: nothing)
 
 **Return:**
 - A GAComparison instance containing the simulation results as well as tracked runtimes of every 
@@ -479,9 +475,10 @@ end
 
 # ---------------------------------------------------------------------------------------------------
 """
-demo()
+	demo()
+
 This function shows the use of this module. It will create 4 genetic algorithms with different parameters and run a simulation for each of them. 
-Afterwards the results will be plotted. 
+Afterwards the results will be plotted and displayed. 
 
 **Arguments:**
 - Nothing

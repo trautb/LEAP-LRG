@@ -9,7 +9,7 @@
 
 This function takes all individuals and lets each one compete against another individual. 
 The individual with the higher fitness will be a parent for the next generation. 
-This will be done 2 times, so that the parent vector is twice the size as the individuals. 
+This is done 2 times, so that the parent vector will be twice the size as the number of individuals. 
 That is because during recombination the amount of individuals will be cut in half again.
 
 **Arguments:**

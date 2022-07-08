@@ -15,7 +15,7 @@ parents Array and returns a matrix of the next generation.
 - **parents:** Vector conaining the indices of the individuals who got selected as parent.
 
 **Return:**
-- New generation of individuals.
+- Next generation of individuals.
 """
 function recombine(genePool::Matrix{T}, parents::AbstractVector) where {T<:Enum}
     nIndividuals, nGenes = size(genePool)
