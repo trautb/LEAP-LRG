@@ -152,7 +152,7 @@ function finalizePlot!(p::Plots.Plot)
 end
 
 
-function allelicExpressionNumber(simulationDF::DataFrame, algorithm::GAs.GeneticAlgorithm) 
+function allelicExpressionNumber(simulationDF::DataFrame, algorithm::GAs.GeneticAlgorithm, p::Plots.Plot=plot()) 
 	# Determine the mean number of different alleles for each GA at each step:
 	allelDistrDF = groupby(simulationDF, :modifications)
 	if any(names(allelDistrDF) .== "qMarks")
@@ -164,7 +164,7 @@ function allelicExpressionNumber(simulationDF::DataFrame, algorithm::GAs.Genetic
 	end
 
 	# Create a plot with 3 graphs, when the "qMarks" allele is present, and with 2 graphs otherwise:
-	plt = plot(
+	plt = plot!(p,
 		allelDistrDF[:,:modifications], 
 		Matrix(allelDistrDF[:, Not(:modifications)]), 
 		title = generateTitle(algorithm),
@@ -173,25 +173,25 @@ function allelicExpressionNumber(simulationDF::DataFrame, algorithm::GAs.Genetic
 		labels = labels,
 		xlabel = "Number of Genome Evaluations",
 		ylabel = "Sum of allele occurances across all Individuals",
+		lw = 4
 	)
 
 	# Return the finalized plot:
 	return finalizePlot!(plt)
 end
 
-function compareMinimumScores(simulationData::Vector{GAs.GASimulation}, refGA::GAs.GeneticAlgorithm; asSubplot=false)
-	# Initialize plot:
-	minimumComparison = Plots.plot(titlefont=font(20))
+function compareMinimumScores(simulationData::Vector{GAs.GASimulation}, refGA::GAs.GeneticAlgorithm, p::Plots.Plot=plot(); asSubplot=false)
 
 	# Plot the graph of minimal scores for each simulation:
 	for simulation in simulationData
 		processedDF = processSimulationData(simulation.simulationDF)
-		plot!(
-			minimumComparison,
+		p = plot!(
+			p,
 			processedDF[:, :modifications],
 			processedDF[:, :minimum], 
 			label = generateLabel(simulation.algorithm, !asSubplot),
-			legend = !asSubplot
+			legend = !asSubplot,
+			lw = 4
 		)
 	end
 
@@ -201,7 +201,7 @@ function compareMinimumScores(simulationData::Vector{GAs.GASimulation}, refGA::G
 	title!("Minimum " * objective(refGA) * " values for " * generateTitle(refGA, asSubplot))
 
 	# Return the finalized plot:
-	return finalizePlot!(minimumComparison)
+	return finalizePlot!(p)
 end
 
 end # ... of module
