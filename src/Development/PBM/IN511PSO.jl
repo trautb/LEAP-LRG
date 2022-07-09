@@ -17,7 +17,7 @@ using Agents, GLMakie, InteractiveDynamics		# Required packages
 import Statistics: norm							# magnitude of vector
 
 include("./AgentToolBox.jl")
-import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, custom_abmexploration
+import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, reinit_model_on_reset!
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -63,7 +63,7 @@ function initialize_model(;
 		:meanPosition => extent ./ 2
 	)
 
-	model = ABM(Particle, ContinuousSpace(extent, 1); properties=properties)
+	model = ABM(Particle, ContinuousSpace(extent, 1.0); properties=properties)
 	spawn_particles!(model)
 	return model
 end
@@ -219,7 +219,7 @@ function demo()
 
 	plotkwargs = (
 		add_colorbar=false,
-		heatarray=:patches,
+		heatarray=:patches,		# references the patches matrix of the model
 		heatkwargs=(
 			colormap=cgrad(:ice),
 		),
@@ -228,11 +228,13 @@ function demo()
 		am=:circle,
 	)
 
-	fig, p = custom_abmexploration(initialize_model; (agent_step!)=agent_step!, model_step!, plotkwargs, params)
+	model = initialize_model()
+	fig, p = abmexploration(model; agent_step!, model_step!, plotkwargs..., params)
+	reinit_model_on_reset!(p, fig, initialize_model)
 
 	# as soon as meanPosition gets an update (after each step), the scatter will be updated
-	m = lift(m -> m.meanPosition, p.model)
-	scatter!(m, color=:red, markersize=20)
+	meanPos = lift(m -> m.meanPosition, p.model)
+	scatter!(meanPos, color=:red, markersize=20)
 
 	fig
 end
