@@ -12,16 +12,16 @@ end
 
 function initialize_model(  
 	;
-	worldsize::Int64,
-	extent = (worldsize, worldsize),
-	patches = zeros(extent),
-	dt = 1,   
-	aBic = 0.01,      
-	rnaBic= 0.001,    
-	cBic= 0.01,      
-	KBic= 0.1,      
-	DBic = 0.01,      
-	bBic= 0.0,
+	worldsize::Int,
+	extent::Tuple{Int64, Int64} = (worldsize, worldsize),
+	patches::Matrix{Float64} = zeros(extent),
+	dt::Float64  = 1.0,   
+	aBic::Float64  = 0.01,      
+	rnaBic::Float64 = 0.001,    
+	cBic::Float64 = 0.01,      
+	KBic::Float64 = 0.1,      
+	DBic::Float64  = 0.01,      
+	bBic::Float64 = 0.0,
 	)
 	space = ContinuousSpace(extent, 1.0)
 

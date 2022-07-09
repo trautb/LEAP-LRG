@@ -8,10 +8,10 @@ Also the mean of every euclidean distance is calculated.
 """
 module CollectiveBehaviour
 using Agents
-using InteractiveDynamics, GLMakie, Random, Statistics
+using InteractiveDynamics, GLMakie, Statistics
 export demo
 include("./AgentToolBox.jl")
-using .AgentToolBox
+using .AgentToolBox: rotate_2dvector, eigvec,choosecolor,polygon_marker
 
 ContinuousAgent{2}
 
@@ -26,7 +26,7 @@ function initialize_model(  ;n_particles::Int = 50,
 							particlespeed::Float64,
 							meandist::Float64=0.0,
 							globaldist::Matrix{Float64} = zeros(Float64,n_particles,1),
-							extent = (worldsize, worldsize),
+							extent::Tuple{Int64, Int64} = (worldsize, worldsize),
 							)
 
 	space = ContinuousSpace(extent, 1.0)

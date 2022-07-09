@@ -9,7 +9,7 @@ using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
 export demo
 include("./AgentToolBox.jl")
-using .AgentToolBox
+using .AgentToolBox: nonwrap_nb, neuman_neighborhood
 
 mutable struct ESource <: AbstractAgent
 	id::Int                   
@@ -26,18 +26,18 @@ After this we set the EB field sources with the agent position.
 From here the EB field is intiated.
 """
 function initialize_model(  
-	;n_sources = 2,
-	worldsize,
-	extent = (worldsize, worldsize),
-	EB = zeros(extent),
-	dEB_dt= zeros(extent),
-	ticks=1,
-	c=1.0,
-	freq=1.0,
-	dt = 0.1,
-	dxy=0.1,
-	attenuation= 0.03,
-	colorrange=(-1, 1),
+	;n_sources::Int = 2,
+	worldsize::Int,
+	extent::Tuple{Int64, Int64} = (worldsize, worldsize),
+	EB::Matrix{Float64} = zeros(extent),
+	dEB_dt::Matrix{Float64}= zeros(extent),
+	ticks::Int=1,
+	c::Float64=1.0,
+	freq::Float64=1.0,
+	dt::Float64 = 0.1,
+	dxy::Float64=0.1,
+	attenuation::Float64= 0.03,
+	colorrange::Tuple{Int64, Int64}=(-1, 1),
 	)
 	space = ContinuousSpace(extent, 1.0)
 

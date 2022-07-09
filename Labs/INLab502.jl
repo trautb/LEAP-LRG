@@ -12,7 +12,7 @@
 		mutable struct Agent <: AbstractAgent
 			id::Int                    
 			pos::NTuple{2,Float64}             
-			phase:: Float64
+			vel:: NTuple{2,Float64}
 		end   
 
 		you can alternativly use 
@@ -46,7 +46,8 @@
 		try to rotate the vector [10, 10] 90 degree to the right 
 		rotation is executed in radians
 		""",
-		"rotate_2dvector(-0.5*π,[10,10])"
+		"rotate_2dvector(-0.5*π,[10,10])",
+	    x -> (x == (10.0, -10.0))
 		),
 		Activity(	
 		"""
