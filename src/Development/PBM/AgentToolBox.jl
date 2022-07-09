@@ -5,7 +5,7 @@ This module can be used as a collection of useful functions for modelling
 """
 module AgentToolBox
 
-using Agents, InteractiveDynamics, GLMakie# Observables
+using Agents, InteractiveDynamics, GLMakie#, Observables
 # import Makie: Button
 import InteractiveUtils: @which
 
@@ -127,9 +127,9 @@ function wrapMat(size_row, size_col, index::Union{Vector{Vector{Int64}},Vector{I
         index2 = rem(index[ids][2] + size_col, size_col)
 
         if output_cartindi == true
-            append!(indeces, [cartesian_indices(size_col, index1, index2)])
+            append!(indices, [cartesian_indices(size_col, index1, index2)])
         elseif output_cartindi == false
-            append!(indeces, [index1, index2])
+            append!(indices, [index1, index2])
         end
 
 

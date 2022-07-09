@@ -29,7 +29,7 @@ current position.
 """
 function initialize_model(  
 	;n_sources = 640,
-	worldsize,
+	worldsize = 80,
 	extent = (worldsize, worldsize),
 	ticks=1,
 	deJong7= false,
@@ -37,12 +37,12 @@ function initialize_model(
 	)
 	space = ContinuousSpace(extent, 1.0)
 
-	patches = deJong7 ? buildDeJong7(worldsize) : buildValleys(worldsize)
+	patches =  deJong7 ? buildDeJong7(worldsize) : buildValleys(worldsize)
 
 	properties = Dict(
 		:patches => patches,
 		:pPop => pPop,
-		:ticks => ticks
+		:ticks => ticks,
 		:deJong7 => deJong7,
 		:worldsize => worldsize
 	)
@@ -67,7 +67,7 @@ function initialize_model(
 end
 
 function agent_step!(sources,model)
-	ids = collect(nearby_ids(sources.pos, model, 8,exact=false))
+	ids = collect(nearby_ids(sources.pos, model, 6,exact=false))
 	patch(ids) = model[ids].patchvalue
 	min_patch(patch, itr) = itr[argmin(map(patch, itr))]
 	id = min_patch(patch, ids)
@@ -79,7 +79,8 @@ function agent_step!(sources,model)
 	
 	if (index[1] == 0 || index[2] == sizerow
 	  ||index[2] == 0 || index[2] == sizecol)
-	  indices = wrapMat(sizerow,sizecol,index)
+	  indices = wrapMat(sizerow,sizecol,index,true)
+	  println(indices)
 	  sources.patchvalue = model.patches[indices[1]]
 	else
 		sources.patchvalue = model.patches[index[1],index[2]]
@@ -89,11 +90,11 @@ function agent_step!(sources,model)
 end
 
 function demo()
-	model = initialize_model(worldsize=80);
+	model = initialize_model();
 	
-	println(:deJong7)
+	
 	params = Dict(
-		:deJong7 => [false, true],
+		:deJong7 => false:true
 	)
 
 
@@ -108,7 +109,7 @@ function demo()
 	#https://makie.juliaplots.org/stable/documentation/figure/
 	#https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
 	figure,p= abmexploration(model;agent_step!,params,am = polygon_marker,ac = :red,plotkwargs...)
-	remap_resetButton!(p, figure, initialize_model(worldsize=80))	
+	remap_resetButton!(p, figure, initialize_model)	
 	figure 
 end
 end
