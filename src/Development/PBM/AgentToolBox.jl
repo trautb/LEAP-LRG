@@ -11,6 +11,7 @@ import InteractiveUtils: @which
 
 export getAgentsByType, rotate_2dvector, eigvec, polygon_marker, choosecolor,
     wrapMat, diffuse4, mean_nb, nonwrap_nb, custom_abmexploration,remap_resetButton!
+    diffuse8,neighbors4
 
 
 DEGREES = 0:0.01:2π
@@ -223,27 +224,6 @@ function buildDeJong7(worldsize)
     f.(xy, xy')
 end
 
-"""
-   takes an agent and a model and returns number of neighbours in the 4 neighbourhood 
-"""
-function neighbourhood4(agent::AbstractAgent, model::ABM)
-    agentpos = [round(Int, agent.pos[1]), round(Int, agent.pos[2])]
-    iX = agentpos[1]
-    iY = agentpos[2]
-    neighbour4 = [wrapMat(size(mat)[1],size(mat)[2], [iX + 1, iY]), wrapMat(size(mat)[1],size(mat)[2], [iX - 1, iY]), wrapMat(size(mat)[1],size(mat)[2], [iX, iY - 1]), wrapMat(size(mat)[1],size(mat)[2], [iX, iY + 1])]
-    numNei = 0
-    for i in model.agents
-        if i[1] != agent.id
-            map(neighbour4) do x
-                if x == [round(Int, i[2].pos[1]), round(Int, i[2].pos[2])]
-                    numNei += 1
-                end
-            end
-        end
-    end
-    return numNei
-end
-
 
 
 """
@@ -305,6 +285,158 @@ function remap_resetButton!(p::ABMObservable, fig, initialize_model)
 end
 
 
+"""
+	diffuse8(model, diffuse_matrix, diffusion_rate)
+
+Function for diffusing all values of a matrix to their respective 8 surrounding tiles.
+Size of model and diffuse_matrix have to match.
+"""
+function diffuse8(model, diffuse_value, diffusion_rate)
+    # Create new matrix to not interfere with the current values of diffuse_value
+    newMatrix = zeros(Float64, size(diffuse_value))
+
+    @inbounds for p in positions(model)
+        # calculate diffusion values
+        diff_at_p = diffuse_value[p...]
+        Δdiff_at_p = diff_at_p * diffusion_rate
+		split_value = 1/8*Δdiff_at_p
+
+        # create new position kernel
+		position_kernel = [
+			(-1, 1) (0, 1) (1, 1);
+			(-1, 0) (0, 0) (1, 0);
+			(-1, -1) (0, -1) (1, -1);
+		]
+
+		# transform position_kernel to current p
+		position_kernel = [t .+ p for t in position_kernel]
+
+        # fix out-of-bounds indices
+		position_kernel = check_boundaries(position_kernel, size(diffuse_value))
+
+        # generate value-kernel for position p
+		value_kernel = [
+			split_value split_value split_value;
+			split_value diff_at_p-Δdiff_at_p split_value;
+			split_value split_value split_value
+		]
+
+		# add value_kernel to positions in newMatrix
+		for i in 1:9
+			newMatrix[position_kernel[i]...] += value_kernel[i]
+		end
+    end
+    return newMatrix
+end
+
+
+"""
+	check_boundaries(position_kernel, model_extent)
+
+Function for checking if a position_kernel contains out-of-bounds inidices and fixes them.
+"""
+function check_boundaries(position_kernel, model_extent)
+
+	n_rows, n_columns = model_extent
+
+	for i in 1:9
+		p_x, p_y = position_kernel[i]
+		if (p_x <= 0)
+			p_x = 1
+		elseif (p_x > n_columns)
+			p_x = n_columns
+		end
+		if (p_y <= 0)
+			p_y = 1
+		elseif (p_y > n_rows)
+			p_y = n_rows
+		end
+		position_kernel[i] = (p_x, p_y)
+	end
+
+	return position_kernel
+end
+
+
+"""
+	neighbors4(agent, model)
+
+Collects all agents ids that are on the 4 adjacent spots to the agents position
+or on the agents spot itself.
+"""
+function neighbors4(agent, model)
+
+    near_agents = nearby_agents(agent, model, 2)
+    list_of_ids = []
+    for ag in near_agents
+        if ag.id != agent.id
+            if (is_agent_in_neighbors4(agent, ag))
+                append!(list_of_ids, ag.id)
+            end
+        end
+    end
+    return list_of_ids
+end
+
+
+"""
+	is_agent_in_neighbors4(central_agent, test_agent)
+
+Tests if an agent is inside another agents direct neighborhood, that being the four
+patches directly next to the central_agents patch or at the central_agents patch itself.
+"""
+
+function is_agent_in_neighbors4(central_agent, test_agent)
+
+    ca_x, ca_y = ceil.(central_agent.pos)
+    ta_x, ta_y = ceil.(test_agent.pos)
+
+    return ta_x - ca_x >= -1 && ta_x - ca_x <= 1 && 
+            ta_y - ca_y >= -1 && ta_y - ca_y <= 1 &&
+            !(ta_x == 1 && ta_y == 1) &&
+            !(ta_x == 1 && ta_y == -1) &&
+            !(ta_x == -1 && ta_y == 1) &&
+            !(ta_x == -1 && ta_y == -1)
+end
+
+"""
+	turn_right(agent::AbstractAgent,angle)
+    
+returns a rotated velocity vector
+"""		
+  function turn_right(agent::AbstractAgent,angle)
+    vel = rotate_2dvector(360-angle,agent.vel)
+    return eigvec(vel)
+  end
+		
+		
+"""
+	turn_left(agent::AbstractAgent,angle)
+
+returns a rotated velocity vector
+"""	
+
+  function turn_left(agent::AbstractAgent,angle)
+    vel = rotate_2dvector(angle,agent.vel)
+    return eigvec(vel)
+  end
+
+  """
+  is_empty_patch(agent,model)
+"""	
+  function is_empty_patch(agent::AbstractAgent,model::ABM)
+    agentpos = collect(agent.pos)+collect(agent.vel)*agent.speed
+    agentpos=[round(Int,agentpos[1]),round(Int,agentpos[2])]
+    for i in model.agents
+      if i[1]!= agent.id && i[2].plasmodium==true
+        if agentpos == [round(Int,i[2].pos[1]),round(Int,i[2].pos[2])]
+          return false
+        else
+          return true
+        end
+      end
+    end
+  end
 
 
 end # ... of module AgentToolBox
