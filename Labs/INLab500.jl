@@ -344,14 +344,40 @@
     ),
 	Activity( # nr 18
 		"""
-		# TODO: visualizing (custom abmplot: lifting)
+		When plotting data there are many customizations you can choose from. The most important ones
+		that will be used in the following labs are heatmaps that contain heatarrays and heatkwargs, 
+		which include colormaps and colorranges. Heatmaps create colors in plots, which are bound to
+		values, e.g. if a variables value is 1 it will be plotted in a specific color, other than 
+		another variable containing the value 2.
+		A heatarray describes the data that has to be interpreted. Like in the example that would be
+		the values 1 and 2.
+		heatkwargs (heat-Keyword-Arguments) are a set of multiple arguments which are specified in
+		the plotting libraries.
+		The most important heatkwargs you will find in the following labs are colormaps and colorranges.
+		Colormaps contain the range of colors that should be depicted in the plot, 
+		e.g. colormap = [:red, :blue] would create a gradual change starting at red and turning into blue.
+		Colorranges specify over which values the colormap will be applied. Taking the example colormap
+		with colorrange = (0:1:10) would distribute the change of the color over the steps from 1 to 10.
+		1 would be represented as red and 10 would be represented as blue.
+		For detailed information about plotting with colors have a look at the plotting documentations 
+		for heatmaps: https://docs.juliaplots.org/latest/generated/colorschemes/
 		""",
 		"???",
 		x -> true
 	),
 	Activity( # nr 19
 		"""
-		# TODO: visualizing (mdata, adata)
+		While running an abmexploration-Model you can stop the simulation at any moment.
+		When the model is paused you can hover over the plot and retrieve information
+		about the background of the plot or specific agents.
+		Every agent will show a list of its attributes with its values and for every
+		background-patch it will show you the position and the plotted variable and value.
+		You should try it out whenever you want to know how components of a plot work and
+		maybe use the step-button to see the values change.
+		
+		INFO: When the marker polygon_marker was used it is not possible to see the data of
+		the agents. It also rarely happens that the model is unable to get the data for
+		the background too.
 		""",
 		"???",
 		x -> true
