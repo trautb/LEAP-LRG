@@ -15,7 +15,7 @@ export demo                # Externally available names
 using Agents, GLMakie, InteractiveDynamics   # Required packages
 
 include("./AgentToolBox.jl")
-import .AgentToolBox: rotate_2dvector, polygon_marker, neighbors4
+import .AgentToolBox: neighbors4, polygon_marker, reinit_model_on_reset!, rotate_2dvector
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -50,8 +50,8 @@ function initialize_model(;
     space2d = ContinuousSpace(dims, 1.0)
 
     # set model properties
-    properties = (
-        pPop = pPop,
+    properties = Dict(
+        :pPop => pPop,
     )
 
     # Generate model with agent, world, model-properties and order of agent steps
@@ -81,7 +81,7 @@ function agent_step!(particle, model)
     particle.speed = 1 / (1 + n_neighbors^2)
 
     if rand() < particle.speed
-        move_agent!(particle, model, dt = particle.speed)
+        move_agent!(particle, model, particle.speed)   # TODO: for compatibility in Agents@5.4 change to `dt=turtle.speed`
     end
 
     particle.vel = (rand(-1:0.01:1), rand(-1:0.01:1))
@@ -98,7 +98,7 @@ a simple stabilisation process.
 function demo()
 
     params = Dict(
-		:pPop => 1:100,
+		:pPop => 0.01:0.01:1,
 	)
 
     plotkwargs = (
@@ -108,13 +108,14 @@ function demo()
 
 	model = initialize_model()
 
-    fig, _ = abmexploration(
+    fig, p = abmexploration(
         model;
         (agent_step!)=agent_step!,
         (model_step!)=dummystep,
         params,
         plotkwargs...
     )
+    reinit_model_on_reset!(p, fig, initialize_model)
 
     fig
 end

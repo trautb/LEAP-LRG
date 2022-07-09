@@ -87,14 +87,14 @@ end
 Distribute Particles across the world (depedending on `pPop`).
 """
 function spawn_particles!(model)
-	@inbounds for p in positions(model)
+	for p in positions(model)
 		if rand() < model.pPop
 			add_agent_pos!(
 				Particle(
 					nextid(model),              # id
 					(p) .- 0.5,                 # pos (in center of patch)
 					rVel(),                     # vel: magnitude ∈ [0,1]
-					1e301                       # Ridiculously high initial value
+					1e301                       # Ridiculously high initial u value
 				),
 				model
 			)

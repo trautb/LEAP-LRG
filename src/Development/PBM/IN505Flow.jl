@@ -44,10 +44,10 @@ function initialize_model(;
     space = ContinuousSpace(extent, 1.0, periodic=false)
 
 	# set model properties
-    properties = (
-        du=du,
-        alphaU=alphaU,
-        u=zeros(Float64, extent) # represents the resource at every position in the world
+    properties = Dict(
+        :du => du,
+        :alphaU => alphaU,
+        :u => zeros(Float64, extent) # represents the resource at every position in the world
     )
 
     # Generate model with agent, world, model-properties and order of agent steps

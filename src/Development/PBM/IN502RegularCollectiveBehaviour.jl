@@ -11,9 +11,9 @@ using Agents
 using InteractiveDynamics, GLMakie, Statistics
 export demo
 include("./AgentToolBox.jl")
-using .AgentToolBox: rotate_2dvector, eigvec,choosecolor,polygon_marker
+using .AgentToolBox: rotate_2dvector, eigvec,choosecolor,polygon_marker, reinit_model_on_reset!
 
-ContinuousAgent{2}
+@agent Turtle ContinuousAgent{2} begin end
 
 """
 Here the model and the agents are initialized. Globaldist is
@@ -38,7 +38,7 @@ function initialize_model(  ;n_particles::Int = 50,
 		:worldsize => worldsize,
 	)
 
-	model = ABM(ContinuousAgent,space, scheduler = Schedulers.fastest,properties = properties)
+	model = ABM(Turtle,space, scheduler = Schedulers.fastest,properties = properties)
 
 	for id in 1:n_particles
 		vel = rotate_2dvector([10 10])
@@ -79,7 +79,8 @@ Plot for the agent movement and an plot for progress of the mean euclidean dista
 function demo()
 	model = initialize_model(worldsize = 40,particlespeed=1.0);
 	mdata = [:meandist]
-	figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=1.5,am = polygon_marker,mdata)
+	figure, p = abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=1.5,am = polygon_marker,mdata)
+    reinit_model_on_reset!(p, figure, initialize_model)
 	figure;
 end
 end

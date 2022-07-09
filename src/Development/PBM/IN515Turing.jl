@@ -10,12 +10,15 @@ reaction-diffusion system was in chapter 14? That was because we had to
 painfully solve the dynamics of the system using Euler's method.
 
 
-Author: , 31/05/22
+Author: Niall Palfreyman (April 2020), Nick Diercksen (July 2022)
 """
 module Turing
 
 export demo_explorer                        # Externally available names
 using Agents, GLMakie, InteractiveDynamics  # Required packages
+
+include("./AgentToolBox.jl")
+import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, reinit_model_on_reset!
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -24,9 +27,9 @@ using Agents, GLMakie, InteractiveDynamics  # Required packages
 """
 	Patch
 
-In this chapter the agent will not actually be used.
-Since this is an approximation only matrices containing attributes of each patch
-will be used
+In this implementation this agent struct will only be used as a dummy.
+Since this is an approximation, only matrices containing attributes of each patch
+are used. But to run the simulation and create the model, we need an AbstractAgent subtype.
 """
 mutable struct Patch <: AbstractAgent
 	id::Int                         # id of the agent needed by the model
@@ -39,9 +42,9 @@ end
 
 const dt = 0.1
 
-# ============================================================================================
-#  Module methods:
-# ============================================================================================
+
+#  Module methods: -------------------------------------------------------------
+
 """
 initialize_model()
 
@@ -66,9 +69,6 @@ function initialize_model(;
 		:outer_radius_x => outer_radius_x,                  # adjustable outer radius
 		:outer_radius_y => outer_radius_y,                  # adjustable outer radius
 		:inhibition => inhibition,                          # inhibition factor
-		:init_values => [],                                 # with slider adjustable values # TODO: extract to AgentToolBox
-		# :tick => 0                                          # current tick counter
-
 	)
 
 	model = ABM(Patch, ContinuousSpace(extent, 1.0); properties=properties)
@@ -79,7 +79,7 @@ function initialize_model(;
 	return model
 end
 
-#-----------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 """
 	set_influencers!(model)
@@ -97,12 +97,10 @@ function set_influencers!(model)
 	model.inhibitors = map(patches) do patch
 		farNbrs(patch, model)
 	end
-
-	# set
-	model.init_values = [model.inner_radius_x, model.inner_radius_y, model.outer_radius_x, model.outer_radius_y]
 	return model
 end
-#-----------------------------------------------------------------------------------------
+
+# step functions ---------------------------------------------------------------
 
 """
 	model_step!(world)
@@ -111,22 +109,13 @@ Simulate the Turing activator-inhibitor system, in which a random individual die
 child from a random neighbour, except that blues may have an evolutionary advantage AB.
 """
 function model_step!(model)
-	if model.init_values != [model.inner_radius_x, model.inner_radius_y, model.outer_radius_x, model.outer_radius_y]
-		# if slider values have changed, recalculate influencers
-		set_influencers!(model)
-	end
-
-	# differentiate!.(positions(model), (model,))
-
 	for patch ∈ positions(model)
 		differentiate!(patch, model)
 	end
-
-
-	# model.tick = model.tick + 1
 end
 
 """
+    differentiate!()
 
 procedure to increment the differentiation level of the patch.
 """
@@ -150,9 +139,9 @@ function differentiate!(patch, model::AgentBasedModel)
 end
 
 
-# ============================================================================================
-#  Helper procedures for defining elliptical neighborhoods.
-# ============================================================================================
+
+#  Helper procedures for defining elliptical neighborhoods. --------------------
+
 """
 	nearNbrs()
 	
@@ -183,7 +172,7 @@ function farNbrs(patch, model)  #  patch procedure
 	return neighbours
 end
 
-# --------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 """
 	xdistance()
 
@@ -208,9 +197,8 @@ function ydistance(patch, other_patch, model)
 end
 
 
-# ============================================================================================
-#  visualization.
-# ============================================================================================
+#  execution and visualization: ------------------------------------------------
+
 """
 	demo()
 
@@ -234,15 +222,12 @@ function demo()
 			colormap=cgrad([:orange, :black]; categorical=true),
 		),
 		as=0,
-		title="Turing:",
 	)
 
 	model = initialize_model()
 	fig, p = abmexploration(model; (agent_step!)=dummystep, model_step!, params, plotkwargs...)
+    reinit_model_on_reset!(p, fig, initialize_model)
 
-	# adding step counter # TODO: currently badly affecting layout
-	# t = lift(m -> "Turing, step = $(m.tick)", p.model)
-	# supertitle = Label(fig[0, :], t, textsize = 24, halign = :left)
 	fig
 end
 

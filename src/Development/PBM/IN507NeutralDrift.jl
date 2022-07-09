@@ -17,6 +17,9 @@ module NeutralDrift
 export demo                                 # Externally available names
 using Agents, GLMakie, InteractiveDynamics  # Required packages
 
+include("./AgentToolBox.jl")
+import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, reinit_model_on_reset!
+
 #-----------------------------------------------------------------------------------------
 # Module definitions:
 
@@ -24,10 +27,14 @@ using Agents, GLMakie, InteractiveDynamics  # Required packages
 """
 	Patch
 
-To construct a new agent implementation, use the @agent macro and add all necessary extra
-attributes. Again, id, pos and vel are automatically inserted.
+In this implementation this agent struct will only be used as a dummy.
+Patches will be implemented as a matrix and not individual agents, but to run
+the simulation and create the model, we need an AbstractAgent subtype.
 """
-@agent Patch GridAgent{2} begin end
+mutable struct Patch <: AbstractAgent
+	id::Int                         # id of the agent needed by the model
+	pos::NTuple{2,Float64}          # position of the patch
+end
 
 const blue = true;
 const lime = false;
@@ -49,29 +56,15 @@ function initialize_model(;
 )
 
 	properties = Dict(
-		:patches => falses(extent),
+		:patches => rand(extent...) .< pB,
 		:pB => pB,
-		:AB => AB,
-		:initialized => false)
+		:AB => AB
+        )
 
-	model = ABM(Patch, GridSpace(extent); properties=properties)
+	model = ABM(Patch, ContinuousSpace(extent,1.0); properties=properties)
 	add_agent!(model) # Add one dummy agent so that abm_exploration will allow us to plot.
+
 	return model
-end
-
-#-----------------------------------------------------------------------------------------
-
-"""
-	spawn_blues!()
-
-Spawn blue patches according to the proportion of blues `pB`.
-This method is needed to initialize the system. This is specially important to
-reflect the adjustements made with the parameters on the abmplot.
-"""
-function spawn_blues!(model)
-	model.patches = rand(size(model.patches)...) .< model.pB
-	model.initialized = true
-	return model;
 end
 
 #-----------------------------------------------------------------------------------------
@@ -83,15 +76,12 @@ Simulate a Moran process, in which a random individual dies, and is replaced by 
 child from a random neighbour, except that blues may have an evolutionary advantage AB.
 """
 function model_step!(model)
-	if !model.initialized
-		# before the first step of the model set the 
-		spawn_blues!(model)
-	end
-
 	patch = rand(CartesianIndices(model.patches))
-	random_neighbour = patch + rand(nearby_positions(patch.I, model).itr.iter)
-	random_neighbour = min(
-		CartesianIndex(size(model.space)...),
+    adjacent_patches = nearby_positions(patch.I, model).itr.iter
+	random_neighbour = patch + rand(adjacent_patches)
+
+	random_neighbour = min(                         # keeping the neighbour inbounds
+		CartesianIndex(Int.(size(model.space))),
 		max(CartesianIndex(1, 1), random_neighbour)
 	)
 	model.patches[patch] = model.patches[random_neighbour]
@@ -124,12 +114,13 @@ function demo()
 			colorrange=(0, 1),
 			colormap=cgrad([:lime, :blue]; categorical=true),
 		),
-		as = 0,
-		title = "Neutral Drift:",
+		as = 0
 	)
 
 	model = initialize_model()
 	fig, p = abmexploration(model; (agent_step!)=dummystep, model_step!, params, plotkwargs...)
+    reinit_model_on_reset!(p, fig, initialize_model)
+
 	fig
 end
 
