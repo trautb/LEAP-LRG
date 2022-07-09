@@ -226,18 +226,18 @@
         In order to do so, we can define a Matrix with the size of the model space.
         we can either define one 2d matrix for every property or we can create a multidimensional matrix
 
-        i.e.: patches = zeros(200,200,4) 
+        i.e.: patches = <some 3 dimensional matrix size 200x200>
         patches[:,:,1] would then correspond to one of the tile`s propperties
 
         for readability purposes however, it makes more sense to define several space matricies 
-        i.e.: patches_property1 = zeros=(200,200)
-              patches_property2 = zeros(200,200)
+        i.e.: patches_property1 = <somne one dimensional matrix>
+              patches_property2 = <somne one dimensional matrix>
               etc.
               now: initialize a 200x200 patches Matrix called nutrients
         """,    
         
-        "???",
-        x -> true
+        "try zeros(200,200)",
+        x -> x==zeros(200,200)
     ),
     Activity( # nr 14
         """
@@ -245,14 +245,14 @@
         the problem, as you might imagine, is that you cannot use the agent's position (usually a Float) to index the patches matrix.
             to solve that problem, you can round the agent`s position to an int: i.e.: 
 
-            index = [round(Int,position(1)) round(Int,position(2))]
         
             now you can make the agent interact with his surrounding. you can make him pick something up, or drop something for other agents to interact with.
             It gives your simulation a lot of possibilities!
-            try to use posistion = [50.7 67.88] to idex your nutrients matrix and set its value to 2
+            try to use posistion = [50.7 67.88] to idex your nutrients matrix and set its value to 2. return to me the index
         """,
-        "???",
-        x -> true
+
+        "try position = [round(Int, position[1]) round(Int, position[1])]",
+        x -> x==[51 68]
     ),
 
     # maybe other chapters:
@@ -288,10 +288,10 @@
         now you canmake an agent interact with his surrounding, wherever he is standing!
 
         """,
-        "???",
+        "no Hint here",
         x -> true
     ),
-	Activity( # nr 16
+	Activity( # nr 16 # TODO: creating an ABM (model properties)
         """
         One thing, that Agent based Simulations are not so efficient at, are differential equations. There is an other disciplline called equation based moddeling for that.
         So if you want to model something like diffusion, you have to find a workaround, or an approximation, that is good enough. Either way can work.
@@ -321,7 +321,7 @@
           This works good enogh for most of our use cases. 
           see how we take advantage of our previous functions? (i.e.: wrapMat)
         """,
-        "???",
+        "no hint here",
         x -> true
     ),
     Activity( # nr 17
@@ -339,7 +339,7 @@
         now we have only one loop! That is so much faster!
 
         """,
-        "???",
+        "no hint here",
         x -> true
     ),
 	Activity( # nr 18
