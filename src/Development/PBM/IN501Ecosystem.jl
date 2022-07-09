@@ -99,7 +99,7 @@ function agent_step!(turtle, model)
     if rand() < 0.1
         rotation = rand() * ((1 / 36) * π) * rand([-1, 1])
         turtle.vel = rotate_2dvector(rotation, turtle.vel)
-        move_agent!(turtle, model, turtle.speed)
+        move_agent!(turtle, model, dt = turtle.speed)
         turtle.energy -= 1 # reduce turtle energy from walking
     end
 

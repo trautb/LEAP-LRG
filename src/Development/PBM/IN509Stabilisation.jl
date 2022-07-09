@@ -81,7 +81,7 @@ function agent_step!(particle, model)
     particle.speed = 1 / (1 + n_neighbors^2)
 
     if rand() < particle.speed
-        move_agent!(particle, model, particle.speed)
+        move_agent!(particle, model, dt = particle.speed)
     end
 
     particle.vel = (rand(-1:0.01:1), rand(-1:0.01:1))
