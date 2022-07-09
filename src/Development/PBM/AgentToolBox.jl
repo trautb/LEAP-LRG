@@ -5,12 +5,12 @@ This module can be used as a collection of useful functions for modelling
 """
 module AgentToolBox
 
-using Agents, InteractiveDynamics, Observables, GLMakie
+using Agents, InteractiveDynamics, GLMakie# Observables
 # import Makie: Button
 import InteractiveUtils: @which
 
 export getAgentsByType, rotate_2dvector, eigvec, polygon_marker, choosecolor,
-    wrapMat, diffuse4, mean_nb, nonwrap_nb, custom_abmexploration
+    wrapMat, diffuse4, mean_nb, nonwrap_nb, custom_abmexploration,remap_resetButton!
 
 
 DEGREES = 0:0.01:2π
@@ -157,7 +157,7 @@ function neumann_cartini(size_col, rowindex, colindex)
         cartesian_indices(size_col, i, j - 1), cartesian_indices(size_col, i, j + 1)]
 end
 
-function diffuse4(mat::Matrix{Float64}, rDiff::Float64, wrapmat)
+function diffuse4(mat::Matrix{Float64}, rDiff::Float64, wrapmat::Bool)
     size_row = size(mat)[1]
     size_col = size(mat)[2]
     map(CartesianIndices((1:size(mat)[1], 1:size(mat)[2]))) do x
@@ -230,7 +230,7 @@ function neighbourhood4(agent::AbstractAgent, model::ABM)
     agentpos = [round(Int, agent.pos[1]), round(Int, agent.pos[2])]
     iX = agentpos[1]
     iY = agentpos[2]
-    neighbour4 = [wrapMat(mat, [iX + 1, iY]), wrapMat(mat, [iX - 1, iY]), wrapMat(mat, [iX, iY - 1]), wrapMat(mat, [iX, iY + 1])]
+    neighbour4 = [wrapMat(size(mat)[1],size(mat)[2], [iX + 1, iY]), wrapMat(size(mat)[1],size(mat)[2], [iX - 1, iY]), wrapMat(size(mat)[1],size(mat)[2], [iX, iY - 1]), wrapMat(size(mat)[1],size(mat)[2], [iX, iY + 1])]
     numNei = 0
     for i in model.agents
         if i[1] != agent.id

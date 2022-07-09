@@ -10,7 +10,7 @@ module Swarm
 using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
 include("./AgentToolBox.jl")
-using .AgentToolBox: buildDeJong7, buildValleys, eigvec, wrapMat, polygon_marker
+using .AgentToolBox: buildDeJong7, buildValleys, eigvec, wrapMat, polygon_marker, remap_resetButton! 
 
 export demo
 mutable struct Agent <: AbstractAgent
@@ -91,6 +91,12 @@ end
 function demo()
 	model = initialize_model(worldsize=80);
 	
+	println(:deJong7)
+	params = Dict(
+		:deJong7 => [false, true],
+	)
+
+
 	plotkwargs = (
 		add_colorbar=false,
 		heatarray=:patches,
@@ -101,7 +107,8 @@ function demo()
 		)
 	#https://makie.juliaplots.org/stable/documentation/figure/
 	#https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
-	figure,_= abmexploration(model;agent_step!,am = polygon_marker,ac = :red,plotkwargs...)
+	figure,p= abmexploration(model;agent_step!,params,am = polygon_marker,ac = :red,plotkwargs...)
+	remap_resetButton!(p, figure, initialize_model(worldsize=80))	
 	figure 
 end
 end

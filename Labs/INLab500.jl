@@ -168,9 +168,10 @@
 		"""
 		# TODO: visualizing (abmplot)
 
-		The simplest form of plotting your agents is plotting with abmplot. You can call abmplot in the function demo()
+		The simplest form of plotting your agents, is plotting with abmplot. You can call abmplot in the function demo()
 		But first of all you need to import some Packages. GLMakie is an big libary with a lot of function and has
-		a long compilation time. GLMakie is used to plot linegraphs,heatmaps and charts.
+		a long compilation time. GLMakie is used to plot linegraphs,heatmaps and charts. In InteractiveDynamics plots will changed
+		dynamiclly if anything in the model changes. The plots will be refreshed after every model_step or agent_step.
 
 		using InteractiveDynamics,GLMakie
 
@@ -207,7 +208,7 @@
 		model parameters interactively and also showing the evolution of collected data 
 		over time (if any are asked for, see below).
 
-		abmexploration is especially useful if you want to adjust paramters while the model is already compiled.
+		abmexploration is especially useful if you want to adjust parameters while the model is already compiled.
 		This can be achieved with using sliders. This concept will be introdced when model parameter are 
 		introdced.
 		The code to acess abmexploration is similar to abmobservable

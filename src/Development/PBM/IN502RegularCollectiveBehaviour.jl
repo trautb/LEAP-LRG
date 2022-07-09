@@ -33,7 +33,7 @@ function initialize_model(  ;n_particles::Int = 50,
 
 	properties = Dict(
 		:globaldist => globaldist,
-		:meadist => meandist,
+		:meandist => meandist,
 		:particlespeed => particlespeed,
 		:worldsize => worldsize,
 	)
