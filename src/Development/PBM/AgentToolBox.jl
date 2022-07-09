@@ -304,6 +304,28 @@ function remap_resetButton!(p::ABMObservable, fig, initialize_model)
     end
 end
 
+		
+"""
+	turn_right(agent::AbstractAgent,angle)
+
+returns a rotated velocity vector
+"""		
+  function turn_right(agent::AbstractAgent,angle)
+    vel = rotate_2dvector(360-angle,agent.vel)
+    return eigvec(vel)
+  end
+		
+		
+"""
+	turn_left(agent::AbstractAgent,angle)
+
+returns a rotated velocity vector
+"""	
+
+  function turn_left(agent::AbstractAgent,angle)
+    vel = rotate_2dvector(angle,agent.vel)
+    return eigvec(vel)
+  end
 
 
 
