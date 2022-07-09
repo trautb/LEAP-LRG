@@ -128,9 +128,9 @@ function wrapMat(size_row, size_col, index::Union{Vector{Vector{Int64}},Vector{I
         index2 = rem(index[ids][2] + size_col, size_col)
 
         if output_cartindi == true
-            append!(indeces, [cartesian_indices(size_col, index1, index2)])
+            append!(indices, [cartesian_indices(size_col, index1, index2)])
         elseif output_cartindi == false
-            append!(indeces, [index1, index2])
+            append!(indices, [index1, index2])
         end
 
 
@@ -398,6 +398,45 @@ function is_agent_in_neighbors4(central_agent, test_agent)
             !(ta_x == -1 && ta_y == 1) &&
             !(ta_x == -1 && ta_y == -1)
 end
+
+"""
+	turn_right(agent::AbstractAgent,angle)
+    
+returns a rotated velocity vector
+"""		
+  function turn_right(agent::AbstractAgent,angle)
+    vel = rotate_2dvector(360-angle,agent.vel)
+    return eigvec(vel)
+  end
+		
+		
+"""
+	turn_left(agent::AbstractAgent,angle)
+
+returns a rotated velocity vector
+"""	
+
+  function turn_left(agent::AbstractAgent,angle)
+    vel = rotate_2dvector(angle,agent.vel)
+    return eigvec(vel)
+  end
+
+  """
+  is_empty_patch(agent,model)
+"""	
+  function is_empty_patch(agent::AbstractAgent,model::ABM)
+    agentpos = collect(agent.pos)+collect(agent.vel)*agent.speed
+    agentpos=[round(Int,agentpos[1]),round(Int,agentpos[2])]
+    for i in model.agents
+      if i[1]!= agent.id && i[2].plasmodium==true
+        if agentpos == [round(Int,i[2].pos[1]),round(Int,i[2].pos[2])]
+          return false
+        else
+          return true
+        end
+      end
+    end
+  end
 
 
 end # ... of module AgentToolBox
