@@ -13,8 +13,8 @@ Author: Niall Palfreyman (January 2020), Nick Diercksen (May 2022)
 """
 module EmergentBehaviour
 
-export demo                # Externally available names
-using Agents, GLMakie, InteractiveDynamics   # Required packages
+export demo                						# Externally available names
+using Agents, GLMakie, InteractiveDynamics  	# Required packages
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
