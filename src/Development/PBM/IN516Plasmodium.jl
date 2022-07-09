@@ -1,12 +1,12 @@
 module Plasmodium
-  export plasmnutri10, demo4, model
+  export plasmnutri10, demo, model
 
   using Agents, LinearAlgebra
   using Random # hides
   using InteractiveDynamics
   using GLMakie
   include("./AgentToolBox.jl")
-  import .AgentToolBox: rotate_2dvector, turn_left, turn_right, diffuse4, remap_resetButton!, wrapMat, eigvec, is_empty_patch
+  import .AgentToolBox: rotate_2dvector, turn_left, turn_right, diffuse4, reinit_model_on_reset!, wrapMat, eigvec, is_empty_patch
 
   # means plasmodium or nutrition source. unfortunately we can only create one agent per model
   mutable struct plasmnutri10 <: AbstractAgent
@@ -200,7 +200,7 @@ if tile is occupied by other plasmodium: turn randomly
     return model.u[sniffpos[1],sniffpos[2]]
   end
 
-  function demo4()
+  function demo()
     plotkwargs = (
       add_colorbar=false,
       heatarray=:cMap,
@@ -220,6 +220,7 @@ if tile is occupied by other plasmodium: turn randomly
     cellcolor(a::plasmnutri10) = a.color
     cellsize(a::plasmnutri10) = a.size
     fig, p = abmexploration(model; model_step!, params, ac = cellcolor, as = cellsize ,plotkwargs...)
+    reinit_model_on_reset!(p, fig, initialize_model)
     fig
   end
 
