@@ -1,4 +1,5 @@
-
+module DAH
+export Cell3, demo2
 
 using InteractiveDynamics
 using GLMakie
@@ -121,11 +122,12 @@ function cadhesion(c1::Float64, c2::Float64, model::ABM)
 end
 
 
-#function demo2()
+function demo2()
     
     model = initialize_model()
     #create the interactive plot with our sliders
     cellcolor(a::Cell3) = a.color
     fig, p = abmexploration(model; model_step!, ac = cellcolor, as = 15)
     fig
-#end
+end
+end
