@@ -64,6 +64,29 @@ function polygon_marker(p::Union{ContinuousAgent,AbstractAgent}; as=2)
 end
 
 
+"""
+	turn_right(agent::AbstractAgent,angle)
+	
+returns a rotated velocity vector
+"""
+function turn_right(agent::AbstractAgent, angle)
+	vel = rotate_2dvector(360 - angle, agent.vel)
+	return eigvec(vel)
+end
+
+
+"""
+	turn_left(agent::AbstractAgent,angle)
+
+returns a rotated velocity vector
+"""
+
+function turn_left(agent::AbstractAgent, angle)
+	vel = rotate_2dvector(angle, agent.vel)
+	return eigvec(vel)
+end
+
+
 # general functions ------------------------------------------------------------
 
 # TODO: description!!!
@@ -307,27 +330,6 @@ function is_agent_in_neighbors4(central_agent, test_agent)
 		   !(ta_x == -1 && ta_y == -1)
 end
 
-"""
-	turn_right(agent::AbstractAgent,angle)
-	
-returns a rotated velocity vector
-"""
-function turn_right(agent::AbstractAgent, angle)
-	vel = rotate_2dvector(360 - angle, agent.vel)
-	return eigvec(vel)
-end
-
-
-"""
-	turn_left(agent::AbstractAgent,angle)
-
-returns a rotated velocity vector
-"""
-
-function turn_left(agent::AbstractAgent, angle)
-	vel = rotate_2dvector(angle, agent.vel)
-	return eigvec(vel)
-end
 
 """
   is_empty_patch(agent,model)
@@ -393,6 +395,10 @@ end
 
 # functions extending `abmexploration`: ----------------------------------------
 
+# not necessary to understand.
+# compare the original source code if desired (Button initialization):
+# https://github.com/JuliaDynamics/InteractiveDynamics.jl/blob/def604fa0e5d70ab0afe7677d3ae11c8f5830d5a/src/agents/interaction.jl#L62
+
 """
 	reinit_model_on_reset()
 
@@ -403,6 +409,8 @@ placed randomly each time.
 This way a model can be newly initialized when "resetting" the model, instead of
 using a deepcopy of the forwarded model to `abmexploration` as resettable state.
 * `initialize_model`: the function creating a new `ABM`
+
+@author Nick Diercksen
 """
 function reinit_model_on_reset!(p::ABMObservable, fig, initialize_model)
 	# getting the reset Button:  (fig.content[10])
