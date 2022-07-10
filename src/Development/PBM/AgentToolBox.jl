@@ -17,7 +17,8 @@ import InteractiveUtils: @which		# ...
 
 
 export choosecolor, diffuse4, diffuse8, eigvec, is_empty_patch, mean_nb, neighbors4, nonwrap_nb,
-	polygon_marker, reinit_model_on_reset!, rotate_2dvector, turn_right,turn_left, wrapMat
+	polygon_marker, reinit_model_on_reset!, rotate_2dvector, turn_right,turn_left, wrapMat,
+	neuman_neighbourhood
 
 
 
@@ -185,9 +186,9 @@ function diffuse4(mat::Matrix{Float64}, rDiff::Float64, wrapmat::Bool)
 
 		if (x[1] == 1 || x[1] == size_row || x[2] == 1 || x[2] == size_col)
 			if (wrapmat == true)
-				neighbours = wrapMat(size_row, size_col, neuman_neighborhood(x[1], x[2]))
+				neighbours = wrapMat(size_row, size_col, neuman_neighbourhood(x[1], x[2]))
 			elseif (wrapmat == false)
-				neighbours = nonwrap_nb(size_row, size_col, neuman_neighborhood(x[1], x[2]))
+				neighbours = nonwrap_nb(size_row, size_col, neuman_neighbourhood(x[1], x[2]))
 			end
 		else
 			neighbours = neumann_cartini(size_col, x[1], x[2])
@@ -216,14 +217,14 @@ function nonwrap_nb(size_row, size_col, index::Vector{Vector{Int64}})
 	return sumup
 end
 """
-	neuman_neighborhood(rowindex, colindex)
+	neuman_neighbourhood(rowindex, colindex)
 
 Creates an neumann_neighborhood.
 Gets the patch on the left on the right ont the
 top and the bottom. 
 returns indices in pairs
 """
-function neuman_neighborhood(rowindex, colindex)
+function neuman_neighbourhood(rowindex, colindex)
 	i = rowindex
 	j = colindex
 	return [[i + 1, j], [i - 1, j], [i, j - 1], [i, j + 1]]

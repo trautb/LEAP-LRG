@@ -5,9 +5,9 @@ Authors: Stefan Hausner,Neil Palfreyman
 [	
 	Activity(
     """
-    In this Lab we analyse the Lab513Lateral Activation
+    In this Lab we analyse the Lab Lab513LateralActivation
     
-    In this Lab we analye the function react
+    In this Lab we observe the function react
     
     function react(model,mat,origin)
 

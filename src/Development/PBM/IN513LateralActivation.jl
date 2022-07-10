@@ -1,4 +1,6 @@
 """
+	LateralActivation
+
 This is a model IN513LateralActivation of the basic process by which a Drosophila embryo constructs 
 its segmentation during development out of a simple concentration gradient.
 The world in this model is a syncytium: the multinucleated egg from which 
@@ -24,8 +26,8 @@ end
 """
 Here the model is initalized and agents are set. 
 First of all the model defines an diffusion source.
-We initalize one patch with rnaBic.
-Also bBic is initalized with rnaBic.
+The model initialize  one patch with rnaBic.
+Also, bBic is initalized with rnaBic.
 Bbic only exists in the source patch.
 """
 function initialize_model(  
@@ -65,7 +67,7 @@ function initialize_model(
 end
 
 """
-After every step the matrix react to the change of concentration in an patch.
+After every step the matrix react to the change of concentration in a patch.
 Then from this patches the model diffuses with the strength model.dt*model.DBic.
 
 """
@@ -75,7 +77,7 @@ function model_step!(model)
 	
 end
 """
-This function simulate the Rna expression of an Drosophila embryo.
+This function simulates the Rna expression of an Drosophila embryo.
 """
 function react(model,mat,origin)
 
@@ -93,7 +95,7 @@ function react(model,mat,origin)
 end 
 """
 Here we plot our model. Plotkwargs creats the background for the 
-patches with an colormap.
+patches with a colormap.
 """
 function demo()
 	model = initialize_model(worldsize=40);

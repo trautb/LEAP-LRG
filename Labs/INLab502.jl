@@ -6,9 +6,9 @@ Author: Stefan Hausner
 	Activity(
 	"""
 	Another important function from the Toolbox is eigvec. An eigenvector can
-	be created with an linear transformation and is an scaled vector.
+	be created with a linear transformation and is a scaled vector.
 	This concept is especially important if we want to find the best agent value (nutrient source)
-	in an neighborhood. If the model has two agent positions an you want to go from
+	in a neighbourhood. If the model has two agent positions a you want to go from
 	one to another. It is recommended to use eigvec if the model searches for an better
 	value. 
 
@@ -81,7 +81,7 @@ Author: Stefan Hausner
 
 	Activity(
 	"""
-	After that you should create an model to position our agents on
+	After that you should create a model to position our agents on
 	the circle ring.
 	Now you can create our Agent.
 	First of all we need to create an basic struct.
@@ -112,8 +112,8 @@ Author: Stefan Hausner
 	"""
 	In the previous Activity you created an struct now you should 
 	position our agents on the circle ring. Here we use the 
-	rotate methode previous used. It is recommended to use 
-	a seperate file to cod initialize_model
+	rotate method previous used. It is recommended to use 
+	a separate file to cod initialize_model
 
 
 	function initialize_model(

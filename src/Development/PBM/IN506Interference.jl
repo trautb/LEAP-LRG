@@ -1,5 +1,7 @@
 """
-In this Lab IN506Interference we explore the development of an field.
+	Interference		
+
+In this Lab IN506Interference we explore the development of a field.
 There are Sources that emit E- and B-fields. Here agents are used
 only to initiate the fields.
 
@@ -11,7 +13,7 @@ using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
 export demo
 include("./AgentToolBox.jl")
-using .AgentToolBox: nonwrap_nb, neuman_neighborhood
+using .AgentToolBox: nonwrap_nb, neuman_neighbourhood
 
 mutable struct ESource <: AbstractAgent
 	id::Int                   
@@ -22,10 +24,10 @@ end
 
 """
 Here the model and the agents are initialized. There are
-to matices for our field EB and dEB_dt. The models properties 
-are field constants the matices. 
+to matrices for our field EB and dEB_dt. The models properties 
+are field constants the matrices. 
 After this we set the EB field sources with the agent position.
-From here the EB field is intiated.
+From here the EB field is initiated.
 """
 function initialize_model(  
 	;n_sources::Int = 2,
@@ -76,9 +78,9 @@ function initialize_model(
 	return model
 end
 """
-Here the model_step! is used because the agents are only used for intiating the EB-field.
-First of all all agents are collected with allagents. Then for every agent the EB field
-intiated. The Source value is transfered to the next patch after the EB field is initaited 
+Here the model_step! is used because the agents are only used for initiating  the EB-field.
+First of all, agents are collected with allagents(model). Then for every agent the EB field
+initiated. The Source value is transferred to the next patch after the EB field is initiated 
 the field extends and moves through the field. For the calculation Sources the Laplace 
 equation is used.
 """    
@@ -93,18 +95,18 @@ function model_step!(model)
 end
 
 """
-Here the E-field is created. Here h is the distance of the neumann neighborhood.
-After that we intiate through every position in the field. Meannb calculates the 
-mean of the von neumann neighborhood for every position in the field. If the one
-neighboor is outside the matrix he gets the value 0. Then the von Neumann neighborhood
-is created. Then the derivative of an function is calculated. Then the field attenuate,
+Here the E-field is created. Here h is the distance of the neumann neighbourhood.
+After that we initiate  through every position in the field. Meannb calculates the 
+mean of the von neumann neighbourhood for every position in the field. If the one
+neighbour  is outside the matrix he gets the value 0. Then the von Neumann neighbourhood
+is created. Then the derivative of a function is calculated. Then the field attenuate,
 it gets smaller over time. Then the EB field is created.
 """
 function e_field_pulsation(model)
 	h = 4
 	mv_EB = zeros(model.worldsize,model.worldsize)
 	map(CartesianIndices((1:model.worldsize-1,1:model.worldsize-1))) do x
-		indices = nonwrap_nb(model.worldsize,model.worldsize,neuman_neighborhood(x[1],x[2]))
+		indices = nonwrap_nb(model.worldsize,model.worldsize,neuman_neighbourhood(x[1],x[2]))
 		meannb = sum(model.EB[indices])
 		mv_EB[x[1],x[2]] = (4/(h^2))*(meannb-model.EB[x[1],x[2]])
 	end
@@ -117,7 +119,7 @@ end
 """
 Here 2 sliders are created to adjust the frequency and the attenuation. The field
 is visualized with an heatarray and the colormap :oslo.
-Also we can observe the change in color as the field progresses.
+Also, we can observe the change in color as the field progresses.
 """
 function demo()
 	model = initialize_model(worldsize=60);

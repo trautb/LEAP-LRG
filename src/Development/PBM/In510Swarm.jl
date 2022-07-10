@@ -1,9 +1,11 @@
 """
+	Swarm
+
 This model IN510Swarm demonstrates how swarms of particles can solve a minimisation problem
-and also the major difficulty of swarm techniques: suboptimisation.
+and also, the major difficulty of swarm techniques: suboptimization.
 There are two minimisation problem in this Lab In510Swarm the first is DeJong and
-the next is valley. After every step the agent looks in his neighborhood and searches 
-for the local minima value in there neighborhood. 
+the next is valley. After every step the agent looks in his neighbourhood and searches 
+for the local minima value in their neighbourhood. 
 
 Author: Stefan Hausner
 """
@@ -26,12 +28,12 @@ end
 Here the model is initialized and the agents are set. The model creates patches 
 with the coresponding function buildDeJong7 or buildValleys. The boolean deJong7
 decides which function to choose. After that further model properties are created
-for example ticks. Then the agents are positioned in the world and  then 
-they get the patchvalue from there current position. 
+for example, ticks. Then the agents are positioned in the world and then 
+they get the patchvalue from their current position. 
 """
 function initialize_model(  
 	;
-	neighborsize:: Int = 8,
+	neighboursize:: Int = 8,
 	worldsize::Int = 80,
 	pPop::Float64 = 0.1,
 	n_agent::Int = Int(worldsize*worldsize*pPop),
@@ -50,7 +52,7 @@ function initialize_model(
 		:ticks => ticks,
 		:deJong7 => deJong7,
 		:worldsize => worldsize,
-		:neighborsize => neighborsize
+		:neighboursize => neighboursize
 	)
 	
 	model = ABM(Agent, space, scheduler = Schedulers.fastest,properties = properties)
@@ -74,14 +76,14 @@ For every step the model collects nearby agents to the scheduled agent. Then sea
 for the minimum value of the collected agents with min_patch. Here the model iterates through
 the collected agents and searches for the local minima with argmin. patch(ids) returns
 us the patchvalues of the currently iterated id. itr chooses the current id to process.
-All local minmia are saved in an vector. Then the model calculates the vector between
+All local minima are saved in a vector. Then the model calculates the vector between
 the current agent and the agent with the lowest value. Here the model uses eigvec to move gradually
 to the position. This is important because there might be an even lower value in between these two
-positions. If the agents minima patchvalue are one the other side of world the model
+positions. If the agent minima patchvalue are one the other side of world the model
 uses wrapMat.
 """
 function agent_step!(agent,model)
-	ids = collect(nearby_ids(agent.pos, model, model.neighborsize,exact=false))
+	ids = collect(nearby_ids(agent.pos, model, model.neighboursize,exact=false))
 	patch(ids) = model[ids].patchvalue
 	min_patch(patch, itr) = itr[argmin(map(patch, itr))]
 	id = min_patch(patch, ids)
@@ -103,14 +105,14 @@ end
 Here we plot our model. Params defines the slider deJong7 here the model 
 can change it patch heatmap. Plotkwargs creats the background for the 
 patches with an colormap. Colormaps uses colorschemes. The reinit_model_on_reset! 
-reinitalize the model if the model is resetted. 
+reinitialize the model if the model is resetted. 
 https://docs.juliaplots.org/latest/generated/colorschemes/
 """
 function demo()
 	model = initialize_model();
 	params = Dict(
 		:deJong7 => false:true,
-		:neighborsize => 2:1:8,
+		:neighboursize => 2:1:8,
 		:worldsize => 80:10:160,
 		:pPop => 0.1:0.1:0.4
 	)
