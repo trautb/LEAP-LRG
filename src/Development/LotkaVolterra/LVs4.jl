@@ -1,22 +1,24 @@
 #========================================================================================#
 """
-	LVs - Version 3
+	LVs - Version 4
 
 A system of two interacting predator-prey species.
 
-Version 3 corrects Euler inaccuracies by implementing an RK-2 integration algorithm.
-On studying the visualisation graph from Version 2, I noticed that the peaks of the rabbit
-population were gradually getting bigger. This improved when I reduced the length of the
-Euler time-step, but that also slowed down the program, so I decided to replace Euler by
-by Runge-Kutta-2 integration. Also, to reduce the entanglement of the code, I refactored
-the RK2 integration into a separate dedicated method rk2().
+Version 3 suffered from the deficiency that the RK-2 step needed to duplicate the code that
+defines the right-hand side of the LV differential equations:
 
-NOTE: At present, the dynamical equations occur twice within rk2(). If the Lotka-Volterra
-system contained more than two equations, I would definitely consider storing their
-right-hand sides as a vector function that is an additional member of the LV type.
-(See version 4)
+	dx/dt = f(x,y)
+	dy/dt = g(x,y)
 
-Author: Niall Palfreyman, 31/05/2022.
+This duplication has two problems: it can lead to incorrect code if I change one copy without
+changing the other; and it doubles the amount of effort if I want to extend this model to a
+more complex one involving more differential equations.
+
+For these reasons, in version 4 I store these functions as an additional member of the LV type.
+Notice that this necessitates writing a constructor for the LV type that assigns the correct
+functions.
+
+Author: Niall Palfreyman, 11/06/2022.
 """
 module LVs
 
@@ -31,10 +33,21 @@ using GLMakie
 A Lotka-Volterra system containing two species interacting with each other.
 """
 struct LV
-	rx							# Reproduction rate of species x
-	kx							# Carrying capacity of species x
-	ry							# Reproduction rate of species y
-	ky							# Carrying capacity of species y
+	r1::Float64								# Reproduction rate of species x
+	k1::Float64								# Carrying capacity of species x
+	r2::Float64								# Reproduction rate of species y
+	k2::Float64								# Carrying capacity of species y
+	rhs::Function							# Vector function incorporating all RHS functions
+
+	function LV(r1,k1,r2,k2)
+		new(
+			r1, k1, r2, k2,
+			x -> [							# The 2-d right-hand side vector function
+				 r1 * x[1] * (1 - x[2]/k2),
+				-r2 * x[2] * (1 - x[1]/k1)
+			]
+		)
+	end
 end
 
 #-----------------------------------------------------------------------------------------
@@ -44,8 +57,6 @@ end
 	run( lv::LV)
 
 Run a simulation of the given LV system over the time-duration nsteps * dt.
-In this version, I replace the inline Euler integration from Version 2 by a call to the
-dedicated method rk2, which performs a single integration step:
 """
 function run( lv::LV, x0::Float64, y0::Float64, dt::Float64=0.1, nsteps::Int=2000)
 	t = 0 : dt : nsteps*dt
@@ -66,20 +77,11 @@ end
 	rk2( lv::LV, x::Vector{Float64}, dt::Float64)
 
 Based on the current state x, perform a single Runge-Kutta-2 integration step of length
-dt, based on the parameters of the Lotka-Volterra model lv.
+dt, based on the parameters and rhs functions of the Lotka-Volterra model lv.
 """
 function rk2( lv::LV, x::Vector{Float64}, dt::Float64)
-	# Perform the RK2 half-step:
-	x_half = x + (dt/2) * [
-		lv.rx * x[1] * (1 - x[2]/lv.ky),
-		-lv.ry * x[2] * (1 - x[1]/lv.kx)
-	]
-
-	# Perform the complete RK2 step:
-	return x + dt * [
-		lv.rx * x_half[1] * (1 - x_half[2]/lv.ky),
-		-lv.ry * x_half[2] * (1 - x_half[1]/lv.kx)
-	]
+	x_half = x + (dt/2) * lv.rhs(x)			# Perform the RK2 half-step
+	return x + dt * lv.rhs(x_half)			# Perform the complete RK2 step
 end
 
 #-----------------------------------------------------------------------------------------
