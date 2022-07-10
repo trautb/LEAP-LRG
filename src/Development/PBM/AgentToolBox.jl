@@ -222,7 +222,7 @@ end
 Function for diffusing all values of a matrix to their respective 8 surrounding tiles.
 Size of model and diffuse_matrix have to match.
 """
-function diffuse8(model, diffuse_value, diffusion_rate)
+function diffuse8(model::AgentBasedModel, diffuse_value::Matrix{Float64}, diffusion_rate::Float64)
 	# Create new matrix to not interfere with the current values of diffuse_value
 	newMatrix = zeros(Float64, size(diffuse_value))
 
@@ -265,8 +265,9 @@ end
 	check_boundaries(position_kernel, model_extent)
 
 Function for checking if a position_kernel contains out-of-bounds inidices and fixes them.
+This function is only used as background-logic for diffuse8.
 """
-function check_boundaries(position_kernel, model_extent)
+function check_boundaries(position_kernel::Matrix{Tuple{Int64, Int64}}, model_extent::Tuple{Int64, Int64})
 
 	n_rows, n_columns = model_extent
 
@@ -295,7 +296,7 @@ end
 Collects all agents ids that are on the 4 adjacent spots to the agents position
 or on the agents spot itself.
 """
-function neighbors4(agent, model)
+function neighbors4(agent::AbstractAgent, model::AgentBasedModel)
 
 	near_agents = nearby_agents(agent, model, 2)
 	list_of_ids = []
@@ -315,9 +316,10 @@ end
 
 Tests if an agent is inside another agents direct neighborhood, that being the four
 patches directly next to the central_agents patch or at the central_agents patch itself.
+This function is only used as background-logic for neighbors4.
 """
 
-function is_agent_in_neighbors4(central_agent, test_agent)
+function is_agent_in_neighbors4(central_agent::AbstractAgent, test_agent::AbstractAgent)
 
 	ca_x, ca_y = ceil.(central_agent.pos)
 	ta_x, ta_y = ceil.(test_agent.pos)
