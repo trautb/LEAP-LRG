@@ -3,7 +3,7 @@ In this Lab IN506Interference we explore the development of an field.
 There are Sources that emit E- and B-fields. Here agents are used
 only to initiate the fields.
 
-Authors: Stefan Hausner
+Author: Stefan Hausner
 """
 
 module Interference
