@@ -5,7 +5,7 @@ There are two minimisation problem in this Lab In510Swarm the first is DeJong an
 the next is valley. After every step the agent looks in his neighborhood and searches 
 for the local minima value in there neighborhood. 
 
-Authors: Stefan Hausner
+Author: Stefan Hausner
 """
 module Swarm
 
@@ -30,12 +30,15 @@ for example ticks. Then the agents are positioned in the world and  then
 they get the patchvalue from there current position. 
 """
 function initialize_model(  
-	;n_agent::Int = 640,
+	;
+	neighborsize:: Int = 8,
 	worldsize::Int = 80,
+	pPop::Float64 = 0.1,
+	n_agent::Int = Int(worldsize*worldsize*pPop),
 	extent::Tuple{Int64, Int64} = (worldsize, worldsize),
 	ticks::Int=1,
 	deJong7::Bool= false,
-	pPop::Float64 = 0.0,
+	
 	)
 	space = ContinuousSpace(extent, 1.0)
 
@@ -46,7 +49,8 @@ function initialize_model(
 		:pPop => pPop,
 		:ticks => ticks,
 		:deJong7 => deJong7,
-		:worldsize => worldsize
+		:worldsize => worldsize,
+		:neighborsize => neighborsize
 	)
 	
 	model = ABM(Agent, space, scheduler = Schedulers.fastest,properties = properties)
@@ -77,7 +81,7 @@ positions. If the agents minima patchvalue are one the other side of world the m
 uses wrapMat.
 """
 function agent_step!(agent,model)
-	ids = collect(nearby_ids(agent.pos, model, 8,exact=false))
+	ids = collect(nearby_ids(agent.pos, model, model.neighborsize,exact=false))
 	patch(ids) = model[ids].patchvalue
 	min_patch(patch, itr) = itr[argmin(map(patch, itr))]
 	id = min_patch(patch, ids)
@@ -105,7 +109,10 @@ https://docs.juliaplots.org/latest/generated/colorschemes/
 function demo()
 	model = initialize_model();
 	params = Dict(
-		:deJong7 => false:true
+		:deJong7 => false:true,
+		:neighborsize => 2:1:8,
+		:worldsize => 80:10:160,
+		:pPop => 0.1:0.1:0.4
 	)
 	plotkwargs = (
 		add_colorbar=false,

@@ -1,3 +1,6 @@
+"""
+Author: Stefan Hausner
+"""
 
 [	
 	Activity(

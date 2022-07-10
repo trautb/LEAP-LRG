@@ -6,7 +6,7 @@ Then the agent is rotated 90 degree to be in an tangent to the circles ring. The
 moved in the world. After every agentstep we measure the euclidean distance of the scheduled agent.
 Also the mean of every euclidean distance is calculated.
 
-Authors: Stefan Hausner
+Author: Stefan Hausner
 """
 module CollectiveBehaviour
 using Agents

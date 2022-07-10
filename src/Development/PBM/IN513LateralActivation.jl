@@ -8,7 +8,7 @@ When you press Go, this RNA is expressed, leading to a growing amount of Bicoid
 in the left-hand cell. As the Bicoid concentration rises, it diffuses into the next
 nucleus to the right. Over time, this process defines the rostral-caudal axis of the embryo.
 
-Authors: Stefan Hausner
+Author: Stefan Hausner
 """
 module LateralActivation
 using Agents
@@ -97,13 +97,21 @@ patches with an colormap.
 """
 function demo()
 	model = initialize_model(worldsize=40);
+
+	params = Dict(
+		:DBic =>0.01:0.001:0.02,
+		:cBic=>0.01:0.001:0.02,
+		:aBic=>0.01:0.001:0.02,
+		:rnaBic=>0.001:0.0005:0.002,
+	)
+
 	plotkwargs = (
 	heatarray = :patches,
 	add_colorbar=false,
 	heatkwargs = (
 		colormap = cgrad(:ice), #Set1_3
 	))
-	figure,_= abmexploration(model;model_step!,params = Dict(),plotkwargs...)
+	figure,_= abmexploration(model;model_step!,params,plotkwargs...)
 	figure
 end
 end
