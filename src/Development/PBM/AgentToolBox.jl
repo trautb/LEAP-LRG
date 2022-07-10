@@ -87,9 +87,13 @@ function turn_left(agent::AbstractAgent, angle)
 end
 
 
-# general functions ------------------------------------------------------------
+"""
+	eigvec(vector)
 
-# TODO: description!!!
+creates the eigenvector of an tuple
+this function uses linear transformation to
+scale an tuple. 
+"""
 function eigvec(vector)
 	if (vector == Tuple([0.0, 0.0]))
 		return Tuple([0.0, 0.0])
@@ -161,9 +165,20 @@ function buildDeJong7(worldsize)
 	f.(xy, xy')
 end
 
-# -------
+"""
+	diffuse4(mat::Matrix{Float64}, rDiff::Float64, wrapmat::Bool)
 
-function diffuse4(mat::Matrix{Float64}, rDiff::Float64, wrapmat)
+mat defines the matrix 
+rDiff defines the difussion rotate
+wrapmat decides if the model should wrap the matrix or not
+neighbors returns the indices in cartician indices
+
+Takes a matrix with values to be diffused, a diffusionrate and a boolean. Returns the diffused matrix.
+The functin iterates through the mat matrix. For each value in the matrix it takes the percentage of its value, 
+given by rDiff and splits it up to its neuman 4 neighborhood
+"""
+
+function diffuse4(mat::Matrix{Float64}, rDiff::Float64, wrapmat::Bool)
 	size_row = size(mat)[1]
 	size_col = size(mat)[2]
 	map(CartesianIndices((1:size(mat)[1], 1:size(mat)[2]))) do x
@@ -184,6 +199,12 @@ function diffuse4(mat::Matrix{Float64}, rDiff::Float64, wrapmat)
 	return mat
 end
 
+"""
+	nonwrap_nb(size_row, size_col, index::Vector{Vector{Int64}})
+
+return the cartesian indices that are inside the world.
+indices outside the world will not be used.
+"""
 function nonwrap_nb(size_row, size_col, index::Vector{Vector{Int64}})
 	sumup = []
 	for ids in 1:size(index)[1]
@@ -194,19 +215,37 @@ function nonwrap_nb(size_row, size_col, index::Vector{Vector{Int64}})
 	end
 	return sumup
 end
+"""
+	neuman_neighborhood(rowindex, colindex)
 
+Creates an neumann_neighborhood.
+Gets the patch on the left on the right ont the
+top and the bottom. 
+returns indices in pairs
+"""
 function neuman_neighborhood(rowindex, colindex)
 	i = rowindex
 	j = colindex
 	return [[i + 1, j], [i - 1, j], [i, j - 1], [i, j + 1]]
 end
 
+"""
+	cartesian_indices(size_col, rowindex, colindex)
+
+converts inidices into cartesian_indices
+"""
 function cartesian_indices(size_col, rowindex, colindex)
 	i = rowindex
 	j = colindex
 	return (j - 1) * size_col + i
 end
 
+"""
+	neumann_cartini(size_col, rowindex, colindex)
+
+return the von neumann neighborhood in 
+cartesian indices
+"""
 function neumann_cartini(size_col, rowindex, colindex)
 	i = rowindex
 	j = colindex
@@ -262,7 +301,7 @@ end
 
 
 """
-	check_boundaries(position_kernel, model_extent)
+check_boundaries(position_kernel, model_extent)
 
 Function for checking if a position_kernel contains out-of-bounds inidices and fixes them.
 This function is only used as background-logic for diffuse8.
