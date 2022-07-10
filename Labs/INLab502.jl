@@ -29,26 +29,22 @@
 
 		Activity(
 		"""
-		Before the model is created some new functions should be introdced. One important function is the
-		rotate_2dvector function from the AgentToolBox. There are two variants, one if the input is only an vector
-		and one with predefined rad value (π). The variant with no rad input generates an random rotation from
-		0 to 2π.
-		If your in the Ingolstadt environment you can simple import the agent AgentToolBox
-		and use it. 
+		Another important function from the Toolbox is eigvec. An eigenvector can
+		be created with an linear transformation and is an scaled vector.
+		This concept is especially important if we want to find the best agent value (nutrient source)
+		in an neighborhood. If the model has two agent positions an you want to go from
+		one to another. It is recommended to use eigvec if the model searches for an better
+		value. 
 
-		Exectue these two commands in your terminal.
 		include("./src/Development/PBM/AgentToolBox.jl")
-		using .AgentToolBox
+		
+		using .AgentToolBox: eivec
 
-		example 
-		rotate_2dvector([5, 5])
+		scaled vector 
+		"""
 
-		try to rotate the vector [10, 10] 90 degree to the right 
-		rotation is executed in radians
-		""",
-		"rotate_2dvector(-0.5*π,[10,10])",
-	    x -> (x == (10.0, -10.0))
 		),
+
 		Activity(	
 		"""
 

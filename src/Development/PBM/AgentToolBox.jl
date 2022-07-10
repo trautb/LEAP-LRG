@@ -12,7 +12,7 @@ module AgentToolBox
 
 using Agents, InteractiveDynamics
 
-using Observables, GLMakie			# needed for custom abmexploration functions
+using  GLMakie,Observables			# needed for custom abmexploration functions
 import InteractiveUtils: @which		# ...
 
 
@@ -90,7 +90,7 @@ end
 # general functions ------------------------------------------------------------
 
 # TODO: description!!!
-function eigvec(vector)
+function eigvec(vector::Vector{Float64})
 	if (vector == Tuple([0.0, 0.0]))
 		return Tuple([0.0, 0.0])
 	else

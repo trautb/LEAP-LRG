@@ -1,21 +1,23 @@
 """
-This model demonstrates how swarms of particles can solve a minimisation problem
+This model IN510Swarm demonstrates how swarms of particles can solve a minimisation problem
 and also the major difficulty of swarm techniques: suboptimisation.
 There are two minimisation problem in this Lab In510Swarm the first is DeJong and
 the next is valley. After every step the agent looks in his neighborhood and searches 
-for the smallest value in neighborhood. 
+for the local minima value in there neighborhood. 
+
+Authors: Stefan Hausner
 """
 module Swarm
 
 using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
 include("./AgentToolBox.jl")
-using .AgentToolBox: buildDeJong7, buildValleys, eigvec, wrapMat, polygon_marker, remap_resetButton! 
+using .AgentToolBox: buildDeJong7, buildValleys, eigvec, wrapMat, polygon_marker, reinit_model_on_reset! 
 
 export demo
 mutable struct Agent <: AbstractAgent
-	id::Int                    # Boid identity
-	pos::NTuple{2,Float64}              # Position of boid
+	id::Int                   
+	pos::NTuple{2,Float64}             
 	vel::NTuple{2,Float64}
 	patchvalue:: Float64 
 end
@@ -65,9 +67,14 @@ end
 
 """
 For every step the model collects nearby agents to the scheduled agent. Then searches
-for the minimum value of the collected agents with min_patch. Here we iterate through
-the collected agents and searches vor the local minma with argmin. patch(ids) returns
+for the minimum value of the collected agents with min_patch. Here the model iterates through
+the collected agents and searches for the local minima with argmin. patch(ids) returns
 us the patchvalues of the currently iterated id. itr chooses the current id to process.
+All local minmia are saved in an vector. Then the model calculates the vector between
+the current agent and the agent with the lowest value. Here the model uses eigvec to move gradually
+to the position. This is important because there might be an even lower value in between these two
+positions. If the agents minima patchvalue are one the other side of world the model
+uses wrapMat.
 """
 function agent_step!(agent,model)
 	ids = collect(nearby_ids(agent.pos, model, 8,exact=false))
@@ -88,7 +95,13 @@ function agent_step!(agent,model)
 		agent.patchvalue = model.patches[index[1],index[2]]
 	end
 end
-
+"""
+Here we plot our model. Params defines the slider deJong7 here the model 
+can change it patch heatmap. Plotkwargs creats the background for the 
+patches with an colormap. Colormaps uses colorschemes. The reinit_model_on_reset! 
+reinitalize the model if the model is resetted. 
+https://docs.juliaplots.org/latest/generated/colorschemes/
+"""
 function demo()
 	model = initialize_model();
 	params = Dict(
@@ -103,7 +116,7 @@ function demo()
 	#https://makie.juliaplots.org/stable/documentation/figure/
 	#https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
 	figure,p= abmexploration(model;agent_step!,params,am = polygon_marker,ac = :red,plotkwargs...)
-	remap_resetButton!(p, figure, initialize_model)	
+	reinit_model_on_reset!(p, figure, initialize_model)	
 	figure 
 end
 end

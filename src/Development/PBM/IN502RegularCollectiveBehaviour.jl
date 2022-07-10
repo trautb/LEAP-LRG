@@ -4,7 +4,9 @@ The goal of this Lab is to observe the mean euclidean distance of every agent ov
 First of all every agent is positioned randomly in the circles ring with the radius of 10 units.
 Then the agent is rotated 90 degree to be in an tangent to the circles ring. Then the agents are
 moved in the world. After every agentstep we measure the euclidean distance of the scheduled agent.
-Also the mean of every euclidean distance is calculated. 
+Also the mean of every euclidean distance is calculated.
+
+Authors: Stefan Hausner
 """
 module CollectiveBehaviour
 using Agents
@@ -13,7 +15,7 @@ export demo
 include("./AgentToolBox.jl")
 using .AgentToolBox: rotate_2dvector, eigvec,choosecolor,polygon_marker, reinit_model_on_reset!
 
-@agent Turtle ContinuousAgent{2} begin end
+ContinuousAgent{2}
 
 """
 Here the model and the agents are initialized. Globaldist is
@@ -43,7 +45,7 @@ function initialize_model(  ;n_particles::Int = 50,
 	for id in 1:n_particles
 		vel = rotate_2dvector([10 10])
 		pos = Tuple([worldsize/2 worldsize/2]').+vel
-		vel = eigvec(rotate_2dvector(0.5*π,[vel[1] vel[2]]))
+		vel = eigvec(rotate_2dvector(0.5*π,[vel[1], vel[2]]))
 		model.globaldist[id,1] = edistance(pos,Tuple([worldsize/2, worldsize/2]),model)
 		add_agent!(
 			pos,

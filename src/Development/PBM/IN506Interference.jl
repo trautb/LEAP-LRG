@@ -1,7 +1,9 @@
 """
 In this Lab IN506Interference we explore the development of an field.
 There are Sources that emit E- and B-fields. Here agents are used
-only to initiate the fields. 
+only to initiate the fields.
+
+Authors: Stefan Hausner
 """
 
 module Interference
@@ -42,7 +44,7 @@ function initialize_model(
 	space = ContinuousSpace(extent, 1.0)
 
 	properties = Dict(
-		:EB => EB,        #patches
+		:EB => EB,        
 		:dEB_dt => dEB_dt,
 		:ticks => ticks,
 		:c => c,
@@ -91,7 +93,7 @@ function model_step!(model)
 end
 
 """
-Here the E-field is created. In neumanh the von Neumann neighborhood is calculated.
+Here the E-field is created. Here h is the distance of the neumann neighborhood.
 After that we intiate through every position in the field. Meannb calculates the 
 mean of the von neumann neighborhood for every position in the field. If the one
 neighboor is outside the matrix he gets the value 0. Then the von Neumann neighborhood
@@ -119,7 +121,6 @@ Also we can observe the change in color as the field progresses.
 """
 function demo()
 	model = initialize_model(worldsize=60);
-	#https://docs.juliaplots.org/latest/generated/colorschemes/
 	params = Dict(
 	:freq => 0.5:0.1:2,
 	:attenuation => 0:0.01:0.1
