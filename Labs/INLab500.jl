@@ -198,7 +198,7 @@
 	# maybe other chapters:
 	Activity(
         """
-        often we want the ground/surrounding of the Simulation to have propperties/behaviour too.
+        often we want the ground/surrounding of the Simulation to have properties/behaviour too.
         In order to do so, we can define a Matrix with the size of the model space.
         we can either define one 2d matrix for every property or we can create a multidimensional matrix
 
@@ -318,29 +318,6 @@
         "no hint here",
         x -> true
     ),
-	Activity(
-		"""
-		When plotting data there are many customizations you can choose from. The most important ones
-		that will be used in the following labs are heatmaps that contain heatarrays and heatkwargs, 
-		which include colormaps and colorranges. Heatmaps create colors in plots, which are bound to
-		values, e.g. if a variables value is 1 it will be plotted in a specific color, other than 
-		another variable containing the value 2.
-		A heatarray describes the data that has to be interpreted. Like in the example that would be
-		the values 1 and 2.
-		heatkwargs (heat-Keyword-Arguments) are a set of multiple arguments which are specified in
-		the plotting libraries.
-		The most important heatkwargs you will find in the following labs are colormaps and colorranges.
-		Colormaps contain the range of colors that should be depicted in the plot, 
-		e.g. colormap = [:red, :blue] would create a gradual change starting at red and turning into blue.
-		Colorranges specify over which values the colormap will be applied. Taking the example colormap
-		with colorrange = (0:1:10) would distribute the change of the color over the steps from 1 to 10.
-		1 would be represented as red and 10 would be represented as blue.
-		For detailed information about plotting with colors have a look at the plotting documentations 
-		for heatmaps: https://docs.juliaplots.org/latest/generated/colorschemes/
-		""",
-		"???",
-		x -> true
-	),
 	Activity(
 		"""
 		While running an abmexploration-Model you can stop the simulation at any moment.

@@ -16,8 +16,8 @@ using  GLMakie,Observables			# needed for custom abmexploration functions
 import InteractiveUtils: @which		# ...
 
 
-export choosecolor, diffuse4, diffuse8, eigvec, mean_nb, neighbors4, nonwrap_nb,
-	polygon_marker, reinit_model_on_reset!, rotate_2dvector, wrapMat
+export choosecolor, diffuse4, diffuse8, eigvec, is_empty_patch, mean_nb, neighbors4, nonwrap_nb,
+	polygon_marker, reinit_model_on_reset!, rotate_2dvector, turn_right,turn_left, wrapMat
 
 
 

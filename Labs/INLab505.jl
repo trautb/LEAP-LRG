@@ -24,7 +24,8 @@
 		"""
 		The mentioned function is diffuse8(model, diffuse_value, diffusion_rate) and is also
         implemented in the AgentToolBox. 
-        To explain the simple logic behind the function:
+        The following example explains the simple logic that is happening, when diffusing
+        a value of a matrix:
         If we have a matrix
     
         m = [
@@ -33,8 +34,8 @@
             1 1 1
         ]
 
-        and we would use the function diffuse on the 8 of the matrix m with a diffusion_rate 
-        of 0.5, the result would be the matrix
+        and we would use the function diffuse on the 8 in the middle of the matrix m with a 
+        diffusion_rate of 0.5, the result would be the matrix
 
         m = [
             1.5 1.5 1.5
@@ -42,9 +43,10 @@
             1.5 1.5 1.5
         ]
 
-        What happened whne we used that function was that a part of 8, 8*diffusion_rate to be exact,
-        got split up and added to the 8 surrounding patches in equal amounts.
-        If we applied this function to the whole matrix, it would check for matrix bounds and add the
+        What happened when we used that function was that a part of 8, 8*diffusion_rate to be exact,
+        got split up and added to the 8 surrounding patches in equal amounts. When calling the function,
+        this way of diffusion is added to every single value in the matrix (not only the 8).
+        Using the function on the whole matrix, it would check for matrix bounds and add the
         remainder of otherwise out-of-bounds-values to the closest value that is in-bounds. 
 
         With this information you are free to explore IN505Flow.
