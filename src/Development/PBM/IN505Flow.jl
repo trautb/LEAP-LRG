@@ -11,7 +11,7 @@ export demo                # Externally available names
 using Agents, GLMakie, InteractiveDynamics   # Required packages
 
 include("./AgentToolBox.jl")
-import .AgentToolBox: polygon_marker, diffuse8
+import .AgentToolBox: polygon_marker, diffuse8, reinit_model_on_reset!
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -128,6 +128,12 @@ function demo()
     #initialize the model 
     model = initialize_model()
 
+    # Sliders for model
+    params = Dict(
+        :du => 0:0.01:1,
+        :alphaU => 0:0.01:1
+    )
+
 	# instructions for ucolor for abm_plot
     ucolor(model) = model.u 
 
@@ -145,7 +151,15 @@ function demo()
     )
 
     #create the interactive plot with our sliders
-    fig, p = abmexploration(model; (agent_step!)=agent_step!, (model_step!)=model_step!, plotkwargs...)
+    fig, p = abmexploration(
+        model; 
+        (agent_step!)=agent_step!, 
+        (model_step!)=model_step!, 
+        params, 
+        plotkwargs...)
+    
+    reinit_model_on_reset!(p, fig, initialize_model)
+    
     fig
 
 end

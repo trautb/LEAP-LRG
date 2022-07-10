@@ -186,7 +186,7 @@ function demo()
 	params = Dict(
 		:n_turtles => 1:200,
 		:turtle_speed => 0.1:0.1:3.0,
-		:regrowth_chance => 0:0.0001:1,
+		:regrowth_chance => 0:0.0001:0.01,
 		:initial_energy => 10.0:200.0,
 		:Δenergy_turtle => 0:0.1:5.0,
 	)

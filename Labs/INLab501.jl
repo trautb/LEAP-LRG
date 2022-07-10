@@ -51,15 +51,41 @@
     Activity(
 		"""
 		Correct!
-        The other new feature is a system to show a colored background depending on values.
+        The other new feature is a system to show a colored background depending on values,
+        which you have heard of already in Lab 500. Here is a direct example how it is
+        implemented in Code.
 
-        These values have to be specified in the properties of a model (in this case in line 61
-        of the file IN501Ecosystem.jl).
+        These background-values have to be specified in the properties of a model (in this 
+        case in line 61 of the file IN501Ecosystem.jl).
         Later on this matrix of values has to be plotted with the correct colors and the correct
         range of values. These plot-arguments are specified in the demo()-function.
 
-        And with this you are now set to explore IN501Ecosystem.
+        Then next activity will explain this way of plotting a little bit more detailed.
+		""",
+		"???",
+		x -> true
+	),
+    Activity(
+		"""
+		When plotting data there are many customizations you can choose from. The most important ones
+		that will be used in the following labs are heatmaps that contain heatarrays and heatkwargs, 
+		which include colormaps and colorranges. Heatmaps create colors in plots, which are bound to
+		values, e.g. if a variables value is 1 it will be plotted in a specific color, other than 
+		another variable containing the value 2.
+		A heatarray describes the data that has to be interpreted. Like in the example that would be
+		the values 1 and 2.
+		heatkwargs (heat-Keyword-Arguments) are a set of multiple arguments which are specified in
+		the plotting libraries.
+		The most important heatkwargs you will find in the following labs are colormaps and colorranges.
+		Colormaps contain the range of colors that should be depicted in the plot, 
+		e.g. colormap = [:red, :blue] would create a gradual change starting at red and turning into blue.
+		Colorranges specify over which values the colormap will be applied. Taking the example colormap
+		with colorrange = (0:1:10) would distribute the change of the color over the steps from 1 to 10.
+		1 would be represented as red and 10 would be represented as blue.
+		For detailed information about plotting with colors have a look at the plotting documentations 
+		for heatmaps: https://docs.juliaplots.org/latest/generated/colorschemes/
 
+        And with this you are now set to explore IN501Ecosystem.
 		""",
 		"???",
 		x -> true
