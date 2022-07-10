@@ -5,9 +5,9 @@ deps/deps.jl
 Manifest.toml
 
 # client specific
+.vscode
 .vscode/settings.json
 .DS_Store
 
 # Video files
 *.mp4
-

@@ -122,7 +122,7 @@ end
 
 Unit-test the Casinos module.
 """
-function demo()
+function unittest()
 	println("\n============ Unit test Casinos: ===============")
 	println("Casino deck of randomness 2 for matrix withdrawals up to size (2x3):")
 	casino = Casino(2,3,2)
