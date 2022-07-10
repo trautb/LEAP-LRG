@@ -1,6 +1,17 @@
 module Plasmodium
   export plasmnutri10, demo4, model
 
+
+  """
+  This is based on Jones's Physarum model, 
+  which simulates very well the behaviour of a particular living system: 
+  the plasmodium phase of the life-cycle of the protist Physarum polycephalum.
+
+
+  Author: Nial Pallfreyman, Emilio Borrelli
+
+  """
+
   using Agents, LinearAlgebra
   using Random # hides
   using InteractiveDynamics
@@ -31,7 +42,7 @@ module Plasmodium
       extent         =      (200, 200),
       spacing        =      0.5,
       tiles          =      zeros(200,200),
-      nahrung        =      0)
+      food           =      0)
       
       
 
@@ -46,9 +57,9 @@ module Plasmodium
                           :tiles          =>      tiles,
                           :u              =>      tiles,
                           :nutrient       =>      tiles,
-                          :cMap            =>     tiles,
+                          :cMap           =>      tiles,
                           :nuts           =>      (((30,65)),((100,65)),((170,65)),((30,135)),((100,135)),((170,135))),
-                          :nahrung        =>      nahrung)
+                          :food           =>      food)
 
       # setting up space and model                    
       space2d = ContinuousSpace(extent,spacing)
@@ -176,7 +187,9 @@ if tile is occupied by other plasmodium: turn randomly
   # Utilities:
   # 
   #--------------------------------------------------------------------------------------------
-  
+  """
+  makes the agents sniff around to find the highest concentration of chemoattractants
+  """
   function sniff_right(agent::AbstractAgent,angle,model::ABM)
     sniffpos = collect(agent.pos)+(collect(eigvec(rotate_2dvector(360-angle,agent.vel)))*model.sensorRange)
     sniffpos =[round(Int,sniffpos[1]),round(Int,sniffpos[2])]
@@ -214,7 +227,7 @@ if tile is occupied by other plasmodium: turn randomly
             :sensorAngle    =>      1:1:90,
             :wiggle         =>      1:1:90,
             :sensorRange    =>      1:1:20,
-            :nahrung        =>      0:1:100,)
+            :food        =>      0:1:100,)
 
     model = initialize_model()
     cellcolor(a::plasmnutri10) = a.color
