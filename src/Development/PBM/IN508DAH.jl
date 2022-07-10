@@ -1,5 +1,5 @@
 module DAH
-    export Cell2, demo2
+	export Cell2, demo2
 """
 Stuart Newman and Gerd Müller base an entire theory of morphogenesis on Newman's Differential Adhesion Hypothesis (DAH), 
 which suggests that developing organisms structure their tissue into a body by using a series of adhesive molecules of varying strengths.
@@ -9,12 +9,12 @@ Author: Nial Pallfreyman, Emilio Borrelli
 """
 
 
-    using InteractiveDynamics
-    using GLMakie
-    using Agents, LinearAlgebra
-    using Random # hides
-    include("./AgentToolBox.jl")
-    import .AgentToolBox: rotate_2dvector, turn_left, turn_right, reinit_model_on_reset!
+	using InteractiveDynamics
+	using GLMakie
+	using Agents, LinearAlgebra
+	using Random # hides
+	include("./AgentToolBox.jl")
+	import .AgentToolBox: rotate_2dvector, turn_left, turn_right, reinit_model_on_reset!
 
 
 
@@ -81,55 +81,55 @@ end
 
 
 
-    function  adhere(cell2::AbstractAgent,model::ABM)
+	function  adhere(cell2::AbstractAgent,model::ABM)
 
-        nbr = random_nearby_agent(cell2, model, model.rAdhesionRange)
-        if nbr !== nothing
-            #continue here
-            cell2.vel = get_direction(cell2.pos, nbr.pos, model)
-            cell2.speed = model.rAdhesion * cadhesion(cell2.cadherin, nbr.cadherin, model)
-            move_agent!(cell2, model, cell2.speed)
-        end       
-    end
-
-
-
-    function  repel(cell2::AbstractAgent,model::ABM)
-        
-        penetrator = random_nearby_agent(cell2, model, model.rRadius)
-        if penetrator !== nothing
-            #continue here
-            cell2.vel = get_direction(cell2.pos, penetrator.pos, model)
-            cell2.speed = model.rRepulsion 
-            move_agent!(cell2, model, cell2.speed)
-        end       
-    end
+		nbr = random_nearby_agent(cell2, model, model.rAdhesionRange)
+		if nbr !== nothing
+			#continue here
+			cell2.vel = get_direction(cell2.pos, nbr.pos, model)
+			cell2.speed = model.rAdhesion * cadhesion(cell2.cadherin, nbr.cadherin, model)
+			move_agent!(cell2, model, cell2.speed)
+		end       
+	end
 
 
 
-    function  meander(cell2::AbstractAgent,model::ABM)
-        
-        cell2.vel = turn_right(cell2,rand(1:360)) 
-        cell2.speed = model.rThermal
-        move_agent!(cell2, model, cell2.speed)
-    end
+	function  repel(cell2::AbstractAgent,model::ABM)
+		
+		penetrator = random_nearby_agent(cell2, model, model.rRadius)
+		if penetrator !== nothing
+			#continue here
+			cell2.vel = get_direction(cell2.pos, penetrator.pos, model)
+			cell2.speed = model.rRepulsion 
+			move_agent!(cell2, model, cell2.speed)
+		end       
+	end
 
 
 
-    function cadhesion(c1::Float64, c2::Float64, model::ABM)
-        return(1-(2*abs(c1-c2) + c1 + c2) / (2*model.nAdherins))
-    end
+	function  meander(cell2::AbstractAgent,model::ABM)
+		
+		cell2.vel = turn_right(cell2,rand(1:360)) 
+		cell2.speed = model.rThermal
+		move_agent!(cell2, model, cell2.speed)
+	end
 
 
 
-    function demo2()
-        
-        model = initialize_model()
-        #create the interactive plot with our sliders
-        cellcolor(a::Cell2) = a.color
-        fig, p = abmexploration(model; model_step!, ac = cellcolor, as = 15)
-        fig
-    end
+	function cadhesion(c1::Float64, c2::Float64, model::ABM)
+		return(1-(2*abs(c1-c2) + c1 + c2) / (2*model.nAdherins))
+	end
+
+
+
+	function demo2()
+		
+		model = initialize_model()
+		#create the interactive plot with our sliders
+		cellcolor(a::Cell2) = a.color
+		fig, p = abmexploration(model; model_step!, ac = cellcolor, as = 15)
+		fig
+	end
 
 #function agent_step!(cell2,model)
 function model_step!(model::ABM)
