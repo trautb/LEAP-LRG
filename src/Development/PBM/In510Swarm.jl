@@ -120,8 +120,6 @@ function demo()
 		heatkwargs=(
 			colormap=cgrad(:ice),
 	))
-	#https://makie.juliaplots.org/stable/documentation/figure/
-	#https://makie.juliaplots.org/v0.15.2/examples/layoutables/gridlayout/
 	figure,p= abmexploration(model;agent_step!,params,am = polygon_marker,ac = :red,plotkwargs...)
 	reinit_model_on_reset!(p, figure, initialize_model)	
 	figure 
