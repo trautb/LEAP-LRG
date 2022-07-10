@@ -90,7 +90,7 @@ end
 # general functions ------------------------------------------------------------
 
 # TODO: description!!!
-function eigvec(vector::Vector{Float64})
+function eigvec(vector)
 	if (vector == Tuple([0.0, 0.0]))
 		return Tuple([0.0, 0.0])
 	else
