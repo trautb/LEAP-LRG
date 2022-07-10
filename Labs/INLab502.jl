@@ -72,6 +72,14 @@
 				
 			"""    
 		),
+        Activity(
+		"""
+		# TODO: visualizing and collecting data (mdata, adata): https://juliadynamics.github.io/Agents.jl/stable/api/#Data-collection-1
+        # TODO: ... https://juliadynamics.github.io/InteractiveDynamics.jl/dev/agents/
+		""",
+		"???",
+		x -> true
+	),
 
 
 		]

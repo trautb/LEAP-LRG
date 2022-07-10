@@ -59,7 +59,7 @@ function initialize_model(;
 		:patches => rand(extent...) .< pB,
 		:pB => pB,
 		:AB => AB
-        )
+		)
 
 	model = ABM(Patch, ContinuousSpace(extent,1.0); properties=properties)
 	add_agent!(model) # Add one dummy agent so that abm_exploration will allow us to plot.
@@ -77,7 +77,7 @@ child from a random neighbour, except that blues may have an evolutionary advant
 """
 function model_step!(model)
 	patch = rand(CartesianIndices(model.patches))
-    adjacent_patches = nearby_positions(patch.I, model).itr.iter
+	adjacent_patches = nearby_positions(patch.I, model).itr.iter
 	random_neighbour = patch + rand(adjacent_patches)
 
 	random_neighbour = min(                         # keeping the neighbour inbounds
@@ -109,7 +109,7 @@ function demo()
 
 	plotkwargs = (
 		add_colorbar=false,
-		heatarray=:patches,
+		heatarray=:patches,     # references the patches matrix of the model
 		heatkwargs=(
 			colorrange=(0, 1),
 			colormap=cgrad([:lime, :blue]; categorical=true),
@@ -119,7 +119,7 @@ function demo()
 
 	model = initialize_model()
 	fig, p = abmexploration(model; (agent_step!)=dummystep, model_step!, params, plotkwargs...)
-    reinit_model_on_reset!(p, fig, initialize_model)
+	reinit_model_on_reset!(p, fig, initialize_model)
 
 	fig
 end

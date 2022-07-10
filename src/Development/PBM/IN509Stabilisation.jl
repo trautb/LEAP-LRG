@@ -81,7 +81,7 @@ function agent_step!(particle, model)
     particle.speed = 1 / (1 + n_neighbors^2)
 
     if rand() < particle.speed
-        move_agent!(particle, model, particle.speed)   # TODO: for compatibility in Agents@5.4 change to `dt=turtle.speed`
+        move_agent!(particle, model, particle.speed)   # TODO: for compatibility in Agents@5.4 change to `dt=particle.speed`
     end
 
     particle.vel = (rand(-1:0.01:1), rand(-1:0.01:1))

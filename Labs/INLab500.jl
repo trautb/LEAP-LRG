@@ -3,10 +3,17 @@
 #
 # Welcome to course 500: An Introduction to Agent-Based Systems!
 #
-# Author: Niall Palfreyman (24/04/2022), Nick Diercksen (July 2022)
+# Authors:  Emilio Borelli, Nick Diercksen, Stefan Hausner, Dominik Pfister (July 2022)
 #========================================================================================#
+
+# TODO: upgrade all Chapters to Agents@5.4 https://github.com/JuliaDynamics/Agents.jl/releases/tag/v5.4.0
+# not done yet, to not interfere with agent exploration (research) groups
+# * `spacing` is now a keyword in e.g. ContiousSpace / Gridspace
+# * `move_agent` now needs to specify `dt` for an agent to move correspondong to its vel
+# * nearby_ids has no longer a kw `exact`
+
 [
-	Activity( # nr 1
+	Activity(
 		"""
 		"Agent-based modelling (ABM) is a technique for understanding how the behaviour
 		of a complex biological system arises from the traits and behaviours of the
@@ -19,7 +26,7 @@
 		"???",
 		x -> true
 	),
-	Activity( # nr 2
+	Activity(
 		"""
 		To use Agent Based Models in Julia, there is already a package available called
 			
@@ -41,7 +48,7 @@
 		"package not installed? Open the package manager with `]`, then type `add Agents`",
 		x -> true
 	),
-	Activity( # nr 3
+	Activity(
 		"""
 		Agents are nothing else than modifiable objects, that we will program to interact with
 		each other or the environment/world/model they exist in.
@@ -58,7 +65,7 @@
 		""",
 		x -> x <: Main.AbstractAgent && fieldtype(x, :id) <: Signed
 	),
-	Activity( # nr 4
+	Activity(
 		"""
 		Agents will live in a model defined by a specific space. Agents offers multiple
 		spaces tailored to specific applications and agent types. For simplicity we will
@@ -79,7 +86,7 @@
 		""",
 		x -> x isa Main.ContinuousSpace && x.extent == (80.0, 80.0)
 	),
-	Activity( # nr 5
+	Activity(
 		"""
 		So far we learned about Agents and Spaces, now we want to create a model with both.
 		We can do that with the function `AgentBasedModel` or in short `ABM`.
@@ -91,7 +98,7 @@
 		"type ?AgentBasedModel",
 		x -> x isa Main.AgentBasedModel
 	),
-	Activity( # nr 6 
+	Activity(
 		"""
 		We will now combine all the new information.
 		Excute the following commands, maybe run `demo()` a few times and then have a
@@ -108,66 +115,30 @@
 		How is the function called to obtain agents near a position?
 		""",
 		"have a look at the IN500SimpleWorld.jl file",
-		# this way input as string and as function is accepted:
+		# input as string and as function is accepted:
 		x -> string(x) |> x -> (x == "nearby_agents" || x == "nearby_ids")
 	),
-	Activity( # nr 7 
+	Activity(
 		"""
 		In the last example we only changed the model once via simple commands.
 		But the whole benefit of ABMs is that you can do that iteratively.
-		To do this, we need to define a step function that each agent will execute.
-			
-			agent_step!(agent, model)
+		To do this, we need to define two stepping functions:
+        
+            * agent_step!(agent, model)
+            * model_step!(model)
+        
+        As the names suggest, `agent_step!` will contain the behaviour each agent
+        will perform in one iteration. `model_step!` will represent general behaviour,
+        like changing environment, data collection, ...
 
-			mutable struct Particle <: AbstractAgent
-				id::Int
-				pos::NTuple{2,Float64}
-				vel::NTuple{2,Float64}
-			end
-		
-		# TODO: Evolving the model (agent_step)
-		
-		Create your own agent_step! function that moves a particle 
-		""",
-		"???",
-		x -> true
-	),
-	Activity( # nr 8
-		"""
-		# TODO: Evolving the model (model_step)
-
-		The model_step! is always after the agent_step!. Here we can collect data from our model. with
-		allagents(model) we collect every agent in our model with agent we acces them. 
-		In this example we want to collect the mean velocity (vel). First of all we need the strength of 
-		every velocity. Just use Pytagoras.
-		
-		
-		sumvel = 0.0
-		for agent in allagents(model)
-			velpy = sqrt((agent.vel[1])^2+(agent.vel[2])^2)
-			sumvel += velpy
-		end
-
-		#calculate mean hint 3 agents
-		 
-		""",
-		"???",
-		x -> true
-	),
-	Activity( # nr 9
-		"""
-		# TODO: Evolving the model (dummystep)
-		# if you dont need an agent_step!, but you want still be able to
-		# use model_step! use dummystep.
+        Jump to the next activity
 
 		""",
-		"???",
+		"",
 		x -> true
 	),
-	Activity( # nr 10
+	Activity(
 		"""
-		# TODO: visualizing (abmplot)
-
 		The simplest form of plotting your agents, is plotting with abmplot. You can call abmplot in the function demo()
 		But first of all you need to import some Packages. GLMakie is an big libary with a lot of function and has
 		a long compilation time. GLMakie is used to plot linegraphs,heatmaps and charts. In InteractiveDynamics plots will changed
@@ -182,26 +153,30 @@
 		
 			figure = abmplot(model)
 			figure
-		
 		end
 
 		""",
 		"???",
 		x -> true
 	),
-	Activity( # nr 11
+	Activity(
 		"""
-		# TODO: visualizing (remember Observables? a sophisticated framework we will use leverages those)
-		With Abm Observables we are able to visualize changes in the agents behaviour. We can either visualize
+		Do you remember Observables from Lab06? Since the Makie plotting framework is based
+        on them you already we can create dynamic and interactive plots.
+        Imagine we want to do this ourselves for all our changed agents and model. We can,
+        no question, but it will be tedious. 
+        With Abm Observables we are able to visualize changes in the agents behaviour. We can either visualize
 		agent_step! or model_step! or both. It shows us the agent position after every step.
 
 		figure, p = abmplot(model;agent_step!,model_step!)
+
+            See also: https://juliadynamics.github.io/Agents.jl/stable/agents_visualizations/#Static-plotting-of-ABMs-1
 		figure
 		""",
 		"???",
 		x -> true
 	),
-	Activity( # nr 12
+	Activity(
 		"""
 		# TODO: visualizing (abmexploration [InteractiveDynamics])
 		abmexploration evolves an ABM interactively and plots its evolution, while allowing changing any of the 
@@ -221,7 +196,7 @@
 	),
 	
 	# maybe other chapters:
-	Activity( # nr 13
+	Activity(
         """
         often we want the ground/surrounding of the Simulation to have propperties/behaviour too.
         In order to do so, we can define a Matrix with the size of the model space.
@@ -240,7 +215,7 @@
         "try zeros(200,200)",
         x -> x==zeros(200,200)
     ),
-    Activity( # nr 14
+    Activity(
         """
         Most of the time you want to work with continuous spaces, because it gives your agents more flexibility to move.
         the problem, as you might imagine, is that you cannot use the agent's position (usually a Float) to index the patches matrix.
@@ -257,7 +232,7 @@
     ),
 
     # maybe other chapters:
-    Activity( # nr 15
+    Activity(
         """
         Agents.jl will deal with space boundaries for you when moving your agent. If you work with own matricies however, you need to deal with that yourself.
         What do you do if you want to check a tile on your nutrients matrix, that is in front of your agent, but your agent already is standing at the border of the map?
@@ -292,7 +267,7 @@
         "no Hint here",
         x -> true
     ),
-	Activity( # nr 16 # TODO: creating an ABM (model properties)
+	Activity(
         """
         One thing, that Agent based Simulations are not so efficient at, are differential equations. There is an other disciplline called equation based moddeling for that.
         So if you want to model something like diffusion, you have to find a workaround, or an approximation, that is good enough. Either way can work.
@@ -325,7 +300,7 @@
         "no hint here",
         x -> true
     ),
-    Activity( # nr 17
+    Activity(
         """
         Taka a matrix n x m : I bet you are used to iterate through something like this using two for loops...
         But that is actually really inefficient.
@@ -343,7 +318,7 @@
         "no hint here",
         x -> true
     ),
-	Activity( # nr 18
+	Activity(
 		"""
 		When plotting data there are many customizations you can choose from. The most important ones
 		that will be used in the following labs are heatmaps that contain heatarrays and heatkwargs, 
@@ -366,7 +341,7 @@
 		"???",
 		x -> true
 	),
-	Activity( # nr 19
+	Activity(
 		"""
 		While running an abmexploration-Model you can stop the simulation at any moment.
 		When the model is paused you can hover over the plot and retrieve information
@@ -383,18 +358,12 @@
 		"???",
 		x -> true
 	),
-	Activity( # nr 20
+	Activity(
 		"""
 		# TODO: visualizing (custom abmplot: lifting)
 		""",
 		"???",
 		x -> true
 	),
-	Activity( # nr 21
-		"""
-		# TODO: visualizing (mdata, adata)
-		""",
-		"???",
-		x -> true
-	),
+	
 ]
