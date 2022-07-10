@@ -20,8 +20,34 @@
         With this mixture of rules the turtles will live on and the algae will regrow.
 
         But there are some new things to notice in this lab. Have a look at the next
-        activities to understand the code behind the logic a little bit better.
+        activities to understand the code behind the model a little bit better.
 
+		""",
+		"???",
+		x -> true
+	),
+    Activity(
+		"""
+		In this first lab and model you will learn some basic information, that will be used
+        from this point forward in the following labs.
+
+        First thing to notice are the properties, which are defined in initialize_model().
+        Proprties includes all the models global variables and data-matrices which the
+        model interacts with.
+        The properties-variable itself contains symbols mapped to their value inside 
+        a dictionary so that any reference of the symbol at a different position in the code 
+        will change the value for the model.
+        This is used when working with sliders. Further down in the code inside 
+        the demo()-function you will notice the reference to the models variable via symbols
+        inside the params-dictionary. This dictionary defines all sliders that you see when
+        running a model. The slider-values are stored in the symbols of the variables that
+        are used when initializing the model.
+
+        When working with sliders it is important to notice that the change in value of the
+        slider will only affect the model after pressing the "reset model"-button.
+        This will reinitialize the model with the changed values.
+        You can also use this button to create new random initial model layouts in some labs.
+        
 		""",
 		"???",
 		x -> true
