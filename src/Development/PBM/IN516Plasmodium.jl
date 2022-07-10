@@ -28,7 +28,7 @@ module Plasmodium
       sensorAngle    =      60,
       wiggle         =      44,
       sensorRange    =      9,
-      extent         =      ((200, 200)),
+      extent         =      (200, 200),
       spacing        =      0.5,
       tiles          =      zeros(200,200),
       nahrung        =      0)
@@ -219,7 +219,7 @@ if tile is occupied by other plasmodium: turn randomly
     model = initialize_model()
     cellcolor(a::plasmnutri10) = a.color
     cellsize(a::plasmnutri10) = a.size
-    fig, p = abmexploration(model; model_step!, params, ac = cellcolor, as = cellsize ,plotkwargs...)
+    fig, p = abmexploration(model; model_step!, params, ac = cellcolor, as = cellsize, plotkwargs... )
     fig
   end
 

@@ -1,5 +1,5 @@
 module DAH
-export Cell3, demo2
+export Cell2, demo2
 
 using InteractiveDynamics
 using GLMakie
@@ -8,12 +8,11 @@ using Random # hides
 include("./AgentToolBox.jl")
 import .AgentToolBox: rotate_2dvector, turn_left, turn_right
 
-mutable struct Cell3 <: AbstractAgent
+mutable struct Cell2 <: AbstractAgent
     # define the agent's properties
     id::Int
     pos::NTuple{2,Float64}
     vel::NTuple{2,Float64}
-    halfstep::NTuple{2,Float64}
     speed::Float64
     cadherin::Float64
     color::Symbol
@@ -45,7 +44,7 @@ function initialize_model(;
                     )
     # Initialise Cell population
     space2d = ContinuousSpace(extent)
-    model = ABM(Cell3, space2d; properties, scheduler = Schedulers.randomly)
+    model = ABM(Cell2, space2d; properties, scheduler = Schedulers.randomly)
     vel = Tuple((0,0))
     speed = 0
     map(CartesianIndices(( 1:(extent[1]-1), 1:(extent[2]-1)))) do x
@@ -59,7 +58,6 @@ function initialize_model(;
             Tuple(x),
             model,
             vel,
-            ((0.0, 0.0)),
             speed,
             cadherin, 
             color,
@@ -80,8 +78,6 @@ function model_step!(model::ABM)
         adhere(i[2],model)
         repel(i[2],model)
         meander(i[2],model)
-
-        move_agent!(i[2], i[2].halfstep, model)
     end
 end
 
@@ -93,18 +89,18 @@ function  adhere(cell2::AbstractAgent,model::ABM)
         #continue here
         cell2.vel = get_direction(cell2.pos, nbr.pos, model)
         cell2.speed = model.rAdhesion * cadhesion(cell2.cadherin, nbr.cadherin, model)
-        cell2.halfstep = Tuple(collect(cell2.pos)+collect(cell2.vel)*cell2.speed)
+        move_agent!(cell2, model, cell2.speed)
     end       
 end
 
 
 function  repel(cell2::AbstractAgent,model::ABM)
-    penetrator = random_nearby_agent(cell2.halfstep, model, model.rRadius)
+    penetrator = random_nearby_agent(cell2, model, model.rRadius)
     if penetrator !== nothing
         #continue here
-        cell2.vel = get_direction(cell2.halfstep, penetrator.pos, model)
+        cell2.vel = get_direction(cell2.pos, penetrator.pos, model)
         cell2.speed = model.rRepulsion 
-        cell2.halfstep= Tuple(collect(cell2.halfstep)+collect(cell2.vel)*cell2.speed)
+        move_agent!(cell2, model, cell2.speed)
     end       
 end
 
@@ -113,7 +109,7 @@ function  meander(cell2::AbstractAgent,model::ABM)
     
     cell2.vel = turn_right(cell2,rand(1:360)) 
     cell2.speed = model.rThermal
-    cell2.halfstep= Tuple(collect(cell2.halfstep)+collect(cell2.vel)*cell2.speed)
+    move_agent!(cell2, model, cell2.speed)
 end
 
 
@@ -126,7 +122,7 @@ function demo2()
     
     model = initialize_model()
     #create the interactive plot with our sliders
-    cellcolor(a::Cell3) = a.color
+    cellcolor(a::Cell2) = a.color
     fig, p = abmexploration(model; model_step!, ac = cellcolor, as = 15)
     fig
 end

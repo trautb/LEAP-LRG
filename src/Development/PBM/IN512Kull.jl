@@ -62,7 +62,8 @@ function initialize_model(;
                         geneticRadius,
                         developRadius,            
                         color,
-                        ) end,CartesianIndices(( 1:(extent[1]-1), 1:(extent[2]-1))))
+                        ) end,
+                        CartesianIndices(( 1:(extent[1]-1), 1:(extent[2]-1))))
 
     return model
 end
@@ -80,7 +81,7 @@ end
 function live(turtle1,model)
   if !turtle1.feeding 
     turtle1.vel = ((rand(-1.0:0.01:1.0), rand(-1.0:0.01:1.0)))
-    turtle1.speed = rand(3:1:model.searchSpeed)                                           # Move forward:
+    turtle1.speed = rand(3:model.searchSpeed)                                           # Move forward:
     move_agent!(turtle1,model,turtle1.speed)
   end
   turtle1.energy = turtle1.energy - 1             # Age

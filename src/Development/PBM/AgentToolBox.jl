@@ -5,12 +5,12 @@ This module can be used as a collection of useful functions for modelling
 """
 module AgentToolBox
 
-using Agents, InteractiveDynamics, Observables, GLMakie
+using Agents, InteractiveDynamics, Observables, GLMakie, LinearAlgebra
 # import Makie: Button
 import InteractiveUtils: @which
 
 export getAgentsByType, rotate_2dvector, eigvec, polygon_marker, choosecolor,
-    wrapMat, diffuse4, mean_nb, nonwrap_nb, custom_abmexploration
+    wrapMat, diffuse4, mean_nb, nonwrap_nb, custom_abmexploration, turn_right,turn_left, is_empty_patch
 
 
 DEGREES = 0:0.01:2π
