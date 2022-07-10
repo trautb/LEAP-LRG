@@ -1,7 +1,9 @@
 """
 In this Lab IN506Interference we explore the development of an field.
 There are Sources that emit E- and B-fields. Here agents are used
-only to initiate the fields. 
+only to initiate the fields.
+
+Authors: Stefan Hausner
 """
 
 module Interference
@@ -9,7 +11,7 @@ using Agents
 using InteractiveDynamics, GLMakie,LinearAlgebra, Random
 export demo
 include("./AgentToolBox.jl")
-using .AgentToolBox
+using .AgentToolBox: nonwrap_nb, neuman_neighborhood
 
 mutable struct ESource <: AbstractAgent
 	id::Int                   
@@ -26,23 +28,23 @@ After this we set the EB field sources with the agent position.
 From here the EB field is intiated.
 """
 function initialize_model(  
-	;n_sources = 2,
-	worldsize,
-	extent = (worldsize, worldsize),
-	EB = zeros(extent),
-	dEB_dt= zeros(extent),
-	ticks=1,
-	c=1.0,
-	freq=1.0,
-	dt = 0.1,
-	dxy=0.1,
-	attenuation= 0.03,
-	colorrange=(-1, 1),
+	;n_sources::Int = 2,
+	worldsize::Int,
+	extent::Tuple{Int64, Int64} = (worldsize, worldsize),
+	EB::Matrix{Float64} = zeros(extent),
+	dEB_dt::Matrix{Float64}= zeros(extent),
+	ticks::Int=1,
+	c::Float64=1.0,
+	freq::Float64=1.0,
+	dt::Float64 = 0.1,
+	dxy::Float64=0.1,
+	attenuation::Float64= 0.03,
+	colorrange::Tuple{Int64, Int64}=(-1, 1),
 	)
 	space = ContinuousSpace(extent, 1.0)
 
 	properties = Dict(
-		:EB => EB,        #patches
+		:EB => EB,        
 		:dEB_dt => dEB_dt,
 		:ticks => ticks,
 		:c => c,
@@ -91,7 +93,7 @@ function model_step!(model)
 end
 
 """
-Here the E-field is created. In neumanh the von Neumann neighborhood is calculated.
+Here the E-field is created. Here h is the distance of the neumann neighborhood.
 After that we intiate through every position in the field. Meannb calculates the 
 mean of the von neumann neighborhood for every position in the field. If the one
 neighboor is outside the matrix he gets the value 0. Then the von Neumann neighborhood
@@ -119,7 +121,6 @@ Also we can observe the change in color as the field progresses.
 """
 function demo()
 	model = initialize_model(worldsize=60);
-	#https://docs.juliaplots.org/latest/generated/colorschemes/
 	params = Dict(
 	:freq => 0.5:0.1:2,
 	:attenuation => 0:0.01:0.1

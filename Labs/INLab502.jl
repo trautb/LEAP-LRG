@@ -12,7 +12,7 @@
 		mutable struct Agent <: AbstractAgent
 			id::Int                    
 			pos::NTuple{2,Float64}             
-			phase:: Float64
+			vel:: NTuple{2,Float64}
 		end   
 
 		you can alternativly use 
@@ -21,6 +21,33 @@
 
 		D is the dimension in this example is it two
 		The ContinuousAgent has the following attributes the fields id::Int, pos::NTuple{D,Float64}, vel::NTuple{D,Float64} 
+		"""
+
+		"""
+		"""
+		),
+
+		Activity(
+		"""
+		Another important function from the Toolbox is eigvec. An eigenvector can
+		be created with an linear transformation and is an scaled vector.
+		This concept is especially important if we want to find the best agent value (nutrient source)
+		in an neighborhood. If the model has two agent positions an you want to go from
+		one to another. It is recommended to use eigvec if the model searches for an better
+		value. 
+
+		include("./src/Development/PBM/AgentToolBox.jl")
+		
+		using .AgentToolBox: eivec
+
+		scaled vector 
+		"""
+
+		),
+
+		Activity(	
+		"""
+
 		"""
 		),
 
@@ -33,23 +60,22 @@
 
 			function initialize_model(;n_agents=10,worldsize=100)
 
-				griddims = worldsize
+				extent = (worldsize,worldsize)
 				space2d = ContinuousSpace(griddims, 1.0)
 				model = ABM(Agent, space2d, scheduler = Schedulers.randomly
 
 
-				for id in 1:n_particles
-
-					vel = Tuple([1,1])
-
-					add_agent!(
-					model,
-					vel,
-					)
-				end
-			end
+				
 			"""    
 		),
+        Activity(
+		"""
+		# TODO: visualizing and collecting data (mdata, adata): https://juliadynamics.github.io/Agents.jl/stable/api/#Data-collection-1
+        # TODO: ... https://juliadynamics.github.io/InteractiveDynamics.jl/dev/agents/
+		""",
+		"???",
+		x -> true
+	),
 
 
 		]

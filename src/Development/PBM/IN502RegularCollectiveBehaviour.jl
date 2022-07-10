@@ -4,14 +4,16 @@ The goal of this Lab is to observe the mean euclidean distance of every agent ov
 First of all every agent is positioned randomly in the circles ring with the radius of 10 units.
 Then the agent is rotated 90 degree to be in an tangent to the circles ring. Then the agents are
 moved in the world. After every agentstep we measure the euclidean distance of the scheduled agent.
-Also the mean of every euclidean distance is calculated. 
+Also the mean of every euclidean distance is calculated.
+
+Authors: Stefan Hausner
 """
 module CollectiveBehaviour
 using Agents
-using InteractiveDynamics, GLMakie, Random, Statistics
+using InteractiveDynamics, GLMakie, Statistics
 export demo
 include("./AgentToolBox.jl")
-using .AgentToolBox
+using .AgentToolBox: rotate_2dvector, eigvec,choosecolor,polygon_marker, reinit_model_on_reset!
 
 ContinuousAgent{2}
 
@@ -26,24 +28,24 @@ function initialize_model(  ;n_particles::Int = 50,
 							particlespeed::Float64,
 							meandist::Float64=0.0,
 							globaldist::Matrix{Float64} = zeros(Float64,n_particles,1),
-							extent = (worldsize, worldsize),
+							extent::Tuple{Int64, Int64} = (worldsize, worldsize),
 							)
 
 	space = ContinuousSpace(extent, 1.0)
 
 	properties = Dict(
 		:globaldist => globaldist,
-		:meadist => meandist,
+		:meandist => meandist,
 		:particlespeed => particlespeed,
 		:worldsize => worldsize,
 	)
 
-	model = ABM(ContinuousAgent,space, scheduler = Schedulers.fastest,properties = properties)
+	model = ABM(Turtle,space, scheduler = Schedulers.fastest,properties = properties)
 
 	for id in 1:n_particles
 		vel = rotate_2dvector([10 10])
 		pos = Tuple([worldsize/2 worldsize/2]').+vel
-		vel = eigvec(rotate_2dvector(0.5*π,[vel[1] vel[2]]))
+		vel = eigvec(rotate_2dvector(0.5*π,[vel[1], vel[2]]))
 		model.globaldist[id,1] = edistance(pos,Tuple([worldsize/2, worldsize/2]),model)
 		add_agent!(
 			pos,
@@ -79,7 +81,8 @@ Plot for the agent movement and an plot for progress of the mean euclidean dista
 function demo()
 	model = initialize_model(worldsize = 40,particlespeed=1.0);
 	mdata = [:meandist]
-	figure,_= abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=1.5,am = polygon_marker,mdata)
+	figure, p = abmexploration(model;agent_step!,params = Dict(),ac=choosecolor,as=1.5,am = polygon_marker,mdata)
+    reinit_model_on_reset!(p, figure, initialize_model)
 	figure;
 end
 end

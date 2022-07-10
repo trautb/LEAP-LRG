@@ -6,6 +6,8 @@
 This model demonstrates how swarms of particles can solve a minimisation 
 problem - and also the major difficulty of swarm techniques: suboptimisation.
 
+# TODO: currently the behaviour with 2 dimensional velocity does not fully
+		represent the behaviour of the Netlogo course with a 1D velocity.
 
 Author: Niall Palfreyman (April 2020), Nick Diercksen (May 2022)
 """
@@ -13,11 +15,11 @@ module PSO
 
 export demo                # Externally available names
 
-using Agents, GLMakie, InteractiveDynamics		# Required packages
-import Statistics: norm							# magnitude of vector
+using Agents, GLMakie, InteractiveDynamics# Required packages
+import Statistics: norm# magnitude of vector
 
 include("./AgentToolBox.jl")
-import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, custom_abmexploration
+import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, reinit_model_on_reset!
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -32,6 +34,8 @@ attributes. Again, id, pos and vel are automatically inserted.
 @agent Particle ContinuousAgent{2} begin
 	uLowest::Float64        # Lowest value of u that I have yet found in my travels
 end
+
+const DT = 1      # time step
 
 #-----------------------------------------------------------------------------------------
 # Module methods:
@@ -55,6 +59,7 @@ function initialize_model(;
 	patches = deJong7 ? buildDeJong7(worldsize) : buildValleys(worldsize)
 
 	properties = Dict(
+		:pPop => 0.05,
 		:patches => patches,
 		:pPop => pPop,
 		:temperature => temperature,
@@ -63,7 +68,7 @@ function initialize_model(;
 		:meanPosition => extent ./ 2
 	)
 
-	model = ABM(Particle, ContinuousSpace(extent, 1); properties=properties)
+	model = ABM(Particle, ContinuousSpace(extent, 1.0); properties=properties)
 	spawn_particles!(model)
 	return model
 end
@@ -72,29 +77,19 @@ end
 #-----------------------------------------------------------------------------------------
 
 """
-	setPatches!()
-
-Spawn patches according.
-"""
-function setPatches!(model)
-	model.patches = model.deJong7 ? buildDeJong7(model) : buildValleys(model)
-end
-
-
-"""
 	spawn_particles!(model, n_particles = model.n_particles)
 
 Distribute Particles across the world (depedending on `pPop`).
 """
 function spawn_particles!(model)
-	@inbounds for p in positions(model)
+	for p in positions(model)
 		if rand() < model.pPop
 			add_agent_pos!(
 				Particle(
 					nextid(model),              # id
 					(p) .- 0.5,                 # pos (in center of patch)
 					rVel(),                     # vel: magnitude ∈ [0,1]
-					1e301                       # Ridiculously high initial value
+					1e301                       # Ridiculously high initial u value
 				),
 				model
 			)
@@ -103,6 +98,8 @@ function spawn_particles!(model)
 	return model
 end
 
+
+# helper functions -------------------------------------------------------------
 
 """
 	rVel()
@@ -116,8 +113,27 @@ function rVel()
 end
 
 
+"""
+	speed_up(vel)
 
-#-----------------------------------------------------------------------------------------
+increases the velocity `vel`.
+
+similar to the one dimensional velocity increase:
+* `speed_up(vel) = vel ./ (0.5 * (1 + norm(vel)))`
+"""
+function speed_up(vel)
+	if any(x -> (abs(x) < 1e-302), vel)
+		# avoiding `Inf` values (that would result if normal speed up is applied)
+		return rVel()
+	end
+	oldM = norm(vel)
+	newM = 0.5 * (1.0 + oldM)
+	newVel = (newM / oldM) .* vel
+	return newVel
+end
+
+
+# step functions----------------------------------------------------------------
 
 """
 	model_step!(model)
@@ -147,7 +163,7 @@ function agent_step!(particle, model)
 
 	# Take a step forward, depending on speed:
 	if rand() < norm(particle.vel)
-		move_agent!(particle, model)
+		move_agent!(particle, model, DT)        # TODO: for compatibility in Agents@5.4 change to `dt=DT`
 	end
 
 	# Remember the lowest value of u that I have yet found:
@@ -171,7 +187,7 @@ function agent_step!(particle, model)
 	end
 
 	# Stabilise speed if others are loitering here:
-	if length(collect(nearby_agents(particle, model, 1.2))) > 0
+	if length(collect(nearby_agents(particle, model, 1.0))) > 0
 		# There are Particles here - slow down:
 		particle.vel = 0.3 .* particle.vel
 	else
@@ -187,23 +203,6 @@ function agent_step!(particle, model)
 
 end
 
-"""
-speed_up(vel)
-
-increases the velocity `vel` by 
-"""
-# speed_up(vel) = vel ./ (0.5 * (1 + norm(vel)))
-function speed_up(vel)
-	if any(x -> (abs(x) < 1e-302), vel)
-		# avoiding Inf values (that would result if normal speed up is applied)
-		return rVel()
-	end
-	oldM = norm(vel)
-	newM = 0.5 * (1.0 + oldM)
-	newVel = (newM / oldM) .* vel
-	return newVel
-end
-
 #-----------------------------------------------------------------------------------------
 
 """
@@ -215,11 +214,13 @@ Particle Swarm Optimizations.
 function demo()
 	params = Dict(
 		:deJong7 => [false, true],
+		:pPop => 0.005:0.005:0.1,
+		:temperature => 0.0001:0.0001:0.005
 	)
 
 	plotkwargs = (
 		add_colorbar=false,
-		heatarray=:patches,
+		heatarray=:patches,# references the patches matrix of the model
 		heatkwargs=(
 			colormap=cgrad(:ice),
 		),
@@ -228,11 +229,13 @@ function demo()
 		am=:circle,
 	)
 
-	fig, p = custom_abmexploration(initialize_model; (agent_step!)=agent_step!, model_step!, plotkwargs, params)
+	model = initialize_model()
+	fig, p = abmexploration(model; agent_step!, model_step!, plotkwargs..., params)
+	reinit_model_on_reset!(p, fig, initialize_model)
 
 	# as soon as meanPosition gets an update (after each step), the scatter will be updated
-	m = lift(m -> m.meanPosition, p.model)
-	scatter!(m, color=:red, markersize=20)
+	meanPos = lift(m -> m.meanPosition, p.model)
+	scatter!(meanPos, color=:red, markersize=20)
 
 	fig
 end

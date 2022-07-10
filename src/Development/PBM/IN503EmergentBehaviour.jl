@@ -13,8 +13,11 @@ Author: Niall Palfreyman (January 2020), Nick Diercksen (May 2022)
 """
 module EmergentBehaviour
 
-export demo                # Externally available names
-using Agents, GLMakie, InteractiveDynamics   # Required packages
+export demo                						# Externally available names
+using Agents, GLMakie, InteractiveDynamics  	# Required packages
+
+include("./AgentToolBox.jl")
+import .AgentToolBox: reinit_model_on_reset!
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:
@@ -51,25 +54,16 @@ function initialize_model(;
 		:n_vertices => n_vertices,
 		:vertices => createVertexCoordinates(n_vertices),
 		:spu => 30,
-		:visited_locations => Array{Float64}(undef, 0, 2) # TODO: or is mdata meant for this?
+		:visited_locations => Array{Float64}(undef, 0, 2)
 	)
 
 	model = ABM(Particle, ContinuousSpace(extent); properties=properties, scheduler=Schedulers.randomly)
-	update_model!(model)
+	create_vertices!(model)
+	spawn_particles!(model)
 	return model
 end
 
-#-----------------------------------------------------------------------------------------
 
-"""
-	random_vertex(model)
-
-Returns a random vertex position as tuple.
-"""
-function random_vertex(model)
-	n = size(model.vertices, 1)
-	model.vertices[rand(1:n), :] |> Tuple
-end
 
 #-----------------------------------------------------------------------------------------
 
@@ -92,7 +86,7 @@ function spawn_particles!(model, n_particles=model.n_particles)
 	return model
 end
 
-#-----------------------------------------------------------------------------------------
+# vertex functions: ------------------------------------------------------------
 
 """
 	createVertexCoordinates(n_vertices=3; worldsize=100)
@@ -113,7 +107,19 @@ function create_vertices!(model::AgentBasedModel)
 	model
 end
 
-#-----------------------------------------------------------------------------------------
+"""
+	random_vertex(model)
+
+Returns a random vertex position as tuple.
+"""
+function random_vertex(model)
+	n = size(model.vertices, 1)
+	model.vertices[rand(1:n), :] |> Tuple
+end
+
+
+# step-functions: --------------------------------------------------------------
+
 """
 	agent_step!( particle, model)
 
@@ -125,7 +131,6 @@ function agent_step!(particle, model)
 	move_agent!(particle, newpos, model)
 end
 
-#-----------------------------------------------------------------------------------------
 
 """
 	model_step!(model)
@@ -133,33 +138,13 @@ end
 After all agents made one step, their current positions will be collected.
 """
 function model_step!(model)
-	verticesChanged = model.n_vertices != size(model.vertices, 1)
-	particlesChanged = model.n_particles != length(model.agents)
-	if verticesChanged || particlesChanged
-		update_model!(model)
-	end
-
 	particles = allagents(model)
 	current_pos = [p.pos for p in particles] |> (pos -> [first.(pos) last.(pos)])
 	model.visited_locations = vcat(model.visited_locations, current_pos)
 end
 
-#-----------------------------------------------------------------------------------------
 
-"""
-	update_model!(model)
-
-This method is needed to initialize the system. This is specially important to
-reflect the adjustements made with the parameters on the abmplot.
-"""
-function update_model!(model)
-	genocide!(model)            # unfortunate name by the devs (https://juliadynamics.github.io/Agents.jl/stable/api/#Agents.genocide!)
-	create_vertices!(model)     # 
-	spawn_particles!(model)
-	return model
-end
-
-#-----------------------------------------------------------------------------------------
+# execution and visualization --------------------------------------------------
 
 """
 	demo()
@@ -180,6 +165,7 @@ function demo()
 		params,
 		ac=:red, as=10, am=:circle
 	)
+    reinit_model_on_reset!(p, fig, initialize_model)
 
 	additional_plots(p)
 	fig
