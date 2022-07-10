@@ -18,7 +18,7 @@ export demo                                 # Externally available names
 using Agents, GLMakie, InteractiveDynamics  # Required packages
 
 include("./AgentToolBox.jl")
-import .AgentToolBox: rotate_2dvector, buildDeJong7, buildValleys, reinit_model_on_reset!
+import .AgentToolBox: reinit_model_on_reset!
 
 #-----------------------------------------------------------------------------------------
 # Module definitions:

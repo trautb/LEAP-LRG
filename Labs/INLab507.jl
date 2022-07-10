@@ -22,6 +22,7 @@
         stepping function, namely `model_steo!`. The Developers of Agents.jl provide
         a neat alternative to just declare and use an empty step-function: We can
         just use a `dummystep`.
+            abmexploration(model; (agent_step!)=dummystep, ...)
         
         How many methods does dummystep have?
 		""",

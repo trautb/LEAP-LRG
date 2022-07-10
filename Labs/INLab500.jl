@@ -7,10 +7,10 @@
 #========================================================================================#
 
 # TODO: upgrade all Chapters to Agents@5.4 https://github.com/JuliaDynamics/Agents.jl/releases/tag/v5.4.0
-# not done yet, to not interfere with agent exploration (research) groups
 # * `spacing` is now a keyword in e.g. ContiousSpace / Gridspace
 # * `move_agent` now needs to specify `dt` for an agent to move correspondong to its vel
 # * nearby_ids has no longer a kw `exact`
+# (upgrade is not done yet, to not interfere with agent exploration (research) group)
 
 [
 	Activity(
@@ -131,71 +131,42 @@
         will perform in one iteration. `model_step!` will represent general behaviour,
         like changing environment, data collection, ...
 
-        Jump to the next activity
-
+        You will soon enough see and use those in action.
+        Jump to the next activity ...
 		""",
 		"",
 		x -> true
 	),
 	Activity(
 		"""
-		The simplest form of plotting your agents, is plotting with abmplot. You can call abmplot in the function demo()
-		But first of all you need to import some Packages. GLMakie is an big libary with a lot of function and has
-		a long compilation time. GLMakie is used to plot linegraphs,heatmaps and charts. In InteractiveDynamics plots will changed
-		dynamiclly if anything in the model changes. The plots will be refreshed after every model_step or agent_step.
-
-		using InteractiveDynamics,GLMakie
-
-		in the demo use this commands
-
-		function demo()
-			model = initialize_model()
+        Before we look at custom models and stepping functions, we will now look at
+        visualizations:
+        `GLMakie.jl` is a backend for the large plotting library `Makie.jl` (which has a lot of
+        functionality). `GLMakie` can be used e.g. for plotting line charts, heat maps and diagrams.
 		
-			figure = abmplot(model)
-			figure
-		end
-
-		""",
-		"???",
-		x -> true
-	),
-	Activity(
-		"""
-		Do you remember Observables from Lab06? Since the Makie plotting framework is based
-        on them you already we can create dynamic and interactive plots.
-        Imagine we want to do this ourselves for all our changed agents and model. We can,
+        Do you remember Observables from Lab06? Since the Makie plotting framework is based
+        on them, we can create dynamic and interactive plots.
+        Imagine we want to do this ourselves for all our changed agents and model. We can do this,
         no question, but it will be tedious. 
-        With Abm Observables we are able to visualize changes in the agents behaviour. We can either visualize
-		agent_step! or model_step! or both. It shows us the agent position after every step.
+        The julia package `InteractiveDynamics.jl` already did all this work for us and provides
+        a simple form of plotting your agents dynamically. The function doing all the magic is
+        called `abmexploration`.        
+        Plots will change dynamiclly if anything in the model changes. The plots will be refreshed
+        after every model_step!.
+        
+        To explore an example, Agents provides some predefined models:
 
-		figure, p = abmplot(model;agent_step!,model_step!)
-
-            See also: https://juliadynamics.github.io/Agents.jl/stable/agents_visualizations/#Static-plotting-of-ABMs-1
-		figure
+            using InteractiveDynamics, GLMakie
+            model, agent_step!, model_step! = Agents.Models.flocking()
+            figure, p = abmplot(model;agent_step!,model_step!)
+            figure
+        
+        When done exploring, go to the next activity ...
 		""",
-		"???",
-		x -> true
-	),
-	Activity(
-		"""
-		# TODO: visualizing (abmexploration [InteractiveDynamics])
-		abmexploration evolves an ABM interactively and plots its evolution, while allowing changing any of the 
-		model parameters interactively and also showing the evolution of collected data 
-		over time (if any are asked for, see below).
-
-		abmexploration is especially useful if you want to adjust parameters while the model is already compiled.
-		This can be achieved with using sliders. This concept will be introdced when model parameter are 
-		introdced.
-		The code to acess abmexploration is similar to abmobservable
-
-		figure, p = abmexploration(model;agent_step!, model_step!) 
-
-		""",
-		"???",
+		"Make sure that `Agents.jl` is loaded as well",
 		x -> true
 	),
 	
-	# maybe other chapters:
 	Activity(
         """
         often we want the ground/surrounding of the Simulation to have properties/behaviour too.
@@ -335,12 +306,4 @@
 		"???",
 		x -> true
 	),
-	Activity(
-		"""
-		# TODO: visualizing (custom abmplot: lifting)
-		""",
-		"???",
-		x -> true
-	),
-	
 ]

@@ -104,7 +104,6 @@ function create_vertices!(model::AgentBasedModel)
 	n_vertices = model.n_vertices
 	worldsize = model.space.extent[1]
 	model.vertices = createVertexCoordinates(n_vertices; worldsize)
-	model
 end
 
 """
