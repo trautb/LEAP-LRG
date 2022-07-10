@@ -45,8 +45,6 @@ function initialize_model(  ;n_particles::Int = 50,
 	for id in 1:n_particles
 		vel = rotate_2dvector([10 10])
 		pos = Tuple([worldsize/2 worldsize/2]').+vel
-		println(typeof(rotate_2dvector(0.5*π,[vel[1], vel[2]])))
-		println(rotate_2dvector(0.5*π,[vel[1], vel[2]]))
 		vel = eigvec(rotate_2dvector(0.5*π,[vel[1], vel[2]]))
 		model.euclidiandist[id,1] = edistance(pos,Tuple([worldsize/2, worldsize/2]),model)
 		add_agent!(
