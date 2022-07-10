@@ -11,3 +11,4 @@ Manifest.toml
 
 # Video files
 *.mp4
+.vscode
