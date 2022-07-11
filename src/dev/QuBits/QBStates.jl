@@ -9,7 +9,7 @@ Author: Niall Palfreyman, 25/05/22
 include( "./QBDefinitions.jl")
 
 # Exports:
-export State, qubit, ampl, phase, prob, maxprob, nbits, off, on, pure, bitvec, density, ON, OFF
+export State, qubit, ampl, phase, prob, maxprob, nbits, off, on, pure, bitstate, density, ON, OFF
 
 #========================================================================================#
 # State definitions:
@@ -102,7 +102,7 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-	bitstring( bits)
+	bitstate( bits)
 
 Construct a state from the given bits.
 """

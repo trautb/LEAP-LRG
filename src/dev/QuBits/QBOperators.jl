@@ -149,15 +149,15 @@ end
 Compose the Operator op1 followed by the Operator op2. Note the reversed order of multiplication!!
 """
 function (op1::Operator)(op2::Operator, idx::Int=1)
+	nbitsop2 = nbits(op2)				# Save before possible left-padding
 	if idx > 1
 		# Pad to the left:
 		op2 = identity(idx-1) ⊗ op2
 	end
 
-	padright = nbits(op1) - nbits(op2)
-	if padright > 0
-		# Pad to the right:
-		op2 = op2 ⊗ identity(padright)
+	if nbits(op1) > nbits(op2)
+		# Pad rightwards to match nbits of op2 to nbits of op1:
+		op2 = op2 ⊗ identity(nbits(op1)-(idx-1)-nbitsop2)
 	end
 	
 	op2 * op1

@@ -12,27 +12,29 @@ include( "./QBOperators.jl")
 
 #-----------------------------------------------------------------------------------------
 """
-	demoqb()
+	demo()
 
 Demonstrate how to compose and apply Operators to States.
 """
-function demoqb()
-	stt3 = bitstate(1,0)					# 2-bit state |2>
-	opx1 = paulix()							# 1-bit Pauli-x
-	opy1 = pauliy()							# 1-bit Pauli-y
-	opp = opx1(opy1,2)						# 3d Pauli-x composed with op21 at bit 2 (???Here be dragons!)
-	oxs = opx1(stt3,2)						# opx applied to stt at bit 2
-	oxys = opy1(oxs)						# opy1 applied to oxs at bit 1
-	opps = opp(stt3)						# Apply composition opp to stt
+function demo()
+	println( "First, we create the 2-qubit state psi=|01>:")
+	psi = bitstate(0,1)
+	println( psi); println()
 
-	println( "Let's start with this 101 state:")
-	println( stt)
-	println( "We transform it with the Pauli-x matrix at the second qubit:")
-	println( oxs)
-	println( "... and then transform again with the Pauli-y matrix at the first qubit:")
-	println( oxys)
-	println( "OR ... we apply the composition opx(opy⊗I↑2,2) directly to 101: ")
-	println( opps)
+	println( "We flip the first qubit of psi using the PauliX matrix:")
+	x1psi = PauliX(psi)
+	println( x1psi); println()
+
+	println( "... then negate the on-state of the second qubit using PauliZ:")
+	x1z2psi = PauliZ(x1psi,2)
+	println( x1z2psi); println()
+
+	println( "Alternatively, we can construct the composed operator (PauliX⊗ I)(PauliZ,2):")
+	opx1z2 = (PauliX ⊗ identity())(PauliZ,2)
+	display( opx1z2); println()
+
+	println( "... then apply this composition directly to the original state psi=|01>: ")
+	println( opx1z2(psi))
 end
 
 end		# ... of module QuBits
