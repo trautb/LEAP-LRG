@@ -296,18 +296,13 @@ end # End of Module Ingolstadt
 
 #-----------------------------------------------------------------------------------------
 # Initialisation code:
-# using .Ingolstadt
 
-# Comment out the following line when executing/debugging within VSC:
-# Ingolstadt.letsgo()							# Initialise persistently saved session
-
-
-# changed ingo function in startup.jl to include the code above:
-# function ingo()
-# 	# Initialisation code:
-# 	localProjectPath = expanduser("~/.julia/dev/Ingolstadt.jl")
-# 	cd(localProjectPath)
-# 	include("src/Ingolstadt.jl")
-# 	@eval using .Ingolstadt						# avoid running 'using' when initialising function (https://stackoverflow.com/questions/55531397/load-julia-modules-on-demand)
-# 	Base.invokelatest(Ingolstadt.letsgo)							# Initialise persistently saved session
-# end
+# ingo(): Copy the following function into your startup.jl file:
+#function ingo()
+#	localProjectPath = "??? Your Ingolstadt path ???"
+#	cd(localProjectPath)
+#	include("src/Ingolstadt.jl")
+#	@eval using .Ingolstadt					# Avoid running 'using' when initialising function
+#											# (https://stackoverflow.com/questions/55531397/load-julia-modules-on-demand)
+#	Base.invokelatest(Ingolstadt.letsgo)	# Initialise persistently saved session
+#end
