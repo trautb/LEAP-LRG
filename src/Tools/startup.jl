@@ -1,16 +1,24 @@
 #========================================================================================#
 #	Sample startup.jl file
 #
-# Insert this file into your directory ~/.julia/config to have it start automatically
+# Insert this file into your directory ~/.julia/config to have it load automatically
 # whenever you start Julia.
 #
 # Author: Niall Palfreyman, 06/02/2022
+# Reworked: Nick Diercksen, 30/06/2022
 #========================================================================================#
+"""
+	ingo()
 
-# This function moves to the indicated directory and includes Ingolstadt, allowing you to
-# start working on your current laboratory. Remember to replace ??? by your own
-# directory specification:
+Change to the directory Workpath/Ingolstadt then include Ingolstadt.jl, allowing user to
+work on their current Ingolstadt laboratory. Remember to replace the string marked ??? by
+your own Workpath specification.
+"""
 function ingo()
-	cd("C:/Users/???/Ingolstadt")
-	include("src/Ingolstadt.jl")
+	localProjectPath = "??? Your Workpath/Ingolstadt ???"
+	cd(localProjectPath)
+ 	include("src/Ingolstadt.jl")
+ 	@eval using .Ingolstadt					# Avoid running 'using' when initialising functions
+											# (https://stackoverflow.com/questions/55531397/load-julia-modules-on-demand)
+ 	Base.invokelatest(Ingolstadt.letsgo)	# Initialise persistently saved session
 end

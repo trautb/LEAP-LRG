@@ -293,16 +293,3 @@ function save()
 end
 
 end # End of Module Ingolstadt
-
-#-----------------------------------------------------------------------------------------
-# Initialisation code:
-
-# ingo(): Copy the following function into your startup.jl file:
-#function ingo()
-#	localProjectPath = "??? Your Ingolstadt path ???"
-#	cd(localProjectPath)
-#	include("src/Ingolstadt.jl")
-#	@eval using .Ingolstadt					# Avoid running 'using' when initialising function
-#											# (https://stackoverflow.com/questions/55531397/load-julia-modules-on-demand)
-#	Base.invokelatest(Ingolstadt.letsgo)	# Initialise persistently saved session
-#end
