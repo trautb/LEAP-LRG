@@ -82,18 +82,17 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-	demo()
+	unittest()
 
-This first version of my use-case method demo() describes everything I want to do in the final
+This first version of my use-case method unittest() describes everything I want to do in the final
 program: Demonstrate simulation of a simple 2-body problem in a simple 3-step use-case.
 
 NOTE: USE-CASES are the HEART of software development! This one is already basically complete,
 even though the methods it calls are dummy methods (that is: callable, but empty of functionality).
 The code in this demo method already organises my thinking by giving me a precise plan of what
-methods I will need to implement in later versions of developing program.
+methods I will need to implement in later versions of the developing software.
 
-It is always a good idea to develop the graphical interface first, so I will develop my programm
-according to the following DEVELOPMENT PLAN:
+I will develop my program according to the following DEVELOPMENT PLAN:
 
 	Version 1: Implement animate() to generate a static plot of dummy simulation data provided
 				by simulate().
@@ -104,7 +103,7 @@ according to the following DEVELOPMENT PLAN:
 	Version 5: Fix any execution errors arising from mistakes I made in my original design.
 
 """
-function demo()
+function unittest()
 	# Build the 2-body system:
 	nb = NBody( 20, 1000)								# 20 time units divided into 1000 steps
 	addbody!( nb, [0.0, 1.0], [ 0.8,0.0], 2.0)			# Sun (m = 2)

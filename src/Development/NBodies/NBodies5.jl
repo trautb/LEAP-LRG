@@ -9,7 +9,7 @@ any curved trajectory. So in version 5, I need to replace Euler's method by the 
 method. And this in turn means I must refactor the Euler code out into its own method, then
 replace it by Runge-Kutta-2.
 
-This solution worked so well that I then added a second, more complicated use-case (demo2()),
+This solution worked so well that I then added a second, more complicated use-case demo(),
 in which three bodies (2 Suns and a very lonely! planet) orbit around each other.
 
 Author: Niall Palfreyman, 29/05/2022.
@@ -87,9 +87,9 @@ function simulate( nb::NBody)
 	x[1] = nb.x0
 	p[1] = nb.p0
 
-	# Simulation using RK2 method:
 	for n = 1:nb.nsteps
-		rk2!(nb)
+		# Perform and log the next RK2 step:
+		runge_kutta_2!(nb)
 		x[n+1] = nb.x
 		p[n+1] = nb.p
 	end
@@ -99,11 +99,11 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-	rk2!( nbody::NBody)
+	runge_kutta_2!( nbody::NBody)
 
-Perform a single RK2-step of the given NBody system.
+Perform a single Runge-Kutta-2 step of the given NBody system.
 """
-function rk2!( nb::NBody)
+function runge_kutta_2!( nb::NBody)
 	dt2 = nb.dt/2
 
 	# Half-step:
@@ -173,11 +173,11 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-	demo()
+	unittest()
 
 Demonstrate simulation of a simple 2-body problem in a simple 3-step use-case.
 """
-function demo()
+function unittest()
 	# Build the 2-body system:
 	nb = NBody( 20, 1000)								# 20 time units divided into 1000 steps
 	addbody!( nb, [0.0, 1.0], [ 0.8,0.0], 2.0)			# Sun (m = 2)
@@ -192,11 +192,11 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-	demo2()
+	demo()
 
 Demonstrate simulation of a chaotic 3-body system.
 """
-function demo2()
+function demo()
 	# Build the 3-body system:
 	nb = NBody( 20, 1000)
 	addbody!( nb, [0.0, 1.0],	[ 0.8, 0.0], 	2.0)		# Sun 1 (m = 2)

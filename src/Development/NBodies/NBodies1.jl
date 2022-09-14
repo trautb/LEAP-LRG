@@ -98,12 +98,12 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-	demo()
+	unittest()
 
 Demonstrate simulation of a simple 2-body problem in a simple 3-step use-case.
 This version is identical with version 0.
 """
-function demo()
+function unittest()
 	# Build the 2-body system:
 	nb = NBody( 20, 1000)								# 20 time units divided into 1000 steps
 	addbody!( nb, [0.0, 1.0], [ 0.8,0.0], 2.0)			# Sun (m = 2)
