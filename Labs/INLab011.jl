@@ -259,10 +259,10 @@
 		Take the module Replicators as a template, and extend the module Selectors (in Selectors.jl)
 		to include a datatype Selector that uses RK2 to simulate the evolution of a population of
 		three types under sub- and superlinear selection. Your client function unittest() should:
-			-	use a constructor method to set the value of c and the three specific growth rates,
+			-	use a constructor method to set the value of c and the three specific growth rates;
 			-	then call the method simulate!(s,[x0 y0 z0],T) to evolve the population over a time
-				T, starting from the initial frequencies [x0 y0 z0],
-			-	then plot this evolution graphically within a triangular 3-simplex
+				T, starting from the initial frequencies [x0 y0 z0];
+			-	then plot this evolution graphically within a triangular 3-simplex.
 			
 		For example:
 			sel = Selector( 1.2, [0.2,0.3,0.4])
