@@ -168,7 +168,7 @@ end
 Display the current activity number to the learner.
 """
 function act()
-	println("Activity ",session.current_act," ...")
+	println("Activity ",session.current_act,"/", length(session.activities), " ...")
 end
 
 #-----------------------------------------------------------------------------------------
