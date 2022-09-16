@@ -140,8 +140,8 @@
 		the total population stays constant:
 			sum(x) ≡ 1 and sum(dx/dt) ≡ 0
 
-		We will find these relations very useful when we study the rise and fall of types within a
-		population. In particular, we shall want to make use of the dot product between two
+		We will find these relations very useful when we study the growth and decline of types
+		within a population. In particular, we shall want to make use of the dot product between two
 		vectors. At the Julia prompt, create two vectors a = [1,2,3] and b = [4,5,6], then verify
 		that a'*b calculates the dot product of a and b. Then look up and tell me which library we
 		need to load in order to make use of the dot product function: dot(a,b).
