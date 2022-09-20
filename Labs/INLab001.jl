@@ -8,13 +8,12 @@
 [
 	Activity(
 		"""
-		Hi! In this laboratory we use activities and questions that introduce us to the basics
-		of the Julia language. Feel free to experiment at any time by entering your own
+		Hi! In this laboratory we will use activities and questions to introduce ourselves to the
+		basics of the Julia language. Feel free to experiment at any time by entering your own
 		commands at the Julia prompt.
 		
-		I will interpret anything you enter as an argument of the function reply() as an
-		answer to the current question. Try this now - at the Julia prompt, enter the
-		following code:
+		I will interpret anything you enter as an argument of the function reply() as an answer to
+		the current question. Try this now - at the Julia prompt, enter the following code:
 
 			city = "Ingolstadt"
 
