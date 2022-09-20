@@ -356,6 +356,11 @@
 		this course to develop your unittest() method into a full-scale demonstration of your
 		research investigation. Your demonstration will display graphics and text to convince
 		users of the importance and correctness of your results. Good luck! :)
+
+		IMPORTANT: In many activities of this course, I have written equations out in terms of
+		their matrix components, for example: sum([a[i]*b[i] for i in 1:N]). But of course in
+		Julia you can write this expression much more simply as a dot product: a'*b or dot(a,b).
+		Please make sure you make full use of Julia's high-level matrix notation in your project!
 		""",
 		"",
 		x -> true
