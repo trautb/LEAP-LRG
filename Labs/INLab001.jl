@@ -228,7 +228,7 @@
 
 			a_string = "We are one and we are many, and from all the lands on Earth we come."
 
-		Now ask whether the substring "Earth" occurs in the string a_quote: What is the
+		Now ask whether the substring "Earth" occurs in the string a_string: What is the
 		return value of the function call occursin("Earth",a_string)?
 		""",
 		"",
@@ -236,10 +236,10 @@
 	),
 	Activity(
 		"""
-		What value does the function call startswith("Earth",a_string) return?
+		What value does the function call startswith("We are",a_string) return?
 		""",
 		"",
-		x -> x == false
+		x -> x == true
 	),
 	Activity(
 		"""
