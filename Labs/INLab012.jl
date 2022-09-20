@@ -40,20 +40,20 @@
 
 		What is the population's average fitness R = x[1]*r[1] + x[2]*r[2], given x[2] = 1 - x[1]?
 		""",
-		"???",
-		x -> true
+		"Remember that r[1] = r[2] = 1",
+		x -> x == 1
 	),
 	Activity(
 		"""
-		Use these values in the above equations to show that:
+		Substitute these values in the above dynamical equations to show that:
 			dx[1]/dt = q[1,2] - x[1]*(q[2,1] + q[1,2])
 		""",
-		"???",
+		"",
 		x -> true
 	),
 	Activity(
 		"""
-		Show that this dynamical equation has a fixed point x*[1] = q[1,2] / (q[2,1] + q[1,2]) 
+		Show that this dynamical equation has a fixed point x[1]* = q[1,2] / (q[2,1] + q[1,2]) 
 		""",
 		"Set dx[1]/dt = 0",
 		x -> true
@@ -71,10 +71,10 @@
 		frequently to type 2 individuals than in the reverse direction. We can approximate this
 		situation by setting q[1,2] = 0. Substitute this value into the dynamical equations for
 		dx[1]/dt and dx[2]/dt, and solve these equations to find the exact behaviour of x[1] and
-		x[2] over time.
+		x[2] over time. What mathematical name to we give to this type of behaviour over time?
 		""",
-		"???",
-		x -> true
+		"",
+		x -> occursin("exponential",lowercase(x))
 	),
 	Activity(
 		"""
@@ -83,11 +83,11 @@
 		satisfying the conditions q[i,j] ∈ [0,1] and sum(q,1) = 1. Again, since each type
 		generates some other type, the sum of all elements in each column is 1. We can write the
 		mutation dynamics like this:
-			dx/dt = (dx[i]/dt) = sum([q[i,j]*x[j] for j in 1:N]) - R*x[i] = (Q - R*I)∙x
+			dx/dt = (dx[i]/dt) = sum([q[i,j]*x[j] for j in 1:N]) - R*x[i] = (Q - R*I)*x
 
 		Again, in N-type mutation dynamics, R = 1. Why?.
 		""",
-		"???",
+		"Think about how mutation converts one type into another",
 		x -> true
 	),
 	Activity(
