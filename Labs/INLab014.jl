@@ -349,7 +349,7 @@
 	),
 	Activity(
 		"""
-		Finally, use your Domestications module to investigate an evolutionary problem of your
+		OK, now use your Domestications module to investigate an evolutionary problem of your
 		own choosing. First choose a research question that you wish to explore - discuss this
 		question with your instructor. Then decide how you are going to answer your research
 		question using your simulator. Finally, use all of the techniques you have learned in
