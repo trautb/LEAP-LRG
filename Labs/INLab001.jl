@@ -235,14 +235,14 @@
 	),
 	Activity(
 		"""
-		What value does the function call startswith("We are",a_string) return?
+		What value does the function call startswith(a_string,"We are") return?
 		""",
 		"",
 		x -> x == true
 	),
 	Activity(
 		"""
-		What value does the function call endswith("Earth",a_string) return?
+		What value does the function call endswith(a_string,"Earth") return?
 		""",
 		"",
 		x -> x == false
