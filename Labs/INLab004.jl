@@ -315,12 +315,13 @@
 	Activity(
 		"""
 		OK, now the last two activities in this laboratory give you practice in applying indexing,
-		broadcasting and mapping to problems that often arise in signal-processing. Have fun! :)
+		broadcasting and mapping to problems that often arise in signal-processing. You should
+		solve each of these two activities by writing just ONE line of code. Have fun! :)
 
 		Use logical indexing to generate a list of all odd multiples of 3 in the range 1:50 :
 		""",
-		"Use isodd(), rem(), &, and remember to use broadcasts (.) and brackets",
-		x -> x == [3,9,15,21,27,33,39,45]
+		"Use comprehension, isodd(), rem() and &&",
+		x -> x == [x for x in 1:50 if (isodd(x) && rem(x,3)==0)]
 	),
 	Activity(
 		"""
@@ -338,7 +339,7 @@
 		Use the isprime function to generate a list of twenty numbers from 1 to 20, in which
 		all prime numbers AND all multiples of 3 are zeroed out:
 		""",
-		"Use rem(), isprime() and |",
-		x -> x == [1,0,0,4,0,0,0,8,0,10,0,0,0,14,0,16,0,0,0,20]
+		"Use rem(), isprime(), || and map",
+		x -> x == map((n -> (isprime(n)||rem(n,3)==0) ? 0 : n),(1:20))
 	),
 ]
