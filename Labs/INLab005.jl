@@ -136,13 +136,9 @@
 	Activity(
 		"""
 		Great! Now that we know how to hide variables and functions inside a module, we can do
-		some real live software development! In the next laboratory, we will develop a genetic
-		algorithm (GA), and GAs need to work with arrays of random values. However, generating
-		random numbers is very time-expensive, so in this laboratory we will develop a software
-		tool called a Casino that will later help us generate arrays of random values very quickly.
-
-		There is just one thing we need to do first. Our modules can get quite complex, so we
-		will build them up step-by-step within a file. If you look in the directory
+		some real live software development! In later laboratories we will develop our own
+		software modules; however, these modules can get quite complex, so we must first learn
+		to build them up step-by-step within a file. If you look in the directory
 		Ingolstadt/Development/Altruism, you will find a file named Replicators.jl. Open this file
 		now and study its contents. What is the name of the data type defined in the file?
 		""",
@@ -385,10 +381,10 @@
 	),
 	Activity(
 		"""
-		What is the exact (analytic) solution of the equation dx/dt = -0.3 x ?
+		What function is the exact (analytic) solution of the equation dx/dt = -0.3 x ?
 		""",
 		"If you are unsure how to write the exponential function, look it up in this lab file.",
-		x -> exp(-0.3t)
+		x -> (t->exp(-0.3t))
 	),
 	Activity(
 		"""
