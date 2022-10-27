@@ -130,7 +130,7 @@
 
 		Repeat the previous experiment - what is the value of paula afterwards?
 		""",
-		"",
+		"You should find that change_paula() is still safe, even when you have loaded MyModule",
 		x -> x==7
 	),
 	Activity(
