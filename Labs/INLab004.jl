@@ -29,7 +29,7 @@
 		"""
 		So: SUBSCRIPTING! To access a matrix element with subscripts, we use square brackets
 		enclosing two subscripts i (row) and j (column) like this: m[i,j]. In Julia, the row
-		index ALWAYS comes before the column index! Display the element m[3,4[] now, then tell
+		index ALWAYS comes before the column index! Display the element m[3,4] now, then tell
 		me its value:
 		""",
 		"Just enter m[3,4] at the Julia prompt",
@@ -180,11 +180,11 @@
 		matrix A(t). In this case, A[3,5,4] might represent the element [3,5] at time t=4 of the
 		time-series.
 
-		Enter R = rand(2,3,4); at the Julia prompt, and study the following expressions:
+		Enter R = rand(1:9,(2,3,4)); at the Julia prompt, and study the following expressions:
 
 			R[1,:,:]
-			R[]:,1,:]
-			R[]:,:,1]
+			R[:,1,:]
+			R[:,:,1]
 			size(R)
 		
 		How many elements does R contain?
