@@ -384,7 +384,7 @@
 		What function is the exact (analytic) solution of the equation dx/dt = -0.3 x ?
 		""",
 		"If you are unsure how to write the exponential function, look it up in this lab file.",
-		x -> (t->exp(-0.3t))
+		f -> (f isa Function) && (t->f(t)==exp(-0.3t))(rand())
 	),
 	Activity(
 		"""
@@ -398,7 +398,7 @@
 	Activity(
 		"""
 		Create a simulation to calculate how many hours you must wait before you can drive legally
-		after your two glasses of wine.
+		after your two shots of whiskey.
 		""",
 		"Use logical indexing and findfirst to locate the time when x falls below 3.",
 		x -> abs(x-3.3) < 0.1
