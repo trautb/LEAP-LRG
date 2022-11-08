@@ -41,7 +41,7 @@
 			fieldnames(typeof(fig))
 		""",
 		"",
-		x -> x <: (:figure,:axis,:plot)
+		x -> x == (:figure,:axis,:plot)
 	),
 	Activity(
 		"""
