@@ -20,12 +20,12 @@
 			src/Development/Utilities/Utilities.jl
 
 		The function eratosthenes_bad() generates prime numbers up to a user specified maximum N.
-		It usses the algorithm know as the Sieve of Eratosthenes, which is quite simple: Given an
+		It uses the algorithm known as the Sieve of Eratosthenes, which is quite simple: Given an
 		array of integers from 1 to N, cross out all multiples of 2. Find the next uncrossed
 		integer, and cross out all of its multiples. Repeat this until you have passed the square
 		root of N. The remaining uncrossed numbers are then all the primes less than N.
 
-		Test the eratosthenes_bad() method by loading it and entering eratosthenis_bad(10) at the
+		Test the eratosthenes_bad() method by loading it and entering eratosthenis_bad(100) at the
 		Julia prompt. What answer do you get?
 		""",
 		"",
@@ -53,7 +53,7 @@
 	),
 	Activity(
 		"""
-		Julia is based on FUNCTIONAL PROGRAMMING. That is, your break your code down into reusable
+		Julia is based on FUNCTIONAL PROGRAMMING. That is, you break your code down into reusable
 		functions that each performs a single, specific task. It is very important that a function
 		has JUST ONE responsbility, and its name clearly indicates the specific task that the
 		function performs. Higher level functions are composed out of lower-level functions. Also,

@@ -9,7 +9,7 @@
 	Activity(
 		"""
 		In this laboratory we really get started with the biological content of this course.
-		We have seen that replication is represented by the Exponential model:
+		We know from lab 5 that replication is represented by the Exponential model:
 			dx/dt = r*x
 
 		where x is the size of a population and r is the specific growth rate of that population.
@@ -59,7 +59,7 @@
 
 		Both x and y grow exponentially, and if r > s, x will grow faster than y. Eventually, there
 		will be more x's than y's. Let's define ρ(t) ≡ x(t)/y(t). Use the quotient rule to prove
-		that dρ/dt = (r - s)*ρ .
+		that ρ(t) also follows an exponential model: dρ/dt = (r - s)*ρ .
 		""",
 		"On paper, divide the exponential expression for x by the exponential for y, then differentiate",
 		x -> true
@@ -67,7 +67,7 @@
 	Activity(
 		"""
 		The solution of this equation is ρ(t) = ρ0*exp((r - s)*t), so if r > s, ρ will grow toward
-		infinity, and x outcompetes y. In addition, if we also suppose that resource are limited,
+		infinity, and x outcompetes y. In addition, if we also suppose that resources are limited,
 		the populations x and y will grow toward a point where the total population (x + y) stays
 		constant, so that if x gets infinitely bigger than y, this must mean that y → 0.
 
@@ -102,7 +102,7 @@
 		now only need to solve the single equation:
 			dx/dt = (r - s)*x*(1 - x)
 		""",
-		"Insert the constraint y = 1 - x into the logistic equations for x and y",
+		"Substitute the constraint y = 1 - x into the logistic equations for x and y",
 		x -> true
 	),
 	Activity(
@@ -113,8 +113,8 @@
 			If r > s, x → 1, so y → 0, and type x is selected over type y;
 			If s > r, x → 0, so y → 1, and type y is selected over type x.
 
-		Martin Nowak calls this model “Survival of the Fitter”. But there are many other exciting
-		possible situations as well! :)
+		Martin Nowak calls this model “Survival of the Fitter”. But models like this can also display
+		many other exciting behaviours! :)
 
 		By the way, before we proceed, you should beware of thinking of the frequencies x and y as
 		species, because they might simply be different groups in a population of one species. It
@@ -147,7 +147,7 @@
 		need to load in order to make use of the dot product function: dot(a,b).
 		""",
 		"LinearAlgebra",
-		x -> true
+		x -> x == "LinearAlgebra"
 	),
 	Activity(
 		"""
@@ -172,7 +172,7 @@
 		"""
 		So if we have two population types x and y, we can represent any particular values of these
 		two types as a convex combination of two points in a graph. Now, you might not at first
-		think this is particularly useful, but what if we had three populations? It would be very
+		think this is particularly useful, but what if we had three populations? It would be quite
 		difficult to visualise these three numbers in a 3-D graph, but is very easy to visualise
 		them as convex combinations of the three vertices of a triangle!
 
