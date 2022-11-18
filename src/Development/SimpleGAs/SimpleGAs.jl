@@ -249,6 +249,9 @@ function recombine!( sga::SimpleGA, fitnesses=nothing)
 	
 	# Create next generation:
 	progeny = similar(sga.population)
+	# Transfer elite parents (at end of population) directly into new progeny:
+	progeny[sga.nNonelitist+1:end] = sga.population[sga.nNonelitist+1:end]
+	# Now recombine all parents to create all nonelite progeny:
 	for m in 1:nMatings
 		xpt = rand(1:length(mummy[m])-1)			# Crossover point
 
@@ -265,8 +268,8 @@ function recombine!( sga::SimpleGA, fitnesses=nothing)
 		# ???
 	end
 
-	# To do: ... and finally replace the old fogeys by the new progeny:
-	# ???
+	# ... and finally replace the old fogeys:
+	sga.population = progeny
 	sga
 end
 	
@@ -306,6 +309,7 @@ function demo()
 	obj = Objective(7)
 	sga = SimpleGA(obj,128,20)
 	temperature!(sga,2)
+	elite!(sga,4)
 	depict(sga)
 	
 	nIter = 5000

@@ -13,7 +13,7 @@ Author: Niall Palfreyman, 7/12/2021
 module Ingolstadt
 
 # Externally callable methods of Ingolstadt
-export gimme, lab, act, reply, hint, nextlab, nextact
+export gimme, lab, act, reply, hint, menu, nextlab, nextact
 
 using Pluto								# We want to be able to use Pluto notebooks
 
@@ -46,7 +46,7 @@ the session accordingly.
 
 # Examples
 ```julia
-julia> letsgo!("Niall")
+julia> letsgo("Niall")
 Hi Niall! Wait just half a second ...
 ```
 """
@@ -101,11 +101,11 @@ end
 
 #-----------------------------------------------------------------------------------------
 """
-help()
+menu()
 
-Display a list of Ingolstadt commands.
+Display a menu of Ingolstadt commands.
 """
-function help()
+function menu()
 	println( "List of Ingolstadt commands:")
 	println( "   hint()               : Display a hint for the current activity")
 	println( "   gimme()              : Give me the current activity")
@@ -168,7 +168,7 @@ end
 Display the current activity number to the learner.
 """
 function act()
-	println("Activity ",session.current_act," ...")
+	println("Activity ",session.current_act,"/", length(session.activities), " ...")
 end
 
 #-----------------------------------------------------------------------------------------
@@ -270,7 +270,7 @@ function nextlab( lab_num::Int = 0, current_act::Int = 1)
 	println( "Great - I've set up the laboratory. If you've just completed working on another")
 	println( "laboratory, I recommend that you restart Julia now. This will keep your environment")
 	println( "clean and avoid naming conflicts.")
-	println( "Enter Ingolstadt.help() at any time to see your available options. Have fun! :)")
+	println( "Enter menu() at any time to see your available options. Have fun! :)")
 	println()
 
 	# Display the new laboratory number:
@@ -293,10 +293,3 @@ function save()
 end
 
 end # End of Module Ingolstadt
-
-#-----------------------------------------------------------------------------------------
-# Initialisation code:
-using .Ingolstadt
-
-# Comment out the following line when executing/debugging within VSC:
-Ingolstadt.letsgo()							# Initialise persistently saved session

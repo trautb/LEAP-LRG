@@ -13,7 +13,8 @@ the RK2 integration into a separate dedicated method rk2().
 
 NOTE: At present, the dynamical equations occur twice within rk2(). If the Lotka-Volterra
 system contained more than two equations, I would definitely consider storing their
-right-hand side as an additional membes of the LV type of type Function.
+right-hand sides as a vector function that is an additional member of the LV type.
+(See version 4)
 
 Author: Niall Palfreyman, 31/05/2022.
 """

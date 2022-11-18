@@ -8,13 +8,12 @@
 [
 	Activity(
 		"""
-		Hi! In this laboratory we use activities and questions that introduce us to the basics
-		of the Julia language. Feel free to experiment at any time by entering your own
+		Hi! In this laboratory we will use activities and questions to introduce ourselves to the
+		basics of the Julia language. Feel free to experiment at any time by entering your own
 		commands at the Julia prompt.
 		
-		I will interpret anything you enter as an argument of the function reply() as an
-		answer to the current question. Try this now - at the Julia prompt, enter the
-		following code:
+		I will interpret anything you enter as an argument of the function reply() as an answer to
+		the current question. Try this now - at the Julia prompt, enter the following code:
 
 			city = "Ingolstadt"
 
@@ -228,7 +227,7 @@
 
 			a_string = "We are one and we are many, and from all the lands on Earth we come."
 
-		Now ask whether the substring "Earth" occurs in the string a_quote: What is the
+		Now ask whether the substring "Earth" occurs in the string a_string: What is the
 		return value of the function call occursin("Earth",a_string)?
 		""",
 		"",
@@ -236,14 +235,14 @@
 	),
 	Activity(
 		"""
-		What value does the function call startswith("Earth",a_string) return?
+		What value does the function call startswith(a_string,"We are") return?
 		""",
 		"",
-		x -> x == false
+		x -> x == true
 	),
 	Activity(
 		"""
-		What value does the function call endswith("Earth",a_string) return?
+		What value does the function call endswith(a_string,"Earth") return?
 		""",
 		"",
 		x -> x == false

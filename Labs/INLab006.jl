@@ -1,332 +1,465 @@
 #========================================================================================#
 #	Laboratory 6
 #
-# Data visualisation
+# Tuples, Pairs, Dict, Symbol, files, Dates, Random numbers and downloading.
+# Files and Dates are available in Julia Programming Cookbook
 #
-# Author: Niall Palfreyman, 27/01/2022
+# Author: Niall Palfreyman, 13/01/2022
 #========================================================================================#
 [
 	Activity(
 		"""
-		In this laboratory we learn how to use Julia's Makie plotting package to create
-		publication-quality graphics for data visualisation. Makie is the front-end for
-		several different backend graphics packages - for example, Cairo, GL and WebGL. We
-		shall focus here on GLMakie. First, we add and load the GLMakie package. You already
-		know how to do this using the Julia PackageManager, but like everything in Julia, we
-		can also do it ourselves from within a program using method calls:
+		In this laboratory we introduce several helpful Julia tools that make life a
+		little easier: Tuples, Pairs, Dicts, Symbols, Files, DateTimes, Random and downloading.
 
-		using Pkg
-		Pkg.add("GLMakie")
-		using GLMakie
+		A Tuple is an immutable container that can contain several different types. We
+		construct Tuples using round brackets, for example:
 
-		This will take a while - as will also your first graphics call. Julia uses JiT (Just-
-		in-time) compilation, so the first time you call a method, it will always take longer
-		than the second time you call it. Enter the following command (remembering the semicolon
-		at the end!), then tell me the type of your return value fig:
+			my_tuple = (5, 2.718, "Niall")
 
-		fig = scatterlines(0:10,(0:10).^2);
+		What is my_tuple[2]?
 		""",
-		"Enter the command exactly as I have done here",
-		x -> x==Main.Makie.FigureAxisPlot
+		"my_tuple[2]",
+		x -> x==Main.my_tuple[2]
 	),
 	Activity(
 		"""
-		Plotting commands like scatterlines() create three things: a Figure that can be displayed,
-		an Axis system contained in the Figure, and a Plot object (such as a curve) that is drawn
-		within the Axis system. When we display the Figure, it already contains one or more
-		Axis systems, and one of these Axis systems contains our Plot curve.
+		You have already seen that size() returns a Tuple. Enter the following code:
 
-		Tell me the result of entering:
+			ret_size = size(zeros(3,4))
 
-			fieldnames(typeof(fig))
+		What is the value of ret_size[1]? Try changing the value of ret_size[2].
+		Finally, what is the type of ret_size? 
 		""",
-		"",
-		x -> x <: (:figure,:axis,:plot)
+		"typeof(ret_size)",
+		x -> x==typeof(size(zeros(3,4)))
 	),
 	Activity(
 		"""
-		OK, well now we know about the structure of Figures, let's take a look at our curve.
-		Enter this at the Julia prompt, and Julia will automatically display the value of fig:
+		Tuples are especially useful when we want to define anonymous functions with
+		more than one argument:
 
-			fig
+			map((x,y)->3x+2y,4,5)
 
-		Doesn't it look pretty? :) What is the type of the return value from entering this?
+		Construct a single line mapping that calculates sin(x*y) for corresponding
+		elements in the two ranges x = 1:5 and y = 5:-1:1
 		""",
-		"",
-		x -> x <: Main.Makie.FigureAxisPlot
+		"map((x,y)->sin(x*y),1:5,5:-1:1)",
+		x -> x==map((x,y)->sin(x*y),1:5,5:-1:1)
 	),
 	Activity(
 		"""
-		Our figure is still a little primitive - let's customise its attributes. First capture
-		the three different fields of fig so that we can manipulate them for ourselves:
+		A Pair is a structure that contains two objects - typically a key and its
+		entry in a dictionary. We construct a Pair like this:
 
-		fg,ax,plt = fig;
+			my_pair = "Yellow Submarine" => "Beatles"
 
-		Check out the attributes field of plt to find out how many attributes it has:
+		Construct my_pair and then find the value of last(my_pair):
 		""",
 		"",
-		x -> x >= 14
+		x -> x==last("Yellow Submarine" => "Beatles")
 	),
 	Activity(
 		"""
-		We can ask for help on any function in the REPL by using the help() function. Try:
+		A Dict(ionary) is a hashed database of Pairs. Dicts are very lightweight, so
+		we can easily use them in everyday code. We construct a Dict by passing a
+		sequence of Pairs to the constructor:
+
+			my_dict = Dict( "pi" => 3.142, "e" => 2.718)
+
+		Construct my_dict, and notice that the Pairs are not necessarily in the same
+		order that you entered them. Now look up the value of "pi" in my_dict:
+		""",
+		"my_dict[\"pi\"]",
+		x -> x==3.142
+	),
+	Activity(
+		"""
+		We can find out whether our Dict contains the key "e" by using the keys() function:
+
+			"e" in keys(my_dict)
+
+		Delete the entry for "e" from my_dict using the delete!() function. What word do
+		you now see in red if you enter my_dict["e"]?
+		""",
+		"delete!(my_dict,\"e\")",
+		x -> x=="ERROR"
+	),
+	Activity(
+		"""
+		Now add two extra entries to my_dict:
+
+			my_dict["root2"] = 1.414
+			my_dict["epsilon0"] = 8.854e-12
+
+		What is the result of calling haskey(my_dict,"root2")?
+		""",
+		"",
+		x -> x==true
+	),
+	Activity(
+		"""
+		We have already met Symbols - they define components of the Julia language, and
+		we use them to extend the language with new components. We construct Symbols
+		using the colon ':'. Enter the following lines:
+
+			a,b = 2,3
+			expr = :(a+b)
+			dump(expr)
+
+		What is the value of expr.args?
+		""",
+		"",
+		x -> x==Main.expr.args
+	),
+	Activity(
+		"""
+		You can see that the arguments of expr are Symbols waiting to be evaluated. Try:
+
+			typeof(expr.args[2])
+
+		What do you get if you enter string(expr)?
+		""",
+		"",
+		x -> occursin("a+b",replace(x," "=>""))
+	),
+	Activity(
+		"""
+		Symbols and Strings are very similar to each other. You will see that graphics
+		functions often use Symbols to define special switches such as :red or :filled.
 		
-		help(lines)
-
-		and then tell me how many different ways there are of calling the lines() function:
+		In fact, a Symbol is a String that has been prepared for being evaluated.
+		What do you get if you apply the function eval() to expr?
 		""",
-		"The signature of a function is the pattern of arguments that defines which method to call",
-		x -> x==3
+		"eval(expr)",
+		x -> x==5
 	),
 	Activity(
 		"""
-		Now we'll use this information on line attributes to replot our curve. Try entering this:
+		We use the "splat" operator (...) to convert a collection into a set of
+		arguments for a function. Define this function and test it with a few numbers:
 		
-		fig = scatterlines(0:10,(0:10).^2,color=:red)
+			my_function(x,y,z) = x * (y+z)
+		
+		Now define this vector: v = [2,3,4]. Suppose we want to use the three numbers
+		in v as arguments for my_function. First try it like this: my_function(v), and
+		see what happens ...
 
-		Now replot this graph using a line with thickness 9-point, then tell me exactly which value
-		you needed to assign to the relevant attribute in order to do this:
-		""",
-		"The important point here is that numbers are already symbols, so you don't need the colon",
-		x -> x==9
-	),
-	Activity(
-		"""
-		It might be useful to save our curve to a pdf file, but to do this, we first need to study
-		the filesystem underlying the Julia REPL. Enter now the following command:
+		It didn't work, did it? Now tell me what you get when you enter this:
 
-		pwd()
-
-		The returned string tells you the path of your Present Working Directory. It should look
-		something like this:
-
-		"C:\\\\Users\\\\hswt136nia\\\\...\\\\Projects\\\\Ingolstadt"
-
-		In the chapter "Filesystem" of the Julia user manual you will find many functions for
-		exploring the filesystem - we shall just use one or two here. Look at the return value of
-		the following command and tell me its type:
-
-		readdir()
-		""",
-		"It should be a Vector of filenames in your PWD",
-		x -> x <: Vector{String}
-	),
-	Activity(
-		"""
-		We want to create a Temp directory to save our files into. First, check whether there
-		already exists such a directory in the PWD by entering:
-
-		"Temp" in readdir()
-
-		If the result is false, create the Temp subdirectory by entering:
-
-		mkdir("Temp")
-
-		What happens if you use this command when Temp already exists?
+			my_function(v...)
 		""",
 		"",
-		x -> occursin( "error", lowercase(x)) || occursin( "exist", lowercase(x))
+		x -> x==14
 	),
 	Activity(
 		"""
-		Now change directory into your new Temp directory, then check that you've changed PWD:
+		Files are an important part of everyday data science. First of all, we need to
+		be able to find files in the background filesystem. Enter: pwd() at the Julia
+		prompt. This stands for Present Working Directory ...
 
-		cd("Temp")
-		pwd()
+		What you get back is the path of the current folder. Now enter: readdir() ...
 
-		Now we're ready to save our Makie figure. Enter the following command, go and look at
-		the resulting file using Adobe Acrobat, then come back here and tell me the highest
-		number on the vertical axis:
+		This gives you a list of filenames in the current folder. Choose a filname in
+		this list - for example maybe "filename.ext". Ask whether your file is in the
+		current folder. What answer do you get back?
+		""",
+		"\"filename.ext\" in readdir()",
+		x -> x==true
+	),
+	Activity(
+		"""
+		pwd() gives us the path of the current folder, and readdir() gives us a vector
+		of filenames in it. We can put these together using joinpath(). Find out the
+		answer returned by the following function call:
 
-		save("myfig.png", fig)
+			isfile(joinpath(pwd(),"filename.ext"))
+
+		where filename.ext is the file you previously found in the current directory.
+		""",
+		"Investigate the value returned by the joinpath() call",
+		x -> true
+	),
+	Activity(
+		"""
+		Now let's create a new file. The following command creates a file named
+		"my_data.txt", and sets up a FILESTREAM named "file" for "w"riting to it:
+
+			file = open("my_data.txt","w")
+
+		Now write some information to the file:
+
+			write( file, "This is my file\nIt belongs to me!\n")
+
+		The value returned by write() is the number of bytes you have written to the
+		file. We can also us the print() and println() functions, for example:
+
+			println( file, "It really does!")
+
+		Finally, close() file and tell me the result of isfile("my_data.txt"):
+		""",
+		"close(file)",
+		x -> x==true
+	),
+	Activity(
+		"""
+		Congratulations! You have created your first file! Now let's trying
+		r(eading) from the file:
+
+			file = open("my_data.txt","r")
+
+		Now enter: readline(file) several times to read the lines of the file.
+		Once you have read all the lines, the file is in an end-of-file state:
+
+			eof(file)
+
+		What value does readline() return if you continue to read lines after
+		the end-of-file?
+		""",
+		"readline(file)",
+		x -> isempty(x)
+	),
+	Activity(
+		"""
+		Now close() the file, then reopen it again to start reading at the
+		beginning of the file. We can read all lines of the file at once.
+		What is the type of the structure returned by the following code?
+
+			file = open("my_data.txt","r")
+			readlines( file)
 		""",
 		"",
-		x -> x==100
+		x -> x <: Vector
 	),
 	Activity(
 		"""
-		OK, now let's get fancy. We don't always want the scatter points on our plot, so we'll try
-		out the lines() function. Also, it would be nice to plot something a little more exciting,
-		like maybe the Hill function. The Hill function describes the activation and inhibition of
-		DNA expression in biological cells by a transcription factor (TF):???
+		If our file contained binary data, it would not be possible to read
+		it in separate lines - in this case we use the read() function.
 
-		function hill( tf, K::Real=2, n::Real=1)
-			abs_n = abs(n)
-			if abs_n!=1 K = K^abs_n; tf = tf.^abs_n end
-			n>=0 ? tf./(K.+tf) : K./(K.+tf)
-		end
-		trfactor = 0:20
-		lines(trfactor,hill(trfactor))
-
-		We can brighten up this figure by adding some interesting line attributes:
-
-		lines( trfactor, hill(trfactor); color=:blue, linewidth=3, linestyle=:dash)
-		
-		The ; symbol marks the beginning of keyword arguments of a function. Experiment with this
-		plot by changing the keyword arguments of lines(). What argument value displays a line
-		consisting of a sequence of two dots and a dash (-..-..-..-)?
+		Rewind the file to the beginning using: seekstart(file).
+		Enter read(file) to see the characters in the file, and tell me the
+		first character:
 		""",
-		"Search for keyword arguments on the site: https://makie.juliaplots.org/",
-		x -> x==:dashdotdot
+		"0x54: Scroll the Julia console back up to see the beginning",
+		x -> x==0x54
 	),
 	Activity(
 		"""
-		The lines() function returns a Plot object: the line that is to be plotted. This line is
-		positioned within a set of axes: an Axis object. We can design the structure of this Axis
-		object by adding an Axis specification to lines():
-		
-		lines( trfactor, hill(trfactor,2,1); color=:blue, label="activation",
-			linewidth=3, linestyle=:dash,
-			axis=(;
-				xlabel="TF concentration", ylabel="Expression rate",
-				title="Transcription regulation",
-				xgridstyle=:dash, ygridstyle=:dash
-			)
-		)
+		Well, that wasn't very pleasant, was it, with all those characters
+		screaming across the screen? Let's do it in a more civilised way this time...
 
-		Notice carefully how I have used indentation to make it clear where each structure or
-		function begins and ends. It's not easy to do this in the REPL, but soon we will be writing
-		our own code, so it's good to practise making our code easily readable by other programmers.
+		Rewind the file to the beginning using seekstart().
+		Now enter:
 
-		Experiment now with the axis parameters ...
+			data = read(file);
+
+		Did you remember to write ';' at the end of the line? If not, you
+		had the "screaming characters" problem. ';' at the end of a line
+		stops the return value being written to the console. Now tell me
+		the value of the fifth element of data:
+		""",
+		"data[5]",
+		x -> x==0x20
+	),
+	Activity(
+		"""
+		This hex code represents a character. Can you convert the code to
+		a character?
+		""",
+		"Char(data[5])",
+		x -> x==' '
+	),
+	Activity(
+		"""
+		We can even convert the data entirely to a String like this:
+
+			str = String(data)
+
+		However, this conversion uses up the data values. What value is
+		now returned by the function call isempty(data)?
+		""",
+		"",
+		x -> x==true
+	),
+	Activity(
+		"""
+		Finally, we must always close a filestream after we have finished
+		with it: close(file).
+		Also, we should clean up afterwards, so now remove the file we have
+		created using rm("my_data.txt"), and tell me the return type of rm():
+		""",
+		"First call rm(), and then ask: typeof(ans)",
+		x -> x==Nothing
+	),
+	Activity(
+		"""
+		Now we investigate DateTimes in Julia. Support for date and time
+		handling is provided by the Dates package, which we must first load:
+
+			using Dates
+
+		We can access the current time using the now() function:
+
+			datim = Dates.now()
+
+		What is the type of datim?
+		""",
+		"",
+		x -> x==Main.DateTime
+	),
+	Activity(
+		"""
+		To create a new date, we pass year, month and day to the constructor:
+
+			Date( 1996, 7, 16)
+			Date( 2020, 6)
+
+		What Date value is constructed by the call Date(2022)?
+		""",
+		"",
+		x -> x==Main.Date(2022)
+	),
+	Activity(
+		"""
+		We can also create times. Use the minute() function to find the number
+		of minutes past the hour in this time:
+
+			DateTime(1992,10,13,6,18)
+		""",
+		"minute(ans)",
+		x -> x==Main.minute(Main.DateTime(1992,10,13,6,18))
+	),
+	Activity(
+		"""
+		The module Dates also makes available Periods of time. Use the subtypes()
+		function to find the subtypes of Period and also the subtypes of these
+		subtypes. How many subtypes does the type TimePeriod have?
+		""",
+		"subtypes(TimePeriod)",
+		x -> x==length(Main.subtypes(Main.TimePeriod))
+	),
+	Activity(
+		"""
+		However, we don't just want to construct dates and times - we usually
+		want to PARSE (i.e., analyse) them. We can construct a Date from a
+		String by passing a DateTime format argument:
+
+			Date("19760915","yyyymmdd")
+
+		For DateTimes, this format gets a little more complicated, so you may
+		wish to define your own format:
+
+			format = DateFormat("HH:MM, dd.mm.yyyy")
+
+		Use this format to parse the DateTime "06:18, 13.10.1992". What
+		character separates the date from the time in the result?
+		""",
+		"",
+		x -> x=='T'
+	),
+	Activity(
+		"""
+		DateTimes contains many useful functions that you can look up at
+		docs.julialang.org. For example, use the function dayname() to find
+		out the day on which you were born ...
+
+		When you've finished experimenting, just enter reply() to move on
+		to the next activity.
 		""",
 		"",
 		x -> true
 	),
 	Activity(
 		"""
-		This Axis object is then displayed within a Figure object. We can design the appearance of
-		this figure by adding a Figure specification to lines():
-
-		lines( trfactor, hill(trfactor); color=:blue, label="activation",
-			linewidth=3, linestyle=:dash,
-			axis=(;
-				xlabel="TF concentration", ylabel="Expression rate",
-				title="Transcription regulation",
-				xgridstyle=:dash, ygridstyle=:dash
-			),
-			figure=(;
-				figure_padding=5, resolution=(600,400), font="sans",
-				backgroundcolor=:green, fontsize=20
-			)
-		)
-
-		Experiment now with the figure parameters ...
+		Find out your age in days by subtracting your birthday Date from
+		today(), then move on with reply():
 		""",
 		"",
 		x -> true
 	),
 	Activity(
 		"""
-		Once we have set up a Plot object inside an Axis, inside a Figure, we can add extra Plot
-		objects using bang! methods that change the current state of an object, for example:
+		Form a list of the past 8 days by collecting this Range into a Vector:
 
-		scatterlines!( trfactor, hill(trfactor,2,-1); color=:red, label="repression", linewidth=3)
-		axislegend( "Legend"; position=:rc)
-
-		Once we have done this, we can redisplay the current figure like this:
-
-		current_figure()
-		
-		Take a look at the point where the curves of the two Hill-functions cross. You can see that
-		this TF concentration correspondes to the value of K that we pass to the Hill function.
-		Check that this is generally true, and tell me what value of Expression rate corresponds
-		in general to the TF concentration value K:
+			today()-Week(1):Day(1):today()
 		""",
-		"Create a new graphic, and set the new value of K in BOTH calls to hill()",
-		x -> x==0.5
+		"",
+		x -> x==Main.eval(:(collect((today()-Week(1)):Day(1):today())))
 	),
 	Activity(
 		"""
-		Let's use our new-found knowledge of plotting to display a bubble-plot:
+		Next we'll look at a very important tool of data science: Random numbers.
+		First load the functions that we'll be using:
 
-		data = randn(50,3)
-		figr, ax, pltobj = scatter( data[:,1], data[:,2];
-			color=data[:,3], label="Bubbles", colormap=:plasma, markersize=15*abs.(data[:,3]),
-			axis=(; aspect=DataAspect()),
-			figure=(; resolution=(600,400))
-		)
-		limits!(-3,3,-3,3)
-		Legend( figr[1,2], ax, valign=:top)
-		Colorbar( figr[1,2], pltobj, height=Relative(3/4))
-		figr
+			using Random: rand, randn, seed!
 
-		Do you like my pretty bubble-plot?
+		By itself, the rand() function returns a pseudo-random Float64 number in the
+		half-open interval [0.0,1.0). Try this now.
+		
+		If you pass rand() a range as its first argument, it returns a random element
+		from that range. If you pass it a tuple of integers, it returns an array with
+		the size specified by those integers. Use rand() to produce a (2,3) array of
+		integer values between -1 and +1:
 		""",
-		"I'm very insecure: I won't let you go on until you say you like my art!",
-		x -> occursin("yes",lowercase(x))
+		"rand(Range,Size)",
+		x -> (typeof(x) <: Matrix{Int}) && size(x) == (2,3) && all(map(y->in(y,-1:1),x))
 	),
 	Activity(
 		"""
-		As you see, to create a nice graphic, we often need to build it up in several steps, so it
-		is a idea to collect these steps together inside a single function. For example, suppose
-		we want to display several different 2-d functions as heatmaps - we might do like this:
-
-		function prettyheatmap( f::Function)
-			figure = (; resolution=(600,400), font="CMU Serif")
-			axis = (; xlabel="x", ylabel="y", aspect=DataAspect())
-			xs = range(-2, 2, length = 25)
-			ys = range(-2, 2, length = 25)
-			zs = [f(x,y) for x in xs, y in ys]
-
-			global fig, ax, pltobj = heatmap( xs, ys, zs, axis=axis, figure=figure)
-			Colorbar( fig[1,2], pltobj, label="A colour bar")
-			fig
-		end
-
-		Now call prettyheatmap() as follows, then tell me how many yellow rings you see:
-
-		prettyheatmap( (x,y) -> cos(5*hypot(x,y)) )
+		randn() works just the same as rand(), but returns normally distributed values
+		with mean 0.0 and standard deviation 1.0. Create a (5,7) array of such normally
+		distributed numbers:
 		""",
-		"Just count the complete rings - not the circle",
-		x -> x==2
+		"",
+		x -> size(x) == (5,7) && sum(x)/length(x) < 0.5
 	),
 	Activity(
 		"""
-		Now that we have wrapped our plotting code inside the function prettyheatmap(), we can
-		easily reuse this encapsulated code to display a completely different function:
-		
-		mountains(x,y) =
-			3 * (1-x)^2 *				exp(-(x^2+(y+1)^2))
-			-(1/3) *					exp(-((x+1)^2 + y^2))
-			-10 * (x/5 - x^3 - y^5) *	exp(-(x^2+y^2))
-		prettyheatmap( mountains)
+		When we perform simulations with random numbers, we never know in advance how
+		our program will behave. On the one hand, this is certainly good, because many
+		biological processes are essentially random. On the other hand, it can be very
+		frustrating if you observe some special problem or phenomenon, because you may
+		never again be able to reproduce that special situation. Because of this, we
+		need to be able to make random-number generation REPRODUCIBLE. We do this by
+		SEEDING the random-number generator (rng).
 
-		How many mountains can you see?
+		To do this, we use the function seed!() at the beginning of our program to make
+		sure all random numbers follow an identical pattern across separate runs of the
+		program. Run the following code several times, then tell me what result you get:
+
+			seed!(123); rand(5)
 		""",
-		"Use the colour bar to count the number of patches where z > 0",
-		x -> x==3
+		"",
+		x -> x==(Main.seed!(123); Main.rand(5))
 	),
 	Activity(
 		"""
-		I want to show you just one more trick. Wouldn't it be cool if we could animate our
-		graphics and make them move? We can do this using the Observables package:
+		OK, and fi-inally at the end of this very long (phew!) laboratory, we look
+		briefly at how to download resources from the internet. First, we load the
+		download() function from the package Downloads:
 
-			using Observables
-		
-		Now enter the following lines of code to make an exciting sine-wave movie!
+			using Downloads: download
 
-			T = 0:0.1:10					# Time range of simulation
-			x = 0:0.1:4pi					# Spatial range of wave
+		Next we define the url of our resource:
 		
-			λ = 2π;		k = 2π/λ			# Wavelength and wave-number
-			f = 0.5;	ω = 2π*f			# Frequency and angular frequency
+			url = "https://raw.githubusercontent.com/NiallPalfreyman/Ingolstadt.jl/main/src/Ingolstadt.jl"
+
+		Next, we download this page into a local file:
+
+			file = download(url)
 		
-			simtime = Observable(0.0)		# Set up simulation time as an Observable
-			signal = lift(simtime) do t		# signal is an Observable that watches simtime
-				sin.(k*x .- ω*t)			# signal is a time-dependent sine-graph
-			end
-		
-			fig = lines(x,signal)			# Draw the sine-signal (for the current simtime)
-			display(fig)					# Display the figure
-		
-			for t in T						# Step through the time range
-				simtime[] = t				# Update simtime, and watch the signal change!
-				sleep(0.1)					# Wait for clock-time to catch up
-			end
+		Use readlines() (don't forget the ';'!) to discover the Date on which Niall
+		Palfreyman started writing the Ingolstadt project:
 		""",
-		"If you have problems, restart Julia, load both Observables and GLMakie, " *
-			"and retrieve the above commands using up-arrow",
+		"data = readlines(file);",
+		x -> x == Main.Date("7/12/2021","d/mm/yyyy")
+	),
+	Activity(
+		"""
+		OK, that's the end of this laboratory. The resource we have downloaded is my
+		source code - feel free to explore it and use it as much as you like. Bye! :-)
+		""",
+		"",
 		x -> true
 	),
 ]

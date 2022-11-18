@@ -1,344 +1,245 @@
 #========================================================================================#
 #	Laboratory 10
 #
-# Accessing the data in arrays.
+# Exploratory data analysis, datasets and Dataframes.
 #
-# Author: Niall Palfreyman, 22/03/2022
+# Author: Niall Palfreyman, 04/01/2022
 #========================================================================================#
 [
 	Activity(
 		"""
-		Arrays play a very fundamental role in Julia, so we need to learn how to access them
-		efficiently. In this laboratory we learn how to index into arrays in Julia - that is,
-		how to use indices to access and manipulate the entries in an array. We will also look
-		at various ways of applying code to the elements in an array.
+		In this laboratory we use Exploratory Data Analysis (EDA) and the Julia DataFrames
+		package to explore one of the over 750 industry standard statistical RDatasets.
+
+		Since we haven't used the RDatasets package before, we must first add it to our Julia
+		system. To do this, type ']' at the Julia prompt - this starts Julia's Package Manager,
+		which you can exit at any time by typing <Backspace>. Within the Package Manager, enter:
 		
-		Julia offers four kinds of indexing: SUBSCRIPTING, LINEAR indexing, MULTIPLE indexing
-		and LOGICAL indexing. All four are extremely useful for scientific programming. To
-		investigate these forms of indexing, first create a (4x4) matrix by reshaping a range:
+		add RDatasets
 
-			m = reshape(1:16,(4,4))
+		This will download and compile around 200 packages that are relevant to the RDatasets
+		package (this may take a couple of minutes). When it has finished, exit Package Manager,
+		then enter:
 
-		First notice the order in which Julia has placed the numbers 1:16. Do they run down the
-		columns or along the rows?
-		""",
-		"",
-		x -> occursin("col",lowercase(x))
-	),
-	Activity(
-		"""
-		So: SUBSCRIPTING! To access a matrix element with subscripts, we use square brackets
-		enclosing two subscripts i (row) and j (column) like this: m[i,j]. In Julia, the row
-		index ALWAYS comes before the column index! Display the element m[3,4[] now, then tell
-		me its value:
-		""",
-		"Just enter m[3,4] at the Julia prompt",
-		x -> x==15
-	),
-	Activity(
-		"""
-		We have already used the colon operator to create ranges of numbers, for example 1:3 can
-		be collected into a vector [1,2,3]. We can also use ranges to select regions of an array.
-		Use m[1:3,2:4] to display the top-right (3x3) region of m, then tell me the result
-		(Remember you can use reply(ans) to tell me the result of the previous calculation):
-		""",
-		"",
-		x -> x == [5 9 13;6 10 14;7 11 15]
-	),
-	Activity(
-		"""
-		1:2:7 creates a range of numbers from 1 to 7 in steps of 2: [1,3,5,7]. Reshape 1:81 into a
-		(9x9) matrix, then extract from it the (3x3) matrix obtained by taking the first, then
-		every third, row and column of your (9x9) matrix. Then tell me the result:
-		""",
-		"",
-		x -> x == [1 28 55;4 31 58;7 34 61]
-	),
-	Activity(
-		"""
-		We can select a whole row or column by writing ":". Display and tell me the third row of m:
-		""",
-		"",
-		x -> x == [3 7 11 15]
-	),
-	Activity(
-		"""
-		To assign values to regions of a matrix, we select the desired matrix range and assign to it
-		a value. However, we should first be aware of something important. Tell me the type of m:
-		""",
-		"",
-		x -> x <: Base.ReshapedArray
-	),
-	Activity(
-		"""
-		Notice that m only LOOKS like an ordinary matrix, but is actually a reshaped range, so Julia
-		will not let us change its value by writing to it. To see this, try out the following:
+		using RDatasets						# Takes a few seconds ...
+		RDatasets.datasets()
 
-			m[2:3,3:4] .= 1
-
-		Then tell me the name of the function that the error message recommends we use:
+		How many Rows are in the "affairs" dataset?
 		""",
-		"",
-		x -> occursin("collect",lowercase(x))
+		"\"affairs\" is the first dataset in the list of datasets that datasets() prints out.",
+		x -> x==601
 	),
 	Activity(
 		"""
-		Let's take the error message's advice:
+		OK, now we've got RDatasets up and running, we'll look specifically at the Iris dataset
+		compiled by Edgar Anderson and Ronald Fisher in the early days of genetics research in
+		1936. This dataset contains the length and width (in cm) of the sepals and petals of 50
+		samples from each of several iris flower species. Enter this code to load the Iris dataset:
+
+		iris = dataset("datasets","iris")
+
+		What is the SepalLength of the first specimen in iris?
+		""",
+		"This is the specimen in Row 1",
+		x -> x==5.1
+	),
+	Activity(
+		"""
+		The Iris dataset is an object iris of type DataFrame: a table of rows and columns. Each
+		row represents a single specimen, and each column represents an attribute field of that
+		specimen. To view the fields of the Iris dataset, enter names(iris). How many fields
+		does iris have?
+		""",
+		"",
+		x -> x==5
+	),
+	Activity(
+		"""
+		What is the size() of the dataset?
+		""",
+		"size(iris)",
+		x -> x==size(Main.iris)
+	),
+	Activity(
+		"""
+		We can view the first five rows of iris using the usual array indexing with square
+		brackets []:
+
+		iris[1:5,:]
+
+		Report back to me the last 5 rows of the Iris dataset:
+		""",
+		"iris[end-4:end,:]",
+		x -> x==Main.iris[end-4:end,:]
+	),
+	Activity(
+		"""
+		We've seen that the first rows of iris concern the species setosa, and the last rows
+		concern the species virginica. What other species does iris contain. To find out, we
+		want to group the dataset by Species using the command:
 		
-			m = collect(m)
-			m[2:3,3:4] .= 1
+		species_groups = groupby(iris,"Species")
 
-		Now tell me the new value of m:
+		How many groups are contained in this grouping of the data?
 		""",
-		"",
-		x -> x == [1 5 9 13;2 6 1 1;3 7 1 1;4 8 12 16]
-	),
-	Activity(
-		"""
-		And what is the type of m now?
-		""",
-		"",
-		x -> x <: Matrix
-	),
-	Activity(
-		"""
-		What kind of error do you get if you try to add an element outside the size of the array m:
-
-			m[5,1] = 1
-		""",
-		"",
-		x -> occursin("bounds",lowercase(x))
-	),
-	Activity(
-		"""
-		Although we can't add elements outside m's bounds, we can extend the size of m by adding
-		new rows or columns: Blank ' ' adds columns (hcat: horizontal concatenation), and
-		semicolon ';' adds rows (vcat: vertical concatenation). Tell me the result of this line:
-
-			p = ones(4)
-			pp = [m p]
-		""",
-		"",
-		x -> size(x) == (4,5)
-	),
-	Activity(
-		"""
-		And what is the result of this line of code?
-
-			q = ones(4)'
-			qq = [m;q]
-		""",
-		"",
-		x -> size(x) == (5,4)
-	),
-	Activity(
-		"""
-		OK, now let's look at LINEAR indexing! Internally, Julia represents all arrays as vectors =
-		it simply makes this vector look like a matrix to us. Create the following matrix:
-
-			A = [1 2 3;4 5 6]
-
-		If we just enter A at the Julia prompt, we see a (2x3) matrix, but if you enter A[:], you
-		will see a list of all elements of A in a linear order. Does this order first run down the
-		columns or along the rows?
-		""",
-		"",
-		x -> occursin("col",lowercase(x))
-	),
-	Activity(
-		"""
-		We can use the linear ordering to index the elements of A. What is the value of A[5]?
-		""",
-		"",
+		"size(species_groups)",
 		x -> x==3
 	),
 	Activity(
 		"""
-		We can also use linear indexing to change the elements of A. What is the content of A
-		after entering this line of code?
+		OK, so we've seen that the first of three Species groups contains "iris setosa" specimens,
+		and the last Species group contains "iris virginica" specimens. To inspect all three
+		Species groups, we will combine specimens from each group into a single row:
 
-			A[5] = 99
+		combine(species_groups,nrow)
+
+		What is the name of the second iris species?
 		""",
 		"",
-		x -> x==[1 2 99;4 5 6]
+		x -> occursin(lowercase(x),"versicolor")
 	),
 	Activity(
 		"""
-		Arrays can have MULTIPLE indices: Vectors have one index and Matrices have two, but we
-		can have 3, 4, 5, ...! Of course we need to be a bit careful with the size of these arrays:
-		A size (10) Vector contains 10 elements; a size (10,10) Matrix contains 100 elements. How
-		many elements will there be in a size (10,10,10,10) array?
+		Don't worry if you don't yet understand how to use the combine() function - we'll soon
+		find out! For now, we'd like to understand the Iris dataset a little better. A good
+		first step is to describe() the dataset - this provides an overview of each attribute
+		column in the table. What is the median petal length of all 150 iris specimens?
 		""",
-		"",
-		x -> x == 1e4
+		"describe(iris)",
+		x -> x==4.35
 	),
 	Activity(
 		"""
-		We can create multiply indexed arrays using zeros(), ones(), rand(), randn() or reshape().
-		A 3-dimensional array might represent 3-dimensional data, such as a chemical concentration
-		at various locations in a cell, or it might represent the time-series of elements of a
-		matrix A(t). In this case, A[3,5,4] might represent the element [3,5] at time t=4 of the
-		time-series.
+		We can also extend the describe() function using additional descriptors such as the
+		25th percentile (:q25) or the standard deviation (:std). Which iris attribute has the
+		greatest standard deviation?
+		""",
+		"describe(iris,:std)",
+		x -> x=="PetalLength"
+	),
+	Activity(
+		"""
+		We can also calculate these values ourselves by loading and applying the functions
+		in Julia's Statistics package:
 
-		Enter R = rand(2,3,4); at the Julia prompt, and study the following expressions:
+		using Statistics
+		std(iris[:,"PetalLength"])
 
-			R[1,:,:]
-			R[]:,1,:]
-			R[]:,:,1]
-			size(R)
+		What is the median sepal length?
+		""",
+		"median(iris[:,\"SepalLength\"])",
+		x -> x==5.8
+	),
+	Activity(
+		"""
+		Let's investigate the covariance attributes in the Iris database. Enter this code:
+
+		attributes = names(iris)[1:end-1]				# Leave out the non-numeric Species
+		for x in attributes, y in attributes
+			if x > y
+				println( "\$x \t \$y \t \$(cov(iris[:,x],iris[:,y]))")
+			end
+		end
+
+		Look at the results: Unsurprisingly, PetalWidth covaries with PetalLength, but
+		SepalLength covaries with both PetalLength and PetalWidth. With which of these
+		does SepalLength covary least strongly?
+		""",
+		"",
+		x -> x=="PetalWidth"
+	),
+	Activity(
+		"""
+		This is what we might expect - after all, there seems no particular reason why SepalLength
+		should covary strongly PetalWidth. But wait! Covariance is a measure that depends on the
+		absolute size of the variables! Of PetalLength and PetalWidth, which has the greater
+		mean value?
+		""",
+		"mean(iris[:,\"PetalLength\"]",
+		x -> x=="PetalLength"
+	),
+	Activity(
+		"""
+		Hm. This is tricky. SepalLength covaries with PetalLength more strongly than with
+		PetalWidth, however it may be that the smaller covariance with PetalWidth arises simply
+		from the fact that PetalWidth values are much smaller than PetalLength. We can solve this
+		question using correlation instead of covariance, because correlation is a relative
+		measure rather than an absolute one.
 		
-		How many elements does R contain?
+		Write code to compare the two correlation values for SepalLength-PetalLength and for
+		SepalLength-PetalWidth. Then find out the percentage difference between these two
+		values:
 		""",
-		"Use the length function",
-		x -> x == 24
+		"100 * (cor(SL,PL)-cor(SL,PW))/cor(SL,PL)",
+		x -> abs(x-6.173) < 0.1
 	),
 	Activity(
 		"""
-		Here is a (4,4) magic square:
+		We see that the correlation of PetalWidth is definitely major - almost as large as the
+		correlation PetalLength to SepalLength. What biological function of sepals might explain
+		why SepalLength correlates so highly with PetalWidth?
+		""",
+		"Both length and width of petals increases the bud volume that sepals must enclose.",
+		x -> true
+	),
+	Activity(
+		"""
+		We can use the columns of iris as ranges for generating random values, for example:
+		
+		rand(iris[:,"SepalLength"])
 
-			A = [1 15 14 4;10 11 8 5;7 6 9 12;16 2 3 13]
+		Create a Vector containing a random sample of 21 PetalWidths:
+		""",
+		"rand(range,10)",
+		x -> length(x)==21 && all(map(x) do pw in(pw,Main.iris[:,"PetalWidth"]) end)
+	),
+	Activity(
+		"""
+		Let's create our own dataframe of the Group I chemical elements. It is a bad idea to
+		clutter our global namespace with lots of trivial names, so we'll create the dataframe
+		inside a function using local names:
+		
+		function group1()
+			symbol = ["Li","Na","K","Rb","Cs","Fr"]
+			protons = [3,11,19,37,55,87]
+			nucleons = [7,23,39,85,133,223]
+			electronegativity = [1.0,0.9,0.8,0.8,0.7,0.7]
+			DataFrame(; symbol, protons, nucleons, electronegativity)
+		end
 
-		Use Julia's sum() function to find the sum of A's elements along any row, column or
-		diagonal:
+		You may first need to add the DataFrames package and load it with the keyword "using".
+		Now enter the function group1(), use it to create a dataframe named grp1, then extract
+		from grp1 the subtable consisting of the 3rd and 4th rows:
 		""",
 		"",
-		x -> x==34
+		x -> size(x)==(2,4) && x[1:2,"symbol"] == ["K","Rb"]
 	),
 	Activity(
 		"""
-		We can generate new magic squares by swapping columns of an existing magic square. Study
-		the matrix B = A[:,[1,3,2,4]]. Is this also a magic square (remember that rows, columns and
-		diagonals of a magic square must all sum to the same number)? Which substructures of A were
-		permuted by using the Vector [1,3,2,4] as a permutation index?
+		Finally, we'll learn to save and load dataframes to and from a file. First we'll do it
+		simply, using comma-separated variable (CSV) files. Add and load the CSV package, then
+		write the group1 dataframe to a CSV file:
+
+		CSV.write( "group1.csv", group1())
+
+		Now give me the result of reading the csv file:
+
+		str = read("group1.csv",String);
 		""",
 		"",
-		x -> occursin("col",lowercase(x))
+		x -> x[43:44] == "Li"
 	),
 	Activity(
 		"""
-		Use a permutation index to swap ROWS 2 and 3 of A, and tell me the result:
+		Sometimes we want to write to other file formats, such as Excel files, and Julia offers
+		us a range of packages such as XLSX for doing this. However, the advantage of csv files
+		for small projects is that we can read them into text strings and with a text editor.
+
+		We can also read our csv file as a DataFrame. Give me the following dataframe:
+
+		CSV.read("group1.csv",DataFrame)
 		""",
 		"",
-		x -> x == [1 15 14 4;7 6 9 12;10 11 8 5;16 2 3 13]
-	),
-	Activity(
-		"""
-		LOGICAL indexing uses an array of logical values as an index to another array. For example,
-		suppose we want to reduce to zero all elements less than 3 in the Vector v = [1,2,3,4,5].
-		One way would be to access each individual element in v, check whether it is less than 3,
-		and set it to zero. But this would be very inefficient, because accessing each individual
-		element costs time. Instead, we can use LOGICAL indexing to change the entire vector v in
-		one sweep ...
-
-		First, create the Vector v. Then tell me the result of entering this line:
-
-			d = (v .< 3)
-		""",
-		"",
-		x -> x == [1,1,0,0,0]
-	),
-	Activity(
-		"""
-		What is the type of the elements of d?
-		""",
-		"",
-		x -> x == Bool
-	),
-	Activity(
-		"""
-		Notice that d is a Vector of Bools with the same length as v. We can use d to index
-		elements of v:
-
-			v[d]
-
-		How many elements of v does d pick out?
-		""",
-		"",
-		x -> x == 2
-	),
-	Activity(
-		"""
-		Now enter this line:
-
-			v[d] .= 0
-
-		You will see that this zeros out all elements of v that are less than 3. If you recreate
-		v, you can even condense this entire process into one step:
-
-			v = collect(1:5)
-			v[v.<3] .= 0
-
-		Now set to zero all numbers in the vector -5:2:5 which are greater than 2, and tell me
-		the number of non-zero elements in your result:
-		""",
-		"",
-		x -> x == 4
-	),
-	Activity(
-		"""
-		Before continuing, let's look at several different ways to apply some code to all elements
-		in an array. If the code is just one function, this is easy: we just use the broadcast
-		dot (.):
-
-			v = 1:7
-			isodd.(v)
-		""",
-		"",
-		x -> x == isodd.(1:7)
-	),
-	Activity(
-		"""
-		If the code is a little more complicated, we might map() an anonymous function over
-		the array:
-
-			map( x->(sin(x) >= 0), v)
-		""",
-		"",
-		x -> x == map( y->(sin(y) >= 0), 1:7)
-	),
-	Activity(
-		"""
-		And finally, if the code is particularly complicated, we can use a do statement that
-		allows us to define a complicated mapping over all elements of the array:
-			
-			map(v) do x
-				if x < 4
-					isodd(x)
-				else
-					iseven(x)
-				end
-			end
-		""",
-		"",
-		x -> x == (map(1:7) do y if y<4 isodd(y) else iseven(y) end end)
-	),
-	Activity(
-		"""
-		OK, now the last two activities in this laboratory give you practice in applying indexing,
-		broadcasting and mapping to problems that often arise in signal-processing. Have fun! :)
-
-		Use logical indexing to generate a list of all odd multiples of 3 in the range 1:50 :
-		""",
-		"Use isodd(), rem(), &, and remember to use broadcasts (.) and brackets",
-		x -> x == [3,9,15,21,27,33,39,45]
-	),
-	Activity(
-		"""
-		This function decides whether or not its argument n is a prime number:
-
-			function isprime(n::Int)
-				if n < 2 return false end
-				if n in 2:3 return true end
-				for i in 2:floor(Int,sqrt(n))
-					if rem(n,i) == 0 return false end
-				end
-				true
-			end
-
-		Use the isprime function to generate a list of twenty numbers from 1 to 20, in which
-		all prime numbers AND all multiples of 3 are zeroed out:
-		""",
-		"Use rem(), isprime() and |",
-		x -> x == [1,0,0,4,0,0,0,8,0,10,0,0,0,14,0,16,0,0,0,20]
+		x -> typeof(x)==Main.DataFrame && size(x)==(6,4)
 	),
 ]

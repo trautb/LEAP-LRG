@@ -1,287 +1,152 @@
 #========================================================================================#
 #	Laboratory 8
 #
-# Genetic algorithms and refactoring.
+# Writing scientific code for human understanding.
 #
-# Author: Niall Palfreyman, 16/03/2022
+# NOTE: This lab makes heavy use of George Datseris' eratosthenes() example from his
+#		excellent course Good Scientific Code at: https://github.com/Datseris/ .
+#
+# Author: Niall Palfreyman, 07/09/2022
 #========================================================================================#
 [
 	Activity(
 		"""
-		In this laboratory we will use our Casinos module to implement a genetic algorithm
-		(GA). I have already written most of the code for you, but you will see that there
-		is still some work left for you to do, so let's get started ...
+		OK, now it's time to start writing good code for real scientific computing. Remember what
+		I said at the beginning of this course: Good scientific code is clear text whose purpose
+		is to communicate to others your understanding of how to solve a particular problem. Well,
+		now is the time to make sure we understand how to write code that is clear enough for
+		others to understand! Look now at the method eratosthenes_bad() in the following file:
+			
+			src/Development/Utilities/Utilities.jl
 
-		Our GA will locate the global minima of a function that we shall call the objective
-		of the GA. Objective functions can be very complicated, so we want to be able to view
-		them graphically to understand them. I have written a module Objectives to define and
-		view objective functions. Run the simple demo1() method of the Objectives module now,
-		and tell me to the nearest integer value the x-coordinate of the global minimum of
-		the 7-th function in our test-suite of Objective functions:
+		The function eratosthenes_bad() generates prime numbers up to a user specified maximum N.
+		It uses the algorithm known as the Sieve of Eratosthenes, which is quite simple: Given an
+		array of integers from 1 to N, cross out all multiples of 2. Find the next uncrossed
+		integer, and cross out all of its multiples. Repeat this until you have passed the square
+		root of N. The remaining uncrossed numbers are then all the primes less than N.
 
-			include("src/Development/SimpleGAs/Objectives.jl")
-			using .Objectives
-			Objectives.demo1()
-		""",
-		"The low values in this contour map are colourd deep blue - look to the top-left! :)",
-		x -> x==9
-	),
-	Activity(
-		"""
-		Objectives.demo2() shows you how to insert your own function into an Objective. How
-		many hills does the Valleys function possess within the displayed domain?
-		""",
-		"The hills are coloured green-yellow",
-		x -> x==3
-	),
-	Activity(
-		"""
-		Go to the source code of the Objectives module and look at the Objective type definition.
-		the first field of this type is the function itself - whether you take this from the test
-		suite or insert your own function. What is the name of the second field?
+		Test the eratosthenes_bad() method by loading it and entering eratosthenis_bad(100) at the
+		Julia prompt. What answer do you get?
 		""",
 		"",
-		x -> occursin("domain",lowercase(x))
+		x -> x == [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97]
 	),
 	Activity(
 		"""
-		Create several different Objective functions and study the structure of their domains.
-		What do you think is the dimension of test suite function 1?
-		""",
-		"The dimension is the number of number-pairs [lwb,upb] in the domain",
-		x -> x==1
-	),
-	Activity(
-		"""
-		Use the evaluate() method to find the value of Objective(7) at various locations. Note
-		that evaluate() evaluates the objective function at several different points at once,
-		so it expects a vector of points. So to check the value for the point [1,2], you will
-		need to enter:
+		This eratosthenes_bad() method has been ported directly from Java, and so does not make use
+		of higher-level features offered by Julia. You will create your own better version
+		eratosthenes() that makes use of such features.
 
-			evaluate( obj, [[1,2]])
+		Please note: I have allowed you plenty of time for this chapter, because it is so important
+		that you learn to write clean scientific code. Please take time to do the exercises in this
+		lab thoroughly.
+
+		This eratosthenes_bad() method does not make use of Julia's features of list comprehension
+		and broadcasting. Copy the code of eratosthenes_bad() into a new file, then work on this
+		file iteratively, turning it into a clean, efficient implementation. First, rename your
+		copied version to eratosthenes(), then change the implementation to make use of high-level
+		features such as list comprehension or broadcasting.
+
+		""",
+		"Example of broadcast and comprehension: sin.([3x for x in 0:.1:2pi])",
+		x -> true
+	),
+	Activity(
+		"""
+		Julia is based on FUNCTIONAL PROGRAMMING. That is, you break your code down into reusable
+		functions that each performs a single, specific task. It is very important that a function
+		has JUST ONE responsbility, and its name clearly indicates the specific task that the
+		function performs. Higher level functions are composed out of lower-level functions. Also,
+		function methods are SHORT: usually between 3-30 lines of code. Long methods and long
+		method names usually indicate that your method has more than one responsibility.
 		
-		What do you now think is the y-coordinate of the global minimum of Objective(7)?
+		Functional programming dramatically increases the reusability of your code, and also
+		reduces the risk of duplicating code, which can often lead to runtime errors!
+
+		Now use functional programming to simplify the structure of your eratosthenes() method.
 		""",
-		"You should find that your earlier answer from graphical inspection is correct",
-		x -> x==9
+		"The body of a loop often contains code that you could parcel out into a smaller function",
+		x -> true
 	),
 	Activity(
 		"""
-		Create an instance of the 16-th test suite function. Find out its dimensionality:
+		Now we turn to function/variable NAMES. The aim of a function or variable name is always
+		to indicate to readers how you intend to use the function or variable. Names communicate
+		to readers what your code is doing (i.e., its INTENTION).
+
+		In Julia, these names should always be in lower case, with multiple words separated by _.
+		The name should be brief, but comprehensible for strangers reading your code (for example,
+		NOT: rsdt, rsut and rsus!). Also, NEVER use constant literals in your program, for example,
+		not '2022', but rather: 'year=2022', and then use 'year' in your code. The problem is that
+		literals say nothing about your intentions.
+
+		Redesign the names of variables/functions in your eratosthenes() method to make the code
+		easier to navigate and understand. Don't change the code operations - only the names!
 		""",
-		"You can either inspect the domain or you can use the dim() method",
-		x -> x==128
+		"",
+		x -> true
 	),
 	Activity(
 		"""
-		Clearly, that is a very large number of dimensions! This makes it very difficult to find
-		the global minimum of the function. Indeed, this function is the mepi() (maximally
-		epistatic) function created by Robert Watson in 2007 to be maximally difficult for GAs
-		to solve. To see how difficult it is to find this function's minimum, you can explore the
-		mepi function in any number of dimensions (here 3):
-
-			Objectives.mepi([1,0,1])						# Returns the value 8
-			Objectives.mepi.([rand(3) for _ in 1:9])		# Returns nine different mepi values
-
-		Play around with the mepi function to discover its minimum value in 4 dimensions:
+		Now improve your eratosthenes() method by making use of Julia's built-in functions from
+		the standard library, for example to count elements or find true elements in an array.
 		""",
-		"Try confining your search to vectors with components either 0 or 1",
-		x -> x==4
+		"",
+		x -> true
 	),
 	Activity(
 		"""
-		To find out why it is so difficult to find mepi's global minimum, try depicting the
-		mepi function in all 128 dimensions. Clearly, you cannot produce a 128-dimensional
-		graphic, but you can plot a cross-section of mepi's values in 128 dimensions using the
-		command
+		Now we will work on the COMMENTS in your eratosthenes() method. By now, you should find
+		that you don't actually need many comments:
+			- Comments compensate for our failure to express ourselves clearly in code!
 
-			depict(Objective(16),[])
-
-		Modify the code of the demo1() method to display this cross-section. Suppose we only had
-		8 dimensions. In this case the two minima occur at the vector arguments [0,0,0,0,0,0,0,0]
-		and [1,1,1,1,1,1,1,1]. The next lowest local minimum occurs at a vector maximally distant
-		from both of these two vectors. What is this vector?
-		""",
-		"How many 0/1 switches are necessary to convert one of these vectors into the other?",
-		x -> x==[0,0,0,0,1,1,1,1] || x==[1,1,1,1,0,0,0,0]
-	),
-	Activity(
-		"""
-		OK, now let's look at the module Decoders. Our GA will work with genes consisting of
-		0/1 values, but we want to optimise objective functions whose arguments consist of
-		real numbers. We therefore need a Decoder to convert our GA chromosomes into input
-		numbers for an Objective.
+		The problems with comments is that they are difficult to maintain as your code changes,
+		and inappropriate comments are much worse than no comments. But there is a better way:
+			- Simple, self-explanator code is far better than complicated but commented code!
 		
-		The method Decoders.demo() demonstrates how to use a Decoder to decode the two
-		bit-vectors [1,0,1,0,1,0,1,0,0,0,0,1,0,1,1] and [0,1,0,1,0,1,0,1,1,0,1,0,1,1,0]. How
-		many bits does each of these two bit-vectors contain?
+		Here are my comment rules:
+			- Never use CAPITALISED comments - they look like shouting, and distract the reader.
+			- Use comments only to point out the high-level intentions or risks of your code.
+			- Place comments at the beginning of a code block or aligned (!) to the right of codelines.
+			- Replace header comments by docstrings that precede functions, datatype and modules.
+
+		Now apply these rules to the comments in your eratosthenes() method.
 		""",
-		"Count the bits in the vectors! :)",
-		x -> x==15
+		"",
+		x -> true
 	),
 	Activity(
 		"""
-		Each bit-vector encodes three floating-point values (for example, the three arguments
-		of an objective function). How many bits are used to encode each floating-point number?
-		""",
-		"Length of the bit-vector divided by the number of float values",
-		x -> x==5
-	),
-	Activity(
-		"""
-		If you look at where the decoder is constructed in the demo() method, you can see that
-		it actually specifies a domain with three dimensions and then the number of bits (5)
-		that we want to use for encoding each float value. If you then go up to the definition
-		of the Decoder constructor, you will see how it converts these two values into the fields
-		inside a Decoder.
+		Use VERTICAL formatting to divide your code into blocks with a consistent internal logic -
+		like paragraphs in an essay. Place a comment box at the top of each logical section of a
+		source file to communicate the intention of that section, and use blank lines ONLY to
+		divide logically distinct trains of thought from each other. You never need to put a
+		comment box inside a method.
 		
-		Notice in particular how it uses a functional expression (x->x[1]) to pull out all the
-		lower-bound values from the domain and store them in the field lwb. What is the lower
-		bound of the third dimension of the domain in our demonstration example?
+		Improve the vertical formatting of your eratosthenes() method now.
 		""",
 		"",
-		x -> x==-7
+		x -> true
 	),
 	Activity(
 		"""
-		Now study the code inside the Decoder constructor - it creates a matrix that will be
-		stored in the field coeffs of the Decoder. At the Julia prompt, enter the lines that
-		calculate the vector qlevels (quantum levels), using the value 5 instead of nbits.
+		HORIZONTAL formatting is often determined by your company's style-guide, but general
+		rules are:
+			- Code lines always have a maximum length - use 100 characters in this course.
+			- All binary operators (including =) have enclosing white spaces, except for: *, ^, /.
+			- Each new code block (for/map loops, functions, ifs) adds 4 spaces of indentation.
+			- Floating-point literals always have a leading/trailing zero (e.g.: 0.5 or 5.0)
 
-		Notice how qlevels first contains the sequence [1/2,1/4,1/8,1/16,...], and then these
-		numbers are divided by their sum, so that finally the sum of all values in qulevels is
-		equal to 1. Is qlevels a row vector or a column vector?
+		Make these alterations to your eratosthenes() method now.
 		""",
 		"",
-		x -> occursin("col",lowercase(x))
+		x -> true
 	),
 	Activity(
 		"""
-		The vector span contains the span-width of each domain dimension, which we will need
-		to decode the bits. Investigate whether span is a row vector or a column vector:
-		""",
-		"",
-		x -> occursin("row",lowercase(x))
-	),
-	Activity(
-		"""
-		The Decoder constructor calculates the coeffs matrix by multiplying qlevels * span.
-		Notice that qlevels has size (5,1), while span has size (1,3). These numbers are
-		important: 5 is the accuracy of our bit-coding of numbers, and 3 is the number of
-		different dimensions we need to decode. What is the size of coeffs?
-		""",
-		"",
-		x -> x==(5,3)
-	),
-	Activity(
-		"""
-		Now comes your work. The result of decoding our two bit-vectors should be the two
-		floating-point vectors [1.67742, 3.51613, -2.74194] and [1.32258, 4.41935,  1.51613].
-		But if you run demo(), you will see that it calculates a silly result. The reason for
-		this is that I have changed the two important lines of code in the method decode(). it
-		is your job now to write the necessary code. You will find hints and information in
-		the comments. When you are getting the right answers, come back here and reply
-		"Yay!!!" ...
-		""",
-		"",
-		x -> x=="Yay!!!"
-	),
-	Activity(
-		"""
-		Great - well done! Now it's time to look at the GA itself - the source code is in the
-		module SimpleGAs. Once again, the method demo() shows you how to use the SimpleGA, but
-		again it won't give you correct answers yet because I've changed the code in a couple
-		of places. So let's just start exploring the code.
-
-		As you can see, in demo(), I simply create an Objective and attach it to a SimpleGA,
-		then let it run. The main work of finding the minimum of the Objective is done by the
-		method evolve!(), so let's go there next.
-
-		By the way, how many iterations of the GA does demo() perform?
-		""",
-		"It is the second argument of evolve!()",
-		x -> x==5000
-	),
-	Activity(
-		"""
-		evolve!() is basically just a loop over lots of generations, and in the loop you can
-		see that each generation of the SimpleGA (sga) first measures the current fitness of
-		sga's population, then uses this information to (a) sort out any elitists that will
-		survive unchanged into the next generation, (b) perform selection (i.e. fitness-
-		dependent recombination/crossover) and (c) mutate the children in the next generation.
-
-		If you have already successfully implemented the Casinos module, you should now be
-		getting a compile-error inside the method SimpleGAs.mutate!(). Go there now and look at
-		the first line of code. Here, we call Casinos.draw() to create a random Boolean matrix
-		that will tell us which genes to mutate. However, we haven't yet implemented a draw()
-		method with 4 arguments. How many arguments does your current draw() method have?
-		""",
-		"Look at the signature of the method Casinos.draw()",
-		x -> x==3
-	),
-	Activity(
-		"""
-		First let's look at how to create a Bernoulli matrix of Boolean values with a particular
-		(Bernoulli) probability mu of being true. Enter this line at the Julia prompt:
-
-			rand(5,5) < 0.2
-
-		This will give you a random Boolean matrix. Find the number of true elements like this:
-
-			sum(ans)
-
-		Now enter sum(rand(5,5) < 0.2) many times - what is the average result that you get?
-		""",
-		"You'll need to do it about 10 times to estimate the average value",
-		x -> x==5
-	),
-	Activity(
-		"""
-		OK, so we can calculate a Bernoulli matrix from a matrix of random floats between 0
-		and 1. But we already have a draw() method that produceds random float matrices, so
-		you now need to create a new Casinos.draw() method with 4 arguments that calls the
-		3-argument method, compares it with the Bernoulli probability mu, and returns the
-		resulting Boolean matrix.
-		
-		Do this now, then recompile and run SimpleGAs.demo(). Then give me a "Hi 5!" when
-		it runs without errors.
-		""",
-		"",
-		x -> occursin('5',x) || occursin("five",lowercase(x))
-	),
-	Activity(
-		"""
-		Notice how good this feels: You have brought a broken program to the stage where it
-		runs without errors! Of course, the answer you get is not yet correct, but we will
-		fix that now ...
-
-		Go to the method SimpleGAs.recombine!(). First notice the code that selects parents
-		for recombination according to their fitness. THIS CODE IS TOTALLY COOL! It is not
-		easy to understand, but you will need it if you ever want to implement roulette-wheel
-		selection for yourself!
-
-		Further down is a loop that actually generates the individual progeny (children)
-		sally and billy from their parents mummy[m] and daddy[m]. You will see there are five
-		lines of code that you need to write yourself. Do this now according to the explanations
-		in the code.
-		
-		You can tell when you have succeeded by looking at the results of the GA: The winning
-		individual should be close to [9,9], which was your estimate for the location of the
-		global minimum of Objective(7). What is the value (to the nearest integer) of the
-		objective function at this point?
-		""",
-		"",
-		x -> x==-16
-	),
-	Activity(
-		"""
-		Well done! You have now completed the set work for this laboratory, and you have
-		created an up-and-running genetic algorithm capable of optimising multi-variable
-		functions. Now try out SimpleGA with various other objective functions from our
-		test suite. In particular, find out how close you can get to the global minimum of
-		mepi() - or Objective(16) - by tuning sga using the following methods:
-
-			mu!(), temperature!(), elite!() and px!()
+		Finally, check out George Datseris' solution, which I have implemented in Utilities.jl
+		as the function senehtsotare(). Make any additional changes that you think appropriate
+		to your eratosthenes() function
 		""",
 		"",
 		x -> true

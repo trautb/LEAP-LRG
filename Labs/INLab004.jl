@@ -1,465 +1,345 @@
 #========================================================================================#
 #	Laboratory 4
 #
-# Tuples, Pairs, Dict, Symbol, files, Dates, Random numbers and downloading.
-# Files and Dates are available in Julia Programming Cookbook
+# Accessing the data in arrays.
 #
-# Author: Niall Palfreyman, 13/01/2022
+# Author: Niall Palfreyman, 22/03/2022
 #========================================================================================#
 [
 	Activity(
 		"""
-		In this laboratory we introduce several helpful Julia tools that make life a
-		little easier: Tuples, Pairs, Dicts, Symbols, Files, DateTimes, Random and downloading.
-
-		A Tuple is an immutable container that can contain several different types. We
-		construct Tuples using round brackets, for example:
-
-			my_tuple = (5, 2.718, "Niall")
-
-		What is my_tuple[2]?
-		""",
-		"my_tuple[2]",
-		x -> x==Main.my_tuple[2]
-	),
-	Activity(
-		"""
-		You have already seen that size() returns a Tuple. Enter the following code:
-
-			ret_size = size(zeros(3,4))
-
-		What is the value of ret_size[1]? Try changing the value of ret_size[2].
-		Finally, what is the type of ret_size? 
-		""",
-		"typeof(ret_size)",
-		x -> x==typeof(size(zeros(3,4)))
-	),
-	Activity(
-		"""
-		Tuples are especially useful when we want to define anonymous functions with
-		more than one argument:
-
-			map((x,y)->3x+2y,4,5)
-
-		Construct a single line mapping that calculates sin(x*y) for corresponding
-		elements in the two ranges x = 1:5 and y = 5:-1:1
-		""",
-		"map((x,y)->sin(x*y),1:5,5:-1:1)",
-		x -> x==map((x,y)->sin(x*y),1:5,5:-1:1)
-	),
-	Activity(
-		"""
-		A Pair is a structure that contains two objects - typically a key and its
-		entry in a dictionary. We construct a Pair like this:
-
-			my_pair = "Yellow Submarine" => "Beatles"
-
-		Construct my_pair and then find the value of last(my_pair):
-		""",
-		"",
-		x -> x==last("Yellow Submarine" => "Beatles")
-	),
-	Activity(
-		"""
-		A Dict(ionary) is a hashed database of Pairs. Dicts are very lightweight, so
-		we can easily use them in everyday code. We construct a Dict by passing a
-		sequence of Pairs to the constructor:
-
-			my_dict = Dict( "pi" => 3.142, "e" => 2.718)
-
-		Construct my_dict, and notice that the Pairs are not necessarily in the same
-		order that you entered them. Now look up the value of "pi" in my_dict:
-		""",
-		"my_dict[\"pi\"]",
-		x -> x==3.142
-	),
-	Activity(
-		"""
-		We can find out whether our Dict contains the key "e" by using the keys() function:
-
-			"e" in keys(my_dict)
-
-		Delete the entry for "e" from my_dict using the delete!() function. What word do
-		you now see in red if you enter my_dict["e"]?
-		""",
-		"delete!(my_dict,\"e\")",
-		x -> x=="ERROR"
-	),
-	Activity(
-		"""
-		Now add two extra entries to my_dict:
-
-			my_dict["root2"] = 1.414
-			my_dict["epsilon0"] = 8.854e-12
-
-		What is the result of calling haskey(my_dict,"root2")?
-		""",
-		"",
-		x -> x==true
-	),
-	Activity(
-		"""
-		We have already met Symbols - they define components of the Julia language, and
-		we use them to extend the language with new components. We construct Symbols
-		using the colon ':'. Enter the following lines:
-
-			a,b = 2,3
-			expr = :(a+b)
-			dump(expr)
-
-		What is the value of expr.args?
-		""",
-		"",
-		x -> x==Main.expr.args
-	),
-	Activity(
-		"""
-		You can see that the arguments of expr are Symbols waiting to be evaluated. Try:
-
-			typeof(expr.args[2])
-
-		What do you get if you enter string(expr)?
-		""",
-		"",
-		x -> occursin("a+b",replace(x," "=>""))
-	),
-	Activity(
-		"""
-		Symbols and Strings are very similar to each other. You will see that graphics
-		functions often use Symbols to define special switches such as :red or :filled.
+		Arrays play a very fundamental role in Julia, so we need to learn how to access them
+		efficiently. In this laboratory we learn how to index into arrays in Julia - that is,
+		how to use indices to access and manipulate the entries in an array. We will also look
+		at various ways of applying code to the elements in an array.
 		
-		In fact, a Symbol is a String that has been prepared for being evaluated.
-		What do you get if you apply the function eval() to expr?
+		Julia offers four kinds of indexing: SUBSCRIPTING, LINEAR indexing, MULTIPLE indexing
+		and LOGICAL indexing. All four are extremely useful for scientific programming. To
+		investigate these forms of indexing, first create a (4x4) matrix by reshaping a range:
+
+			m = reshape(1:16,(4,4))
+
+		First notice the order in which Julia has placed the numbers 1:16. Do they run down the
+		columns or along the rows?
 		""",
-		"eval(expr)",
-		x -> x==5
+		"",
+		x -> occursin("col",lowercase(x))
 	),
 	Activity(
 		"""
-		We use the "splat" operator (...) to convert a collection into a set of
-		arguments for a function. Define this function and test it with a few numbers:
+		So: SUBSCRIPTING! To access a matrix element with subscripts, we use square brackets
+		enclosing two subscripts i (row) and j (column) like this: m[i,j]. In Julia, the row
+		index ALWAYS comes before the column index! Display the element m[3,4] now, then tell
+		me its value:
+		""",
+		"Just enter m[3,4] at the Julia prompt",
+		x -> x==15
+	),
+	Activity(
+		"""
+		We have already used the colon operator to create ranges of numbers, for example 1:3 can
+		be collected into a vector [1,2,3]. We can also use ranges to select regions of an array.
+		Use m[1:3,2:4] to display the top-right (3x3) region of m, then tell me the result
+		(Remember you can use reply(ans) to tell me the result of the previous calculation):
+		""",
+		"",
+		x -> x == [5 9 13;6 10 14;7 11 15]
+	),
+	Activity(
+		"""
+		1:2:7 creates a range of numbers from 1 to 7 in steps of 2: [1,3,5,7]. Reshape 1:81 into a
+		(9x9) matrix, then extract from it the (3x3) matrix obtained by taking the first, then
+		every third, row and column of your (9x9) matrix. Then tell me the result:
+		""",
+		"",
+		x -> x == [1 28 55;4 31 58;7 34 61]
+	),
+	Activity(
+		"""
+		We can select a whole row or column by writing ":". Display and tell me the third row of m:
+		""",
+		"",
+		x -> x == [3 7 11 15]
+	),
+	Activity(
+		"""
+		To assign values to regions of a matrix, we select the desired matrix range and assign to it
+		a value. However, we should first be aware of something important. Tell me the type of m:
+		""",
+		"",
+		x -> x <: Base.ReshapedArray
+	),
+	Activity(
+		"""
+		Notice that m only LOOKS like an ordinary matrix, but is actually a reshaped range, so Julia
+		will not let us change its value by writing to it. To see this, try out the following:
+
+			m[2:3,3:4] .= 1
+
+		Then tell me the name of the function that the error message recommends we use:
+		""",
+		"",
+		x -> occursin("collect",lowercase(x))
+	),
+	Activity(
+		"""
+		Let's take the error message's advice:
 		
-			my_function(x,y,z) = x * (y+z)
+			m = collect(m)
+			m[2:3,3:4] .= 1
+
+		Now tell me the new value of m:
+		""",
+		"",
+		x -> x == [1 5 9 13;2 6 1 1;3 7 1 1;4 8 12 16]
+	),
+	Activity(
+		"""
+		And what is the type of m now?
+		""",
+		"",
+		x -> x <: Matrix
+	),
+	Activity(
+		"""
+		What kind of error do you get if you try to add an element outside the size of the array m:
+
+			m[5,1] = 1
+		""",
+		"",
+		x -> occursin("bounds",lowercase(x))
+	),
+	Activity(
+		"""
+		Although we can't add elements outside m's bounds, we can extend the size of m by adding
+		new rows or columns: Blank ' ' adds columns (hcat: horizontal concatenation), and
+		semicolon ';' adds rows (vcat: vertical concatenation). Tell me the result of this line:
+
+			p = ones(4)
+			pp = [m p]
+		""",
+		"",
+		x -> size(x) == (4,5)
+	),
+	Activity(
+		"""
+		And what is the result of this line of code?
+
+			q = ones(4)'
+			qq = [m;q]
+		""",
+		"",
+		x -> size(x) == (5,4)
+	),
+	Activity(
+		"""
+		OK, now let's look at LINEAR indexing! Internally, Julia represents all arrays as vectors =
+		it simply makes this vector look like a matrix to us. Create the following matrix:
+
+			A = [1 2 3;4 5 6]
+
+		If we just enter A at the Julia prompt, we see a (2x3) matrix, but if you enter A[:], you
+		will see a list of all elements of A in a linear order. Does this order first run down the
+		columns or along the rows?
+		""",
+		"",
+		x -> occursin("col",lowercase(x))
+	),
+	Activity(
+		"""
+		We can use the linear ordering to index the elements of A. What is the value of A[5]?
+		""",
+		"",
+		x -> x==3
+	),
+	Activity(
+		"""
+		We can also use linear indexing to change the elements of A. What is the content of A
+		after entering this line of code?
+
+			A[5] = 99
+		""",
+		"",
+		x -> x==[1 2 99;4 5 6]
+	),
+	Activity(
+		"""
+		Arrays can have MULTIPLE indices: Vectors have one index and Matrices have two, but we
+		can have 3, 4, 5, ...! Of course we need to be a bit careful with the size of these arrays:
+		A size (10) Vector contains 10 elements; a size (10,10) Matrix contains 100 elements. How
+		many elements will there be in a size (10,10,10,10) array?
+		""",
+		"",
+		x -> x == 1e4
+	),
+	Activity(
+		"""
+		We can create multiply indexed arrays using zeros(), ones(), rand(), randn() or reshape().
+		A 3-dimensional array might represent 3-dimensional data, such as a chemical concentration
+		at various locations in a cell, or it might represent the time-series of elements of a
+		matrix A(t). In this case, A[3,5,4] might represent the element [3,5] at time t=4 of the
+		time-series.
+
+		Enter R = rand(1:9,(2,3,4)); at the Julia prompt, and study the following expressions:
+
+			R[1,:,:]
+			R[:,1,:]
+			R[:,:,1]
+			size(R)
 		
-		Now define this vector: v = [2,3,4]. Suppose we want to use the three numbers
-		in v as arguments for my_function. First try it like this: my_function(v), and
-		see what happens ...
+		How many elements does R contain?
+		""",
+		"Use the length function",
+		x -> x == 24
+	),
+	Activity(
+		"""
+		Here is a (4,4) magic square:
 
-		It didn't work, did it? Now tell me what you get when you enter this:
+			A = [1 15 14 4;10 11 8 5;7 6 9 12;16 2 3 13]
 
-			my_function(v...)
+		Use Julia's sum() function to find the sum of A's elements along any row, column or
+		diagonal:
 		""",
 		"",
-		x -> x==14
+		x -> x==34
 	),
 	Activity(
 		"""
-		Files are an important part of everyday data science. First of all, we need to
-		be able to find files in the background filesystem. Enter: pwd() at the Julia
-		prompt. This stands for Present Working Directory ...
-
-		What you get back is the path of the current folder. Now enter: readdir() ...
-
-		This gives you a list of filenames in the current folder. Choose a filname in
-		this list - for example maybe "filename.ext". Ask whether your file is in the
-		current folder. What answer do you get back?
-		""",
-		"\"filename.ext\" in readdir()",
-		x -> x==true
-	),
-	Activity(
-		"""
-		pwd() gives us the path of the current folder, and readdir() gives us a vector
-		of filenames in it. We can put these together using joinpath(). Find out the
-		answer returned by the following function call:
-
-			isfile(joinpath(pwd(),"filename.ext"))
-
-		where filename.ext is the file you previously found in the current directory.
-		""",
-		"Investigate the value returned by the joinpath() call",
-		x -> true
-	),
-	Activity(
-		"""
-		Now let's create a new file. The following command creates a file named
-		"my_data.txt", and sets up a FILESTREAM named "file" for "w"riting to it:
-
-			file = open("my_data.txt","w")
-
-		Now write some information to the file:
-
-			write( file, "This is my file\nIt belongs to me!\n")
-
-		The value returned by write() is the number of bytes you have written to the
-		file. We can also us the print() and println() functions, for example:
-
-			println( file, "It really does!")
-
-		Finally, close() file and tell me the result of isfile("my_data.txt"):
-		""",
-		"close(file)",
-		x -> x==true
-	),
-	Activity(
-		"""
-		Congratulations! You have created your first file! Now let's trying
-		r(eading) from the file:
-
-			file = open("my_data.txt","r")
-
-		Now enter: readline(file) several times to read the lines of the file.
-		Once you have read all the lines, the file is in an end-of-file state:
-
-			eof(file)
-
-		What value does readline() return if you continue to read lines after
-		the end-of-file?
-		""",
-		"readline(file)",
-		x -> isempty(x)
-	),
-	Activity(
-		"""
-		Now close() the file, then reopen it again to start reading at the
-		beginning of the file. We can read all lines of the file at once.
-		What is the type of the structure returned by the following code?
-
-			file = open("my_data.txt","r")
-			readlines( file)
+		We can generate new magic squares by swapping columns of an existing magic square. Study
+		the matrix B = A[:,[1,3,2,4]]. Is this also a magic square (remember that rows, columns and
+		diagonals of a magic square must all sum to the same number)? Which substructures of A were
+		permuted by using the Vector [1,3,2,4] as a permutation index?
 		""",
 		"",
-		x -> x <: Vector
+		x -> occursin("col",lowercase(x))
 	),
 	Activity(
 		"""
-		If our file contained binary data, it would not be possible to read
-		it in separate lines - in this case we use the read() function.
-
-		Rewind the file to the beginning using: seekstart(file).
-		Enter read(file) to see the characters in the file, and tell me the
-		first character:
-		""",
-		"0x54: Scroll the Julia console back up to see the beginning",
-		x -> x==0x54
-	),
-	Activity(
-		"""
-		Well, that wasn't very pleasant, was it, with all those characters
-		screaming across the screen? Let's do it in a more civilised way this time...
-
-		Rewind the file to the beginning using seekstart().
-		Now enter:
-
-			data = read(file);
-
-		Did you remember to write ';' at the end of the line? If not, you
-		had the "screaming characters" problem. ';' at the end of a line
-		stops the return value being written to the console. Now tell me
-		the value of the fifth element of data:
-		""",
-		"data[5]",
-		x -> x==0x20
-	),
-	Activity(
-		"""
-		This hex code represents a character. Can you convert the code to
-		a character?
-		""",
-		"Char(data[5])",
-		x -> x==' '
-	),
-	Activity(
-		"""
-		We can even convert the data entirely to a String like this:
-
-			str = String(data)
-
-		However, this conversion uses up the data values. What value is
-		now returned by the function call isempty(data)?
+		Use a permutation index to swap ROWS 2 and 3 of A, and tell me the result:
 		""",
 		"",
-		x -> x==true
+		x -> x == [1 15 14 4;7 6 9 12;10 11 8 5;16 2 3 13]
 	),
 	Activity(
 		"""
-		Finally, we must always close a filestream after we have finished
-		with it: close(file).
-		Also, we should clean up afterwards, so now remove the file we have
-		created using rm("my_data.txt"), and tell me the return type of rm():
-		""",
-		"First call rm(), and then ask: typeof(ans)",
-		x -> x==Nothing
-	),
-	Activity(
-		"""
-		Now we investigate DateTimes in Julia. Support for date and time
-		handling is provided by the Dates package, which we must first load:
+		LOGICAL indexing uses an array of logical values as an index to another array. For example,
+		suppose we want to reduce to zero all elements less than 3 in the Vector v = [1,2,3,4,5].
+		One way would be to access each individual element in v, check whether it is less than 3,
+		and set it to zero. But this would be very inefficient, because accessing each individual
+		element costs time. Instead, we can use LOGICAL indexing to change the entire vector v in
+		one sweep ...
 
-			using Dates
+		First, create the Vector v. Then tell me the result of entering this line:
 
-		We can access the current time using the now() function:
-
-			datim = Dates.now()
-
-		What is the type of datim?
+			d = (v .< 3)
 		""",
 		"",
-		x -> x==Main.DateTime
+		x -> x == [1,1,0,0,0]
 	),
 	Activity(
 		"""
-		To create a new date, we pass year, month and day to the constructor:
-
-			Date( 1996, 7, 16)
-			Date( 2020, 6)
-
-		What Date value is constructed by the call Date(2022)?
+		What is the type of the elements of d?
 		""",
 		"",
-		x -> x==Main.Date(2022)
+		x -> x == Bool
 	),
 	Activity(
 		"""
-		We can also create times. Use the minute() function to find the number
-		of minutes past the hour in this time:
+		Notice that d is a Vector of Bools with the same length as v. We can use d to index
+		elements of v:
 
-			DateTime(1992,10,13,6,18)
-		""",
-		"minute(ans)",
-		x -> x==Main.minute(Main.DateTime(1992,10,13,6,18))
-	),
-	Activity(
-		"""
-		The module Dates also makes available Periods of time. Use the subtypes()
-		function to find the subtypes of Period and also the subtypes of these
-		subtypes. How many subtypes does the type TimePeriod have?
-		""",
-		"subtypes(TimePeriod)",
-		x -> x==length(Main.subtypes(Main.TimePeriod))
-	),
-	Activity(
-		"""
-		However, we don't just want to construct dates and times - we usually
-		want to PARSE (i.e., analyse) them. We can construct a Date from a
-		String by passing a DateTime format argument:
+			v[d]
 
-			Date("19760915","yyyymmdd")
-
-		For DateTimes, this format gets a little more complicated, so you may
-		wish to define your own format:
-
-			format = DateFormat("HH:MM, dd.mm.yyyy")
-
-		Use this format to parse the DateTime "06:18, 13.10.1992". What
-		character separates the date from the time in the result?
+		How many elements of v does d pick out?
 		""",
 		"",
-		x -> x=='T'
+		x -> x == 2
 	),
 	Activity(
 		"""
-		DateTimes contains many useful functions that you can look up at
-		docs.julialang.org. For example, use the function dayname() to find
-		out the day on which you were born ...
+		Now enter this line:
 
-		When you've finished experimenting, just enter reply() to move on
-		to the next activity.
+			v[d] .= 0
+
+		You will see that this zeros out all elements of v that are less than 3. If you recreate
+		v, you can even condense this entire process into one step:
+
+			v = collect(1:5)
+			v[v.<3] .= 0
+
+		Now set to zero all numbers in the vector -5:2:5 which are greater than 2, and tell me
+		the number of non-zero elements in your result:
 		""",
 		"",
-		x -> true
+		x -> x == 4
 	),
 	Activity(
 		"""
-		Find out your age in days by subtracting your birthday Date from
-		today(), then move on with reply():
+		Before continuing, let's look at several different ways to apply some code to all elements
+		in an array. If the code is just one function, this is easy: we just use the broadcast
+		dot (.):
+
+			v = 1:7
+			isodd.(v)
 		""",
 		"",
-		x -> true
+		x -> x == isodd.(1:7)
 	),
 	Activity(
 		"""
-		Form a list of the past 8 days by collecting this Range into a Vector:
+		If the code is a little more complicated, we might map() an anonymous function over
+		the array:
 
-			today()-Week(1):Day(1):today()
+			map( x->(sin(x) >= 0), v)
 		""",
 		"",
-		x -> x==Main.eval(:(collect((today()-Week(1)):Day(1):today())))
+		x -> x == map( y->(sin(y) >= 0), 1:7)
 	),
 	Activity(
 		"""
-		Next we'll look at a very important tool of data science: Random numbers.
-		First load the functions that we'll be using:
-
-			using Random: rand, randn, seed!
-
-		By itself, the rand() function returns a pseudo-random Float64 number in the
-		half-open interval [0.0,1.0). Try this now.
-		
-		If you pass rand() a range as its first argument, it returns a random element
-		from that range. If you pass it a tuple of integers, it returns an array with
-		the size specified by those integers. Use rand() to produce a (2,3) array of
-		integer values between -1 and +1:
-		""",
-		"rand(Range,Size)",
-		x -> (typeof(x) <: Matrix{Int}) && size(x) == (2,3) && all(map(y->in(y,-1:1),x))
-	),
-	Activity(
-		"""
-		randn() works just the same as rand(), but returns normally distributed values
-		with mean 0.0 and standard deviation 1.0. Create a (5,7) array of such normally
-		distributed numbers:
+		And finally, if the code is particularly complicated, we can use a do statement that
+		allows us to define a complicated mapping over all elements of the array:
+			
+			map(v) do x
+				if x < 4
+					isodd(x)
+				else
+					iseven(x)
+				end
+			end
 		""",
 		"",
-		x -> size(x) == (5,7) && sum(x)/length(x) < 0.5
+		x -> x == (map(1:7) do y if y<4 isodd(y) else iseven(y) end end)
 	),
 	Activity(
 		"""
-		When we perform simulations with random numbers, we never know in advance how
-		our program will behave. On the one hand, this is certainly good, because many
-		biological processes are essentially random. On the other hand, it can be very
-		frustrating if you observe some special problem or phenomenon, because you may
-		never again be able to reproduce that special situation. Because of this, we
-		need to be able to make random-number generation REPRODUCIBLE. We do this by
-		SEEDING the random-number generator (rng).
+		OK, now the last two activities in this laboratory give you practice in applying indexing,
+		broadcasting and mapping to problems that often arise in signal-processing. You should
+		solve each of these two activities by writing just ONE line of code. Have fun! :)
 
-		To do this, we use the function seed!() at the beginning of our program to make
-		sure all random numbers follow an identical pattern across separate runs of the
-		program. Run the following code several times, then tell me what result you get:
-
-			seed!(123); rand(5)
+		Use logical indexing to generate a list of all odd multiples of 3 in the range 1:50 :
 		""",
-		"",
-		x -> x==(Main.seed!(123); Main.rand(5))
+		"Use comprehension, isodd(), rem() and &&",
+		x -> x == [x for x in 1:50 if (isodd(x) && rem(x,3)==0)]
 	),
 	Activity(
 		"""
-		OK, and fi-inally at the end of this very long (phew!) laboratory, we look
-		briefly at how to download resources from the internet. First, we load the
-		download() function from the package Downloads:
+		This function decides whether or not its argument n is a prime number:
 
-			using Downloads: download
+			function isprime(n::Int)
+				if n < 2 return false end
+				if n in 2:3 return true end
+				for i in 2:floor(Int,sqrt(n))
+					if rem(n,i) == 0 return false end
+				end
+				true
+			end
 
-		Next we define the url of our resource:
-		
-			url = "https://raw.githubusercontent.com/NiallPalfreyman/Ingolstadt.jl/main/src/Ingolstadt.jl"
-
-		Next, we download this page into a local file:
-
-			file = download(url)
-		
-		Use readlines() (don't forget the ';'!) to discover the Date on which Niall
-		Palfreyman started writing the Ingolstadt project:
+		Use the isprime function to generate a list of twenty numbers from 1 to 20, in which
+		all prime numbers AND all multiples of 3 are zeroed out:
 		""",
-		"data = readlines(file);",
-		x -> x == Main.Date("7/12/2021","d/mm/yyyy")
-	),
-	Activity(
-		"""
-		OK, that's the end of this laboratory. The resource we have downloaded is my
-		source code - feel free to explore it and use it as much as you like. Bye! :-)
-		""",
-		"",
-		x -> true
+		"Use rem(), isprime(), || and map",
+		x -> x == map((n -> (isprime(n)||rem(n,3)==0) ? 0 : n),(1:20))
 	),
 ]
