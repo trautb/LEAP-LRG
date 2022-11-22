@@ -35,8 +35,8 @@
 			dx/dt = (Q - R*I)*x , where Q = [q[1,1] q[1,2]; q[2,1] q[2,2]]
 
 		So we can represent mutation by a MUTATION MATRIX Q, which satisfies the conditions
-		q[i,j] ∈ [0,1] and sum(q,1) = 1 (i.e., components are probability values, and the sum of
-		all elements in each column is 1).
+		q[i,j] ∈ [0,1] and sum(q,dims=1) = 1 (i.e., components are probability values, and the sum
+		of all elements in each column is 1).
 
 		What is the population's average fitness R = x[1]*r[1] + x[2]*r[2], given x[2] = 1 - x[1]?
 		""",
