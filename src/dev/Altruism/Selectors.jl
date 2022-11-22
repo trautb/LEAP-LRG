@@ -103,7 +103,7 @@ function unittest()
 	# Simulate superlinear selection dynamics of 3 population types:
 	sel = Selector( [2.,4.,5.], +0.3)
 	simulate!( sel, [3.,3.,4.], 100)
-	plot3(ax2,sel)
+	plot3(ax2,sel).parent
 end
 
 end		# ... of module Selectors
