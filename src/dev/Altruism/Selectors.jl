@@ -45,13 +45,13 @@ end
 # Module methods:
 #-----------------------------------------------------------------------------------------
 """
-	plot3( axis, selector)
+	plot3!( axis, selector)
 
 Display the simulation results in selector as a simplex.
 """
-function plot3( axis::Axis, sel::Selector)
-	Simplex.plot3( axis)			# Plot the axes
-	Simplex.plot3( axis, sel.x)		# Plot the trajectory
+function plot3!( axis::Axis, sel::Selector)
+	Simplex.plot3!( axis)			# Plot the axes
+	Simplex.plot3!( axis, sel.x)	# Plot the trajectory
 end
 
 """
@@ -98,12 +98,12 @@ function unittest()
 	# Simulate sublinear selection dynamics of 3 population types:
 	sel = Selector( [2.,4.,5.], -0.3)
 	simulate!( sel, [10.,2.,1.], 100)
-	plot3(ax1,sel)
+	plot3!(ax1,sel)
 
 	# Simulate superlinear selection dynamics of 3 population types:
 	sel = Selector( [2.,4.,5.], +0.3)
 	simulate!( sel, [3.,3.,4.], 100)
-	plot3(ax2,sel).parent
+	plot3!(ax2,sel).parent
 end
 
 end		# ... of module Selectors
