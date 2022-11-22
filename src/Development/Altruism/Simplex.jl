@@ -32,12 +32,11 @@ const SIMPLEX_MATRIX = hcat(SIMPLEX...)
 # Module methods:
 #-----------------------------------------------------------------------------------------
 """
-	plot3(frequency_states::Vector{Vector{Float64}})
+	plot3( axis, frequency_states::Vector{Vector{Float64}})
 
-Construct a 3-simplex plot of a trajectory of 3-frequency states.
+Construct a 3-simplex plot of a trajectory of 3-frequency states in the given axis.
 """
-function plot3( frequency_states::Vector{Vector{Float64}})
-	fig, axis = plot3()										# Plot the simplex axes
+function plot3( axis::Axis, frequency_states::Vector{Vector{Float64}})
 	frequency_states = frequency_states ./ sum.(frequency_states)	# Sum of each state is 1
 
 	# Draw the given trajectory with endpoints:
@@ -46,40 +45,62 @@ function plot3( frequency_states::Vector{Vector{Float64}})
 	scatter!( axis, [trajectory[1][1]], [trajectory[1][2]], color=:green, markersize=FONT_SIZE)
 	scatter!( axis, [trajectory[end][1]], [trajectory[end][2]], color=:red, markersize=FONT_SIZE)
 
-	fig
+	axis
+end
+plot3( axis::Axis, frequency_states::Vector{Vector{Int}}) = 
+	plot3(axis,map(stt->Float64.(stt),frequency_states))
+
+"""
+	plot3(frequency_states::Vector{Vector{Float64}})
+
+Construct a 3-simplex plot of a trajectory of 3-frequency states in a new axis.
+"""
+function plot3( frequency_states::Vector{Vector{Float64}})
+	_, axis = plot3()										# Plot the simplex axes
+
+	plot3( axis, frequency_states)
 end
 plot3( frequency_states::Vector{Vector{Int}}) = 
 	plot3(map(stt->Float64.(stt),frequency_states))
 
 #-----------------------------------------------------------------------------------------
 """
-	plot3(frequency_state::Vector{Float64})
+	plot3( axis, frequency_state::Vector{Float64})
 
-Construct a simplex plot of a single 3-frequency state.
+Construct a simplex plot of a single 3-frequency state in the given axis.
 """
-function plot3( frequency_state::Vector{Float64})
-	fig, axis = plot3()										# Plot the simplex axes
+function plot3( axis::Axis, frequency_state::Vector{Float64})
 	frequency_state /= sum(frequency_state)							# Sum of freqs in state is 1
 
 	# Draw the given frequency_state:
 	point = freq2plot(frequency_state)
 	scatter!( axis, [point[1]], [point[2]], color=:green, markersize=FONT_SIZE)
 
-	fig
+	axis
+end
+plot3( axis::Axis, frequency_state::Vector{Int}) = plot3( axis, Float64.(frequency_state))
+
+"""
+	plot3(frequency_state::Vector{Float64})
+
+Construct a simplex plot of a single 3-frequency state in a new axis.
+"""
+function plot3( frequency_state::Vector{Float64})
+	_, axis = plot3()										# Plot the simplex axes
+
+	plot3( axis, frequency_state)
 end
 plot3( frequency_state::Vector{Int}) = plot3(Float64.(frequency_state))
 
 #-----------------------------------------------------------------------------------------
 """
-	plot3()
+	plot3(axis)
 
-Construct simplex axes for 3-frequency states.
+Construct simplex for 3-frequency states within given axis.
 """
-function plot3()
+function plot3(axis::Axis)
 	# Plot the simplex axes:
 	vertices = [simplex();[simplex()[1]]]				# Repeat first vertex to draw all sides
-	fig = Figure(fontsize=FONT_SIZE)
-    axis = Axis(fig[1, 1])
     scatterlines!( axis,
 		getindex.(vertices,1), getindex.(vertices,2),
 		linewidth=2,
@@ -91,7 +112,20 @@ function plot3()
 	text!( "y", position=(1,-0.07), textsize=FONT_SIZE)		# Population type y: bottom-right
 	text!( "z", position=(0.49, 0.93), textsize=FONT_SIZE)	# Population type z: top-centre
 
-	(fig, axis)
+	axis
+end
+
+"""
+	plot3()
+
+Construct simplex for 3-frequency states within a new Figure.
+"""
+function plot3()
+	# Plot the simplex axes:
+	fig = Figure(fontsize=FONT_SIZE)
+    axis = Axis(fig[1, 1])
+
+	plot3(axis)
 end
 
 #-----------------------------------------------------------------------------------------
