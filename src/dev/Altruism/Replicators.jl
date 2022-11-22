@@ -37,7 +37,7 @@ struct Replicator
 		t = 0.0:dt:tfinal
 		new( t, dt, zeros(Float64,length(t)))
 	end
- end
+end
 
 #-----------------------------------------------------------------------------------------
 # Module methods:
