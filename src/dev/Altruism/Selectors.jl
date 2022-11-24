@@ -13,6 +13,8 @@ include( "../../Development/Altruism/Simplex.jl")
 
 using GLMakie
 
+export Selector, simulate!, plot3!
+
 #-----------------------------------------------------------------------------------------
 # Module types:
 #-----------------------------------------------------------------------------------------
@@ -101,7 +103,7 @@ function unittest()
 	plot3!(ax1,sel)
 
 	# Simulate superlinear selection dynamics of 3 population types:
-	sel = Selector( [2.,4.,5.], +0.3)
+	sel = Selector( [5.,4.,2.], +0.3)
 	simulate!( sel, [3.,3.,4.], 100)
 	plot3!(ax2,sel).parent
 end

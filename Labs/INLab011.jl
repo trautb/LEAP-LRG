@@ -265,12 +265,14 @@
 			-	then plot this evolution graphically within a triangular 3-simplex.
 			
 		For example:
-			sel = Selector( 1.2, [0.2,0.3,0.4])
-			simulate!( sel, [0.3,0.3.0.4], 20)
-			plot3( sel)
+			fig = Figure()
+			ax = Axis(fig[1,1])
+			sel = Selector( [0.5,0.4,0.1], 1.3)
+			simulate!( sel, [0.3,0.3,0.4], 100)
+			plot3!(ax,sel)
 
-		Use your Selector class to demonstrate that c < 1 leads to Survival of All, while c > 1
-		leads to Survival of the First.
+		Nowak describes the case c < 1 as Survival of All, and the case c > 1 as Survival of the
+		First. Use your Selector class to understand why he uses these names for the two cases.
 		""",
 		"",
 		x -> true
