@@ -246,7 +246,7 @@
 		important!) whose long-term payoff we cannot calculate using Nowak's reactive strategy
 		formula. Although we can specifically calculate these cases individually, they do not
 		actually pose a problem in practice. In your final project, you will generate strategies
-		using random numbers on the open interval p,q ∈ (0,1). How often will these random numbers
+		using random numbers p,q in the open interval (0,1). How often will these random numbers
 		yield the exact value 0 or 1?
 		""",
 		"Look up the definition of an OPEN interval",
