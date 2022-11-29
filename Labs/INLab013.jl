@@ -211,8 +211,10 @@
 	Activity(
 		"""
 		Now set up the Replicator Equation for the RSP game using the simplified matrix A. Build a
-		Julia module RSPs comtaining a datatype RSP that simulates the population dynamics of the
-		RSP game and displays its results in a 3-simplex.
+		Julia module Interactors comtaining a datatype Interactor that simulates 3-strategy
+		population dynamics. To test your Interactor type, implement a use-case in which the
+		payoff matrix is that of the RSP game. Simulate this game and display its results in a
+		3-simplex.
 		""",
 		"Your dynamics will show how the frequency of strategies in the population change over time",
 		x -> true
@@ -220,9 +222,9 @@
 	Activity(
 		"""
 		Now you will use your RSPs module to verify that the lizard dynamics are the same as RSP
-		dynamics. First adapt your RSPs module to use the original lizard payoff matrix Aliz. Next
-		use the adapted module to display the possible fates of the three lizard types in a
-		3-simplex. Verify that these dynamics are identical to those of RSP.
+		dynamics. Adapt your RSP implementation to use the original lizard payoff matrix Aliz, then
+		display your results for the three lizard types in a 3-simplex. Verify that these dynamics
+		are identical to those of RSP.
 		""",
 		"",
 		x -> true

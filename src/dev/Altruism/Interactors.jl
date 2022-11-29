@@ -90,19 +90,33 @@ function unittest()
 	println("\n============ Unit test Interactors: ===============")
 
 	# Define RSP payoff matrix:
-	A = [
+	Arsp = [
 			 0  1 -1
 			-1  0  1
 			 1 -1  0
 		]
 
+	# Define lizard payoff matrix:
+	Aliz = [
+			4 2 1
+			3 1 3
+			5 0 2
+		]
+
 	# Set up plot:
 	fig = Figure()
-	ax = Axis(fig[1,1])
+	ax1 = Axis(fig[1,1])
+	ax2 = Axis(fig[1,2])
 	
-	intrctr = Interactor( Float64.(A))
+	# RSP:
+	intrctr = Interactor( Float64.(Arsp))
 	simulate!( intrctr, [20.,10.,1.], 15)
-	plot3!(ax,intrctr).parent
+	plot3!(ax1,intrctr)
+	
+	# Lizard:
+	intrctr = Interactor( Float64.(Aliz))
+	simulate!( intrctr, [20.,10.,1.], 15)
+	plot3!(ax2,intrctr).parent
 end
 
 end		# ... of module Interactors
