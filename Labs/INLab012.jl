@@ -108,7 +108,7 @@
 		your chosen mutation matrix, and then verify the result of this calculation by visualising
 		the mutation dynamics graphically in a 3-simplex.
 		""",
-		"I recommend using the function eig() in the LinearAlgebra library",
+		"I recommend using the function eigen() in the LinearAlgebra library",
 		x -> true
 	),
 	Activity(
@@ -123,7 +123,8 @@
 
 		Use the quasi-species equation to include constant selection into your Mutators model from
 		the previous activity. Experiment to see what effect various fitness values have on the
-		behaviour of your cyclically mutating model.
+		behaviour of your cyclically mutating model. How is this behaviour different from simple
+		"Survival of the Fittest"?
 		""",
 		"",
 		x -> true
