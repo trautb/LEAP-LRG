@@ -23,21 +23,23 @@ A Mutator represents the time-evolution of a quasi-species model with mutation a
 struct Mutator
 	Q::Matrix{Real}				# Mutation matrix
 	r::Vector{Real}				# Vector of three type fitnesses
-	epsilon::Real				# Growth non-linearity (default 0)
 	resolution::Int				# Resolution of timescale
 	t::Vector{Float64}			# Timescale
 	x::Vector{Vector{Float64}}	# Time-series of three population types
 
 	"""
-		Mutator( r, epsilon)
+		Mutator( Q, r)
 
 	The one-and-only Mutator constructor: Create a Mutator population stepping from
-	time zero to ngenerations (1000), using fitness values r and nonlinearity epsilon.
+	time zero to ngenerations (1000), using fitness values r.
 	"""
- 	function Mutator( Q::Matrix{Float64}, r::Vector{Float64}=[1.,1.,1.], epsilon::Real=0.0)
+ 	function Mutator( Q::Matrix{Float64}, r::Vector{Float64}=[1.,1.,1.])
 		ngenerations = 1000
-		new( Q, r/sum(r), epsilon, ngenerations,
-			zeros(Float64,ngenerations+1), Vector{Vector{Float64}}(undef,ngenerations+1))
+		new(
+			Q, r/sum(r), ngenerations,
+			zeros(Float64,ngenerations+1),
+			Vector{Vector{Float64}}(undef,ngenerations+1)
+		)
 	end
 end
 
