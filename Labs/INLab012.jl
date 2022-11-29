@@ -93,7 +93,7 @@
 	Activity(
 		"""
 		Think back to what you already know about matrices and linear algebra. The fixed points of
-		mutation dynamics are defined by x(x*) = 0. Substitute this constraint into the above
+		mutation dynamics are defined by dx/dt(x*) = 0. Substitute this constraint into the above
 		mutation dynamical equation. What does this tell us about the mathematical relationship
 		between Q, x* and R?
 		""",
