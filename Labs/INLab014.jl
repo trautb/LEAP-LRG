@@ -191,10 +191,10 @@
 		Player 2 cooperates; and DD = [0,0,0,1] means both players defect.
 
 		We can combine these two notations by letting Player 1 have the strategy S1(p1,q1) and
-		Player the strategy S2(p2,q2). We think of the dynamics of iterated PD as a MARKOV CHAIN: a
-		sequence of probabilistic transitions from the state (CC, CD, DC or DD) of one round to the
-		state (CC, CD, DC or DD) in the following round. That is, x[t+1] == M*x[t], where M is the
-		following transition matrix:
+		Player 2 the strategy S2(p2,q2). We think of the dynamics of iterated PD as a MARKOV CHAIN:
+		a sequence of probabilistic transitions from the state (CC, CD, DC or DD) of one round to
+		the state (CC, CD, DC or DD) in the following round. That is, x[t+1] == M*x[t], where M is
+		the following transition matrix:
 		                 CC                   CD                   DC                   DD
 		        ----------------------------------------------------------------------------------
 		   CC:  |      p1*p2                q1*p2                p1*q2                q1*q2      |
