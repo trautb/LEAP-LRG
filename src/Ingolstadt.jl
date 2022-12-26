@@ -257,19 +257,19 @@ function nextlab( lab_num::Int = 0, current_act::Int = 1)
 
 	if session.is_pluto
 		# Open a Pluto lab:
+		println( "I'm about to set up a Pluto lab. After it has loaded, if you wish to experiment")
+		println( "in Julia while the lab is running, you can press Ctrl-C in the Julia console.")
+		println( "...")
 		@async Pluto.run(notebook=lab_file)
-		println( "You're running a Pluto lab. After it has loaded, you can press Ctrl-C in the")
-		println( "Julia console if you want to experiment in Julia while the lab is running.")
-		println()
 	else
 		# Open a Julia lab:
 		session.activities = include(lab_file)
 	end
 
 	# Display welcome message to the new laboratory.
-	println( "Great - I've set up the laboratory. If you've just completed working on another")
-	println( "laboratory, I recommend that you restart Julia now. This will keep your environment")
-	println( "clean and avoid naming conflicts.")
+	println( "Great - I've set up the laboratory. Please note that if you have just completed")
+	println( "another lab in this Julia console, name conflicts may arise. You can clear these")
+	println( "by simply restarting the console and restarting Ingolstadt.")
 	println( "Enter menu() at any time to see your available options. Have fun! :)")
 	println()
 
